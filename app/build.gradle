@@ -27,8 +27,14 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    //DrawerLayout
+    implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
+
+    //Material
+    implementation 'com.google.android.material:material:1.0.0'
+
     //Firebase Authentication
-    implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
+    implementation 'com.firebaseui:firebase-ui-auth:6.1.0'
 
     //Facebook
 //    implementation 'com.facebook.android:facebook-login:[5,6)'
@@ -39,6 +45,13 @@ dependencies {
 
     //Glide
     implementation 'com.github.bumptech.glide:glide:4.10.0'
+
+    //Google Custom Sign in button
+    implementation 'com.shobhitpuri.custombuttons:google-signin:1.0.0'
+
+    //Timber
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+
 
 
 

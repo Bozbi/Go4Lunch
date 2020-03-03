@@ -1,15 +1,15 @@
 package com.sbizzera.go4lunch;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -46,9 +46,12 @@ public class ListRestaurantsActivity extends AppCompatActivity {
                         .signOut(ListRestaurantsActivity.this)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             public void onComplete(@NonNull Task<Void> task) {
+                                Intent intent = new Intent(ListRestaurantsActivity.this, MainEmptyActivity.class);
+                                startActivity(intent);
                                 finish();
                             }
                         });
+
             }
         });
 
