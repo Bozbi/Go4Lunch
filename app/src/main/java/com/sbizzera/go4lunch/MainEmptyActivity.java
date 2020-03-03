@@ -18,6 +18,7 @@ import timber.log.Timber;
 
 public class MainEmptyActivity extends AppCompatActivity {
 
+
     private static final int RC_SIGN_IN = 123;
     private List<AuthUI.IdpConfig> providers;
 
@@ -30,10 +31,7 @@ public class MainEmptyActivity extends AppCompatActivity {
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() != null) {
-            Intent intent = new Intent(this, ListRestaurantsActivity.class);
-            startActivity(intent);
-            finish();
-
+            launchRestaurantAcitivity();
         } else {
 
             providers = Arrays.asList(
@@ -68,11 +66,19 @@ public class MainEmptyActivity extends AppCompatActivity {
             IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == RESULT_OK) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                launchRestaurantAcitivity();
+                finish();
             } else {
                 finish();
             }
         }
 
+    }
+
+    private void launchRestaurantAcitivity(){
+        Intent intent = new Intent(this, ListRestaurantsActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/bottom_nav_map_item"
+        android:icon="@drawable/map_icon_black"
+        android:title="Map View" />
+    <item
+        android:id="@+id/bottom_nav_list_item"
+        android:icon="@drawable/list_icon_black"
+        android:title="List View" />
+    <item
+        android:id="@+id/bottom_nav_workmates_item"
+        android:icon="@drawable/workmates_icon_black"
+        android:title="Workmates" />
+
+
+</menu>

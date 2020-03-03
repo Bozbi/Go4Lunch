@@ -13,7 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".ListRestaurantsActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             >
+
         </activity>
         <activity android:name=".MainEmptyActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
