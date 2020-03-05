@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,6 +67,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
@@ -103,10 +104,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (task.isSuccessful()) {
                     Timber.d("Location gotten");
                     mLastKnownLocation = task.getResult();
-                    if(mLastKnownLocation!=null){
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(mLastKnownLocation.getLatitude(),
-                                    mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                    if (mLastKnownLocation != null) {
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                new LatLng(mLastKnownLocation.getLatitude(),
+                                        mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                     }
                 } else {
                     Timber.d("Location failed");
