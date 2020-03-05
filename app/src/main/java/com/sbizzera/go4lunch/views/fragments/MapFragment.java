@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +24,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.sbizzera.go4lunch.PlacesAPI;
 import com.sbizzera.go4lunch.R;
 
+import java.io.IOException;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 import timber.log.Timber;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -65,7 +74,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         getLocationPermission();
 
+        FetchNearbyRestaurants();
+    }
 
+    private void FetchNearbyRestaurants() {
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://maps.googleapis.com/maps/api/place/nearbysearch/").build();
+        PlacesAPI placesAPI = retrofit.create(PlacesAPI.class);
+
+        placesAPI.getNearbyRestaurant().enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    Log.d(TAG, response.body().string());
+                }catch (IOException e){
+                    Log.d(TAG, e.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d(TAG, t.getMessage());
+            }
+        });
     }
 
 
