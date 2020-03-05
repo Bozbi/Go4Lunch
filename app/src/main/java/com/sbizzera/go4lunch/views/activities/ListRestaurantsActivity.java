@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch;
+package com.sbizzera.go4lunch.views.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +23,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.views.fragments.ListFragment;
+import com.sbizzera.go4lunch.views.fragments.MapFragment;
+import com.sbizzera.go4lunch.views.fragments.WorkmatesFragment;
 
 import timber.log.Timber;
 
@@ -76,7 +80,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
 
     // loadFragment to container
     private void loadFragment(Fragment fragmentToLoad) {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,fragmentToLoad).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragmentToLoad).commit();
     }
 
     //If Drawer is open, we want to close it on backbutton pressed not exiting app

@@ -8,4 +8,7 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="google_maps_API_key">AIzaSyCvQSB0M8Httgl8O5k9EKJx1jANcjeTG0Y</string>
+    <string name="google_places_API_key">AIzaSyCXKSSFW71Dz9gHO2AirNNY2AzU77LLvfE</string>
 </resources>
