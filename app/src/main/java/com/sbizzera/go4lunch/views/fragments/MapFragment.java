@@ -25,7 +25,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.sbizzera.go4lunch.R;
 
-import retrofit2.Retrofit;
 import timber.log.Timber;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -68,7 +67,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
 
     }
-
 
 
     @Override

@@ -59,7 +59,6 @@ public class MainEmptyActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -76,7 +75,7 @@ public class MainEmptyActivity extends AppCompatActivity {
 
     }
 
-    private void launchRestaurantAcitivity(){
+    private void launchRestaurantAcitivity() {
         Intent intent = new Intent(this, ListRestaurantsActivity.class);
         startActivity(intent);
         finish();

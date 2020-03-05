@@ -3,12 +3,13 @@
     package="com.sbizzera.go4lunch">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <uses-feature
         android:glEsVersion="0x00020000"
-        android:required="true"/>
+        android:required="true" />
 
 
     <application
@@ -19,12 +20,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".views.activities.ListRestaurantsActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            >
+        <activity
+            android:name=".views.activities.ListRestaurantsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
-        <activity android:name=".views.activities.MainEmptyActivity"
+        <activity
+            android:name=".views.activities.MainEmptyActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,7 +35,9 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_application_id"/>
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_application_id" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
@@ -42,7 +46,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCvQSB0M8Httgl8O5k9EKJx1jANcjeTG0Y"/>
+            android:value="AIzaSyCvQSB0M8Httgl8O5k9EKJx1jANcjeTG0Y" />
     </application>
 
 </manifest>
