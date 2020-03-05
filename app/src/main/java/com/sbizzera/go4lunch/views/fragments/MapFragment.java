@@ -22,18 +22,24 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.sbizzera.go4lunch.PlacesAPI;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.model.NearbyResults;
+
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import timber.log.Timber;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -49,6 +55,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Location mLastKnownLocation;
+
+    private List<NearbyResults.NearbyResult> nearbyRestaurant;
 
 
     @Nullable
@@ -72,27 +80,40 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mMapView.getMapAsync(this);
         }
 
-        getLocationPermission();
 
+
+        getLocationPermission();
         FetchNearbyRestaurants();
+
+
+
     }
 
-    private void FetchNearbyRestaurants() {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://maps.googleapis.com/maps/api/place/nearbysearch/").build();
-        PlacesAPI placesAPI = retrofit.create(PlacesAPI.class);
 
-        placesAPI.getNearbyRestaurant().enqueue(new Callback<ResponseBody>() {
+    private void FetchNearbyRestaurants() {
+        Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).baseUrl("https://maps.googleapis.com/maps/api/place/nearbysearch/").build();
+        PlacesAPI placesAPI = retrofit.create(PlacesAPI.class);
+        nearbyRestaurant = new ArrayList();
+
+        placesAPI.getNearbyRestaurant().enqueue(new Callback<NearbyResults>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    Log.d(TAG, response.body().string());
-                }catch (IOException e){
-                    Log.d(TAG, e.getMessage());
+            public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {
+                List<NearbyResults.NearbyResult> restaurantList = response.body().getRestaurantList();
+                for (NearbyResults.NearbyResult restaurant: restaurantList
+                     ) {
+                    Log.d(TAG, String.valueOf(restaurant.getLat()));
+                    nearbyRestaurant.add(restaurant);
+                    map.addMarker(new MarkerOptions()
+                            .position(new LatLng(restaurant.getLat(),restaurant.getLng()))
+                            .title(restaurant.getName())
+                    );
                 }
+
+
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<NearbyResults> call, Throwable t) {
                 Log.d(TAG, t.getMessage());
             }
         });
@@ -102,6 +123,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+//        Log.d(TAG, "size of res list: " +nearbyRestaurant.size());
+//        for (NearbyResults.NearbyResult restaurant: nearbyRestaurant) {
+//            map.addMarker(new MarkerOptions()
+//            .position(new LatLng(restaurant.getLat(),restaurant.getLng()))
+//            .title(restaurant.getName())
+//            );
+//        }
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.google_map_style_json));
 
