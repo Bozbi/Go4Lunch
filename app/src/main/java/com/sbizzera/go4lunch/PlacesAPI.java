@@ -1,7 +1,7 @@
 package com.sbizzera.go4lunch;
 
 
-import com.sbizzera.go4lunch.model.NearbyResults;
+import com.sbizzera.go4lunch.model.places_nearby_models.NearbyResults;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
