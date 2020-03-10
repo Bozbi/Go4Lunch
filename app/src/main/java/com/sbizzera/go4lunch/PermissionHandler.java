@@ -1,33 +1,36 @@
 package com.sbizzera.go4lunch;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.content.pm.PackageManager;
 
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
-import timber.log.Timber;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 public class PermissionHandler {
 
-    private static final int REQUEST_ACCESS_FINE_LOCATION_CODE = 1;
+    private static PermissionHandler sPermissionHandler;
+    private MutableLiveData<Boolean> mFineLocationPermission = new MutableLiveData<>();
 
-    //Check if app has permission to access users location
-    public boolean checkFineLocationPermission(Context context) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Timber.d("ACCES_FINE_LOCATION permission granted");
-            return true;
+    public PermissionHandler() {
+        checkLocationPermission(App.getApplication());
+    }
+
+    public static PermissionHandler getInstance() {
+        if (sPermissionHandler == null) {
+            sPermissionHandler = new PermissionHandler();
         }
-        Timber.d("ACCESS_FINE_LOCATION permission denied");
-        return false;
+        return sPermissionHandler;
     }
 
-    //Request permission to access users location
-    public void requestFineLocationPermission(Fragment fragment){
-        fragment.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_ACCESS_FINE_LOCATION_CODE);
+    public void checkLocationPermission(Application application) {
+        mFineLocationPermission.postValue(ContextCompat.checkSelfPermission(application, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
     }
+
+    public LiveData<Boolean> getPermissionLiveData() {
+        return mFineLocationPermission;
+    }
+
+
 }

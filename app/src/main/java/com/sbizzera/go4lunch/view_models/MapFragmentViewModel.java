@@ -1,0 +1,103 @@
+package com.sbizzera.go4lunch.view_models;
+
+
+import android.location.Location;
+import android.util.Log;
+
+import androidx.arch.core.util.Function;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
+import androidx.lifecycle.ViewModel;
+
+import com.sbizzera.go4lunch.DeviceLocator;
+import com.sbizzera.go4lunch.PermissionHandler;
+import com.sbizzera.go4lunch.model.MapFragmentModel;
+import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
+import com.sbizzera.go4lunch.services.RestaurantRepository;
+
+import java.util.List;
+
+public class MapFragmentViewModel extends ViewModel {
+
+    private static final String TAG = "MapFragmentViewModel";
+
+    private MediatorLiveData<MapFragmentModel> mUiModelLiveData = new MediatorLiveData<>();
+    private DeviceLocator mLocator;
+    private PermissionHandler mPermissionHandler;
+    private RestaurantRepository mRestaurantRepository;
+
+    LiveData<Boolean> fineLocationPermissionLiveData;
+    LiveData<Location> locationLiveData;
+    LiveData<List<NearbyPlace>> nearbyRestaurantsLiveData;
+
+
+
+
+
+    public MapFragmentViewModel(DeviceLocator locator, PermissionHandler permissionHandler, RestaurantRepository restaurantRepository) {
+        mLocator = locator;
+        mPermissionHandler = permissionHandler;
+        mRestaurantRepository = restaurantRepository;
+        wireUpMediator();
+        Log.d(TAG, "new view model created");
+    }
+
+    public LiveData<MapFragmentModel> getUIModel() {
+        return mUiModelLiveData;
+    }
+
+
+    public void wireUpMediator() {
+
+        fineLocationPermissionLiveData = mPermissionHandler.getPermissionLiveData();
+        locationLiveData = mLocator.getLocation();
+        nearbyRestaurantsLiveData = Transformations.switchMap(locationLiveData, new Function<Location, LiveData<List<NearbyPlace>>>() {
+            @Override
+            public LiveData<List<NearbyPlace>> apply(Location location) {
+                    return mRestaurantRepository.getNearbyRestaurants(locationToLocationString(location));
+            }
+        });
+
+        mUiModelLiveData.addSource(fineLocationPermissionLiveData, fineLocationPermission -> {
+            Log.d(TAG, "added permission source");
+            mUiModelLiveData.postValue(combineLocationAndPermission(locationLiveData.getValue(), fineLocationPermission, nearbyRestaurantsLiveData.getValue()));
+        });
+
+        mUiModelLiveData.addSource(locationLiveData, location -> {
+            Log.d(TAG, "added location source");
+            mUiModelLiveData.postValue(combineLocationAndPermission(location, fineLocationPermissionLiveData.getValue(), nearbyRestaurantsLiveData.getValue()));
+        });
+
+        mUiModelLiveData.addSource(nearbyRestaurantsLiveData, nearbyRestaurants -> {
+            Log.d(TAG, "added restaurant source");
+            mUiModelLiveData.postValue(combineLocationAndPermission(locationLiveData.getValue(), fineLocationPermissionLiveData.getValue(), nearbyRestaurants));
+        });
+
+    }
+
+    public void resetLiveData(){
+        mUiModelLiveData.removeSource(fineLocationPermissionLiveData);
+        mUiModelLiveData.removeSource(locationLiveData);
+        mUiModelLiveData.removeSource(nearbyRestaurantsLiveData);
+        wireUpMediator();
+    }
+
+    private MapFragmentModel combineLocationAndPermission(Location location, Boolean fineLocationPermission, List<NearbyPlace> restaurantslist) {
+        MapFragmentModel model = new MapFragmentModel();
+        model.setFineLocationPermission(fineLocationPermission);
+        model.setLocation(location);
+        model.setRestaurantsList(restaurantslist);
+        return model;
+    }
+
+    private String locationToLocationString(Location location) {
+        //TODO comment enlever ce null check ici
+        if(location!=null){
+            return location.getLatitude() + "," + location.getLongitude();
+        }
+        return "";
+    }
+
+}

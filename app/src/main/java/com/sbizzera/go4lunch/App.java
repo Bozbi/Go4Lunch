@@ -2,8 +2,6 @@ package com.sbizzera.go4lunch;
 
 import android.app.Application;
 
-import timber.log.Timber;
-
 public class App extends Application {
 
     //TODO Questions:
@@ -15,25 +13,28 @@ public class App extends Application {
     Fragments
     Auth
     Basic Fragments
+    Get instances of Frangments not recreate them
     Commons
     AppLogs
     Key Stockage
     Valeurs par défauts
-    Permission Handler dans la List Activity
+    Permission Handler dans la ListRestaurantActivity
     DeviceLocator
     BitMapDescriptor?
     Mapp Handler
     */
 
 
+    private static Application sApplication;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        sApplication = this;
+    }
 
-        //Timber instance
-        Timber.plant(new Timber.DebugTree());
-
+    public static Application getApplication() {
+        return sApplication;
     }
 }
 

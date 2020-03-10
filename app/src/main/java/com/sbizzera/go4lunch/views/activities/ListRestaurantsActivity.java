@@ -28,28 +28,27 @@ import com.sbizzera.go4lunch.views.fragments.ListFragment;
 import com.sbizzera.go4lunch.views.fragments.MapFragment;
 import com.sbizzera.go4lunch.views.fragments.WorkmatesFragment;
 
-import timber.log.Timber;
-
-public class ListRestaurantsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
-    private static final String TAG = "ListRestaurantsActivity";
+public class ListRestaurantsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
+
+
+    private TextView mUserName;
+    private TextView mUserEmail;
+    private ImageView mUserPhoto;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_restaurants);
 
-        Timber.d("onCreate: ");
-
-
-        //variables declaration
+        //Declaration
         drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
-        TextView userName = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_name);
-        TextView userEmail = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_email);
-        ImageView userPhoto = navigationView.getHeaderView(0).findViewById(R.id.drawer_avatar);
+        mUserName = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_name);
+        mUserEmail = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_email);
+        mUserPhoto = navigationView.getHeaderView(0).findViewById(R.id.drawer_avatar);
         Toolbar toolbar = findViewById(R.id.toolbar);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
 
@@ -62,26 +61,34 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         toggle.syncState();
 
         //Set listener to bottom nav
-        bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
-
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
         //Session Log Out Back to mainEmpty
         navigationView.setNavigationItemSelectedListener(this);
+        getAnddisplayUserInfo();
 
-        //Get Values from Firebase user Instance and push them in views
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        userName.setText(user.getDisplayName());
-        userEmail.setText(user.getEmail());
-        Glide.with(this).load(user.getPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(userPhoto);
-
-        //Display Map Fragment onCreate
         loadFragment(new MapFragment());
     }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//        FRAGMENTS
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     // loadFragment to container
     private void loadFragment(Fragment fragmentToLoad) {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragmentToLoad).commit();
     }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//        UI
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //If Drawer is open, we want to close it on backbutton pressed not exiting app
     @Override
@@ -92,6 +99,34 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
             super.onBackPressed();
         }
     }
+
+    //Check wich item of Drawer Menu or BottomNav has been selected and triggers response
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.drawer_logout:
+                drawerLayout.closeDrawer(GravityCompat.START);
+                logOut();
+                break;
+            case R.id.bottom_nav_map_item:
+                loadFragment(new MapFragment());
+                break;
+            case R.id.bottom_nav_list_item:
+                loadFragment(new ListFragment());
+                break;
+            case R.id.bottom_nav_workmates_item:
+                loadFragment(new WorkmatesFragment());
+                break;
+        }
+        return true;
+    }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//        Auth
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //LOG OUT User and back to go back to main then login
     private void logOut() {
@@ -106,39 +141,19 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
                 });
     }
 
-
-    //Check wich item of Drawer Menu has been selected and triggers response
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-            case R.id.drawer_logout:
-                drawerLayout.closeDrawer(GravityCompat.START);
-                logOut();
-                break;
-        }
-        return true;
+    //Get Values from Firebase user Instance and push them in views
+    private void getAnddisplayUserInfo() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        mUserName.setText(user.getDisplayName());
+        mUserEmail.setText(user.getEmail());
+        Glide.with(this).load(user.getPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(mUserPhoto);
     }
 
-    //Chek wich item of Bottom Nav has been Selected and triggers response
-    private BottomNavigationView.OnNavigationItemSelectedListener bottomNavListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-            Fragment selectedFragment = null;
 
-            switch (menuItem.getItemId()) {
-                case R.id.bottom_nav_map_item:
-                    selectedFragment = new MapFragment();
-                    break;
-                case R.id.bottom_nav_list_item:
-                    selectedFragment = new ListFragment();
-                    break;
-                case R.id.bottom_nav_workmates_item:
-                    selectedFragment = new WorkmatesFragment();
-                    break;
-            }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 
-            loadFragment(selectedFragment);
-            return true;
-        }
-    };
+
 }
