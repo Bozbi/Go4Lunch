@@ -3,7 +3,7 @@ package com.sbizzera.go4lunch.model.places_nearby_models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class NearbyLocation{
+public class NearbyLocation {
     @SerializedName("lat")
     @Expose
     private float lat;

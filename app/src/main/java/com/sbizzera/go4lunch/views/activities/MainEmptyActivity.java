@@ -15,8 +15,6 @@ import com.sbizzera.go4lunch.R;
 import java.util.Arrays;
 import java.util.List;
 
-import timber.log.Timber;
-
 public class MainEmptyActivity extends AppCompatActivity {
 
 

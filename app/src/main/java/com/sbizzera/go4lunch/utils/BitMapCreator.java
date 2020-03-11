@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.services;
+package com.sbizzera.go4lunch.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,7 +15,7 @@ public class BitMapCreator {
 
     public static BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes int drawableResourceId) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, drawableResourceId);
-        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth() , vectorDrawable.getIntrinsicHeight());
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
         Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         vectorDrawable.draw(canvas);

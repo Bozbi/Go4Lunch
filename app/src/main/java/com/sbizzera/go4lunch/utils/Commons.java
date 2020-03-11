@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch;
+package com.sbizzera.go4lunch.utils;
 
 public class Commons {
     public static final String TAG = "MyLogs";

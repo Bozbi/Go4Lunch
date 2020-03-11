@@ -7,8 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.sbizzera.go4lunch.DeviceLocator;
-import com.sbizzera.go4lunch.PermissionHandler;
+import com.sbizzera.go4lunch.services.DeviceLocator;
+import com.sbizzera.go4lunch.services.PermissionHandler;
 import com.sbizzera.go4lunch.services.RestaurantRepository;
 
 public class MapFragmentViewModelFactory implements ViewModelProvider.Factory {
@@ -16,14 +16,14 @@ public class MapFragmentViewModelFactory implements ViewModelProvider.Factory {
 
     private static MapFragmentViewModelFactory sFactory;
 
-    private MapFragmentViewModelFactory(Activity activity){
+    private MapFragmentViewModelFactory(Activity activity) {
         mActivity = activity;
     }
 
-    public static MapFragmentViewModelFactory getInstance(Activity activity){
-        if(sFactory==null){
-            synchronized (MapFragmentViewModelFactory.class){
-                if (sFactory==null){
+    public static MapFragmentViewModelFactory getInstance(Activity activity) {
+        if (sFactory == null) {
+            synchronized (MapFragmentViewModelFactory.class) {
+                if (sFactory == null) {
                     sFactory = new MapFragmentViewModelFactory(activity);
                 }
             }

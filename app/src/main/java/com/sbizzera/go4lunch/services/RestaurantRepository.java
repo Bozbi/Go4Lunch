@@ -1,14 +1,11 @@
 package com.sbizzera.go4lunch.services;
 
-import android.location.Location;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyResults;
 
-import java.io.IOException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -21,6 +18,7 @@ import retrofit2.internal.EverythingIsNonNull;
 public class RestaurantRepository {
 
     private static RestaurantRepository sRestaurantRepository;
+
     public static RestaurantRepository getInstance() {
         if (sRestaurantRepository == null) {
             sRestaurantRepository = new RestaurantRepository();
@@ -32,9 +30,8 @@ public class RestaurantRepository {
     private MutableLiveData<List<NearbyPlace>> mNearbyRestaurants = new MutableLiveData<>();
 
 
-
     public RestaurantRepository() {
-        Retrofit retrofit= new Retrofit.Builder()
+        Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://maps.googleapis.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();

@@ -1,22 +1,16 @@
-package com.sbizzera.go4lunch;
+package com.sbizzera.go4lunch.services;
 
 import android.app.Activity;
 import android.location.Location;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-
-import timber.log.Timber;
+import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 
 public class DeviceLocator {
@@ -32,11 +26,14 @@ public class DeviceLocator {
 
     private void locate() {
         Task<Location> locationTask = LocationServices.getFusedLocationProviderClient(mActivity).getLastLocation();
-        locationTask.addOnCompleteListener(mActivity, new OnCompleteListener<Location>() {
+        locationTask.addOnSuccessListener(mActivity, new OnSuccessListener<Location>() {
             @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
-                    mLocation.postValue(task.getResult());
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    Log.d(TAG, "Location found :" + Go4LunchUtils.locationToString(location));
+                    mLocation.postValue(location);
+                } else {
+                    Log.d(TAG, "Location not found");
                 }
             }
         });

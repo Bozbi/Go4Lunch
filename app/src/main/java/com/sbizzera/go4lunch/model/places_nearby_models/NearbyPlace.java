@@ -5,47 +5,47 @@ import com.google.gson.annotations.SerializedName;
 
 public class NearbyPlace {
 
-        @SerializedName("place_id")
-        @Expose
-        private String id ;
+    @SerializedName("place_id")
+    @Expose
+    private String id;
 
-        @SerializedName("name")
-        @Expose
-        private String name;
+    @SerializedName("name")
+    @Expose
+    private String name;
 
-        @SerializedName("geometry")
-        private NearbyGeometry geometry;
+    @SerializedName("geometry")
+    private NearbyGeometry geometry;
 
 
-        public String getId() {
-            return id;
-        }
+    public String getId() {
+        return id;
+    }
 
-        public void setId(String id) {
-            this.id = id;
-        }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-        public String getName() {
-            return name;
-        }
+    public String getName() {
+        return name;
+    }
 
-        public void setName(String name) {
-            this.name = name;
-        }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-        public float getLat(){
-            return geometry.getLocation().getLat();
-        }
+    public float getLat() {
+        return geometry.getLocation().getLat();
+    }
 
-        public float getLng(){
-            return geometry.getLocation().getLng();
-        }
+    public float getLng() {
+        return geometry.getLocation().getLng();
+    }
 
-        public NearbyGeometry getGeometry() {
-            return geometry;
-        }
+    public NearbyGeometry getGeometry() {
+        return geometry;
+    }
 
-        public void setGeometry(NearbyGeometry geometry) {
-            this.geometry = geometry;
-        }
+    public void setGeometry(NearbyGeometry geometry) {
+        this.geometry = geometry;
+    }
 }
