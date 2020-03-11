@@ -19,7 +19,8 @@
     </style>
 
     <style name="AppTheme.NoActionBar" parent="AppTheme">
-        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

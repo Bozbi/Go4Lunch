@@ -38,7 +38,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:elevation="10dp"
             app:menu="@menu/list_restaurant_bottom_nav_items"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/AppTheme"
             android:background="@android:color/white"
             />
 

@@ -24,6 +24,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.services.FirebaseAuthService;
 import com.sbizzera.go4lunch.views.fragments.ListFragment;
 import com.sbizzera.go4lunch.views.fragments.MapFragment;
 import com.sbizzera.go4lunch.views.fragments.WorkmatesFragment;
@@ -93,6 +94,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
     //If Drawer is open, we want to close it on backbutton pressed not exiting app
     @Override
     public void onBackPressed() {
+        //TODO add a byebye message
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
@@ -130,8 +132,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
 
     //LOG OUT User and back to go back to main then login
     private void logOut() {
-        AuthUI.getInstance()
-                .signOut(ListRestaurantsActivity.this)
+        FirebaseAuthService.logOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     public void onComplete(@NonNull Task<Void> task) {
                         Intent intent = new Intent(ListRestaurantsActivity.this, MainEmptyActivity.class);
@@ -143,7 +144,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
 
     //Get Values from Firebase user Instance and push them in views
     private void getAnddisplayUserInfo() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseAuthService.getUser();
         mUserName.setText(user.getDisplayName());
         mUserEmail.setText(user.getEmail());
         Glide.with(this).load(user.getPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(mUserPhoto);

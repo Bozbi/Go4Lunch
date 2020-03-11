@@ -1,5 +1,7 @@
 package com.sbizzera.go4lunch.services;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -16,6 +18,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.internal.EverythingIsNonNull;
 
 public class RestaurantRepository {
+
+    private static final String TAG = "RestaurantRepository";
 
     private static RestaurantRepository sRestaurantRepository;
 
@@ -46,12 +50,14 @@ public class RestaurantRepository {
             @Override
             public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {
                 assert response.body() != null;
+                Log.d(TAG, "NearbyRestaurants response: "+ response.body().getRestaurantList().get(0).getName()+",... "+response.body().getRestaurantList().size()+" restaurants");
                 mNearbyRestaurants.postValue(response.body().getRestaurantList());
             }
 
             @EverythingIsNonNull
             @Override
             public void onFailure(Call<NearbyResults> call, Throwable t) {
+                Log.d(TAG, "NearbyRestaurants request failed");
                 mNearbyRestaurants.postValue(null);
             }
         });
