@@ -9,7 +9,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.views.activities.ListRestaurantsActivity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,15 +18,15 @@ public class FirebaseAuthService {
     private static FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
     private static AuthUI mAuthUi = AuthUI.getInstance();
 
-    public static boolean isUserLoged(){
-             if(mFirebaseAuth.getCurrentUser()!=null){
-                return true;
-             }else{
-                 return false;
-             }
+    public static boolean isUserLoged() {
+        if (mFirebaseAuth.getCurrentUser() != null) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public static Intent getLoginIntent(){
+    public static Intent getLoginIntent() {
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.GoogleBuilder().build(),
                 new AuthUI.IdpConfig.FacebookBuilder().build()
@@ -49,11 +48,11 @@ public class FirebaseAuthService {
         return intent;
     }
 
-    public static Task<Void> logOut(Context context){
+    public static Task<Void> logOut(Context context) {
         return mAuthUi.signOut(context);
     }
 
-    public static FirebaseUser getUser(){
+    public static FirebaseUser getUser() {
         return mFirebaseAuth.getCurrentUser();
     }
 }

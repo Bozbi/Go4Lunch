@@ -8,13 +8,30 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.model.FakeRestaurants;
+import com.sbizzera.go4lunch.views.adapters.ListAdapter;
 
 public class ListFragment extends Fragment {
+
+    private RecyclerView recyclerView;
+    private ListAdapter mAdapter;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_list, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_list, container, false);
+        recyclerView = view.findViewById(R.id.list_rcv);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mAdapter = new ListAdapter(FakeRestaurants.fakeRestaurantsList);
+        recyclerView.setAdapter(mAdapter);
+
+        return view;
     }
 }
+
+

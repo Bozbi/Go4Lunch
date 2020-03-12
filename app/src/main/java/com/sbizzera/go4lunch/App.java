@@ -2,6 +2,8 @@ package com.sbizzera.go4lunch;
 
 import android.app.Application;
 
+import com.google.android.libraries.places.api.Places;
+
 public class App extends Application {
 
     //TODO Questions:
@@ -31,10 +33,15 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         sApplication = this;
+
+        Places.initialize(this,getString(R.string.google_places_API_key));
     }
 
     public static Application getApplication() {
         return sApplication;
     }
+
+
+
 }
 

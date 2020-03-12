@@ -1,9 +1,14 @@
 package com.sbizzera.go4lunch.views.activities;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,12 +21,17 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.model.LocationRestriction;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
@@ -29,14 +39,18 @@ import com.sbizzera.go4lunch.views.fragments.ListFragment;
 import com.sbizzera.go4lunch.views.fragments.MapFragment;
 import com.sbizzera.go4lunch.views.fragments.WorkmatesFragment;
 
+import java.util.Arrays;
+
 public class ListRestaurantsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener {
 
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 234 ;
     private DrawerLayout drawerLayout;
 
 
     private TextView mUserName;
     private TextView mUserEmail;
     private ImageView mUserPhoto;
+    private Toolbar mToolbar;
 
 
     @Override
@@ -50,14 +64,15 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         mUserName = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_name);
         mUserEmail = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_email);
         mUserPhoto = navigationView.getHeaderView(0).findViewById(R.id.drawer_avatar);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
+        mToolbar.setTitle("I'm Hungry");
 
         //Setting Custom ToolBar As ActionBar
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
 
         //Add Toogle button
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -69,6 +84,8 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         getAnddisplayUserInfo();
 
         loadFragment(new MapFragment());
+
+
     }
 
 
@@ -123,6 +140,22 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         return true;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.app_bar,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, Arrays.asList(Place.Field.NAME))
+                .setHint("Restaurants")
+                .setCountry("FR")
+                .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                .build(this);
+        startActivityForResult(intent,AUTOCOMPLETE_REQUEST_CODE);
+        return true;
+    }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
