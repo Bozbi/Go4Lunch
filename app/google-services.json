@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "594961021828-10htgl92u4aima4bqmtepp1im7eij39q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sbizzera.go4lunch",
+            "certificate_hash": "ee0fc1f392d229a1814ef10bf77c620890f23340"
+          }
+        },
+        {
           "client_id": "594961021828-dgknvis56ftsvacj7sjdvvog984crrm3.apps.googleusercontent.com",
           "client_type": 3
         }
