@@ -21,6 +21,8 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.LocationRestriction;
@@ -33,6 +35,7 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseUser;
+import com.sbizzera.go4lunch.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 import com.sbizzera.go4lunch.views.fragments.ListFragment;
@@ -41,7 +44,7 @@ import com.sbizzera.go4lunch.views.fragments.WorkmatesFragment;
 
 import java.util.Arrays;
 
-public class ListRestaurantsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener {
+public class ListRestaurantsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener , OnItemBindWithRestaurantClickListener {
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 234 ;
     private DrawerLayout drawerLayout;
@@ -58,6 +61,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_restaurants);
 
+
         //Declaration
         drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -66,6 +70,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         mUserPhoto = navigationView.getHeaderView(0).findViewById(R.id.drawer_avatar);
         mToolbar = findViewById(R.id.toolbar);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
+
         mToolbar.setTitle("I'm Hungry");
 
         //Setting Custom ToolBar As ActionBar
@@ -83,7 +88,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         navigationView.setNavigationItemSelectedListener(this);
         getAnddisplayUserInfo();
 
-        loadFragment(new MapFragment());
+        loadFragment(new MapFragment(this));
 
 
     }
@@ -128,13 +133,13 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
                 logOut();
                 break;
             case R.id.bottom_nav_map_item:
-                loadFragment(new MapFragment());
+                loadFragment(new MapFragment(this));
                 break;
             case R.id.bottom_nav_list_item:
-                loadFragment(new ListFragment());
+                loadFragment(new ListFragment(this));
                 break;
             case R.id.bottom_nav_workmates_item:
-                loadFragment(new WorkmatesFragment());
+                loadFragment(new WorkmatesFragment(this));
                 break;
         }
         return true;
@@ -155,6 +160,16 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
                 .build(this);
         startActivityForResult(intent,AUTOCOMPLETE_REQUEST_CODE);
         return true;
+    }
+
+    @Override
+    public void onItemBoundWithRestaurantClick() {
+        launchRestaurantDetail();
+    }
+
+    private void launchRestaurantDetail() {
+        Intent intent = new Intent(this, RestaurantDetailActivity.class);
+        startActivity(intent);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,6 +203,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
 
 
 }

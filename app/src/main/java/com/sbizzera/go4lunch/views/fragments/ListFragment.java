@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sbizzera.go4lunch.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.FakeRestaurants;
 import com.sbizzera.go4lunch.views.adapters.ListAdapter;
@@ -19,6 +20,11 @@ public class ListFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private ListAdapter mAdapter;
+    private OnItemBindWithRestaurantClickListener mListener;
+
+    public ListFragment(OnItemBindWithRestaurantClickListener listener) {
+        mListener = listener;
+    }
 
     @Nullable
     @Override
@@ -27,7 +33,7 @@ public class ListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
         recyclerView = view.findViewById(R.id.list_rcv);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        mAdapter = new ListAdapter(FakeRestaurants.fakeRestaurantsList);
+        mAdapter = new ListAdapter(FakeRestaurants.fakeRestaurantsList,mListener);
         recyclerView.setAdapter(mAdapter);
 
         return view;

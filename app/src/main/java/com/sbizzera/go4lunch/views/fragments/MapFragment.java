@@ -1,9 +1,12 @@
 package com.sbizzera.go4lunch.views.fragments;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,8 +17,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.sbizzera.go4lunch.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.MapFragmentModel;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
@@ -23,8 +27,10 @@ import com.sbizzera.go4lunch.utils.BitMapCreator;
 import com.sbizzera.go4lunch.utils.Commons;
 import com.sbizzera.go4lunch.view_models.MapFragmentViewModel;
 import com.sbizzera.go4lunch.view_models.MapFragmentViewModelFactory;
+import com.sbizzera.go4lunch.views.activities.RestaurantDetailActivity;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
+
 
     private static final String TAG = "MapFragment";
     private static final int ACCESS_FINE_LOCATION_REQUEST_CODE = 123;
@@ -33,11 +39,23 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     private MapFragmentViewModel mViewModel;
 
+    private OnItemBindWithRestaurantClickListener mListener;
+
+
+
+    public MapFragment(OnItemBindWithRestaurantClickListener listener) {
+        mListener =listener;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
+        return super.onCreateView(layoutInflater, viewGroup, bundle);
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //Binding View with Gmap
         getMapAsync(this);
 
         mViewModel = new ViewModelProvider(this, MapFragmentViewModelFactory.getInstance(requireActivity())).get(MapFragmentViewModel.class);
@@ -49,6 +67,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_FINE_LOCATION_REQUEST_CODE);
             }
         });
+
 
     }
 
@@ -67,6 +86,14 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                         .title(restaurant.getName())
                         .icon(BitMapCreator.bitmapDescriptorFromVector(requireActivity(), R.drawable.ic_restaurant_marker_icon)));
             }
+            map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    mListener.onItemBoundWithRestaurantClick();
+                    return true;
+                }
+            });
+
         }
 
     }
@@ -81,5 +108,11 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         //TODO need to work on GPS Access and Permissions
         mViewModel.updatePermissionAndLocation();
+    }
+
+
+    private void lauchRestaurantDetailActivity(){
+        Intent intent = new Intent(requireContext(), RestaurantDetailActivity.class);
+        startActivity(intent);
     }
 }

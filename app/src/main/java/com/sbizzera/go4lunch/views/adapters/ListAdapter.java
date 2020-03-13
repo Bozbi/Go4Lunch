@@ -1,5 +1,6 @@
 package com.sbizzera.go4lunch.views.adapters;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.sbizzera.go4lunch.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.FakeRestaurants;
+import com.sbizzera.go4lunch.views.activities.RestaurantDetailActivity;
 
 import java.util.List;
 
@@ -19,14 +22,23 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
     private List<FakeRestaurants> mRestaurantsList;
 
-    public ListAdapter(List<FakeRestaurants> restaurantsList) {
+    private OnItemBindWithRestaurantClickListener mListener;
+
+    public ListAdapter(List<FakeRestaurants> restaurantsList,OnItemBindWithRestaurantClickListener listener) {
         mRestaurantsList = restaurantsList;
+        mListener = listener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_view, parent, false);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onItemBoundWithRestaurantClick();
+            }
+        });
         return new ViewHolder(view);
     }
 
