@@ -2,6 +2,7 @@ package com.sbizzera.go4lunch.model;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IntegerRes;
 
 import java.util.List;
 
@@ -10,14 +11,16 @@ public class RestaurantDetailModel {
     private String photoUrl;
     @DrawableRes
     private int fabIcon;
+    @ColorRes
+    private int fabColor;
     private String restaurantName;
     private String addressText;
-    @DrawableRes
-    private int star1Icon;
-    @DrawableRes
-    private int star2Icon;
-    @DrawableRes
-    private int star3Icon;
+    @IntegerRes
+    private int star1Visibility;
+    @IntegerRes
+    private int star2Visibility;
+    @IntegerRes
+    private int star3Visibility;
     private String phoneNumber;
     @ColorRes
     private int phoneColor;
@@ -30,14 +33,16 @@ public class RestaurantDetailModel {
     private Boolean isWebSiteClickable;
     private List<RestaurantDetailAdapterModel> workmatesList;
 
-    public RestaurantDetailModel(String photoUrl, int fabIcon, String restaurantName, String addressText, int star1Icon, int star2Icon, int star3Icon, String phoneNumber, int phoneColor, Boolean isPhoneClickable, int likeIcon, String webSiteUrl, int webSiteColor, Boolean isWebSiteClickable, List<RestaurantDetailAdapterModel> workmatesList) {
+
+    public RestaurantDetailModel(String photoUrl, int fabIcon, int fabColor, String restaurantName, String addressText, int star1Visibility, int star2Visibility, int star3Visibility, String phoneNumber, int phoneColor, Boolean isPhoneClickable, int likeIcon, String webSiteUrl, int webSiteColor, Boolean isWebSiteClickable, List<RestaurantDetailAdapterModel> workmatesList) {
         this.photoUrl = photoUrl;
         this.fabIcon = fabIcon;
+        this.fabColor = fabColor;
         this.restaurantName = restaurantName;
         this.addressText = addressText;
-        this.star1Icon = star1Icon;
-        this.star2Icon = star2Icon;
-        this.star3Icon = star3Icon;
+        this.star1Visibility = star1Visibility;
+        this.star2Visibility = star2Visibility;
+        this.star3Visibility = star3Visibility;
         this.phoneNumber = phoneNumber;
         this.phoneColor = phoneColor;
         this.isPhoneClickable = isPhoneClickable;
@@ -64,6 +69,14 @@ public class RestaurantDetailModel {
         this.fabIcon = fabIcon;
     }
 
+    public int getFabColor() {
+        return fabColor;
+    }
+
+    public void setFabColor(int fabColor) {
+        this.fabColor = fabColor;
+    }
+
     public String getRestaurantName() {
         return restaurantName;
     }
@@ -80,28 +93,28 @@ public class RestaurantDetailModel {
         this.addressText = addressText;
     }
 
-    public int getStar1Icon() {
-        return star1Icon;
+    public int getStar1Visibility() {
+        return star1Visibility;
     }
 
-    public void setStar1Icon(int star1Icon) {
-        this.star1Icon = star1Icon;
+    public void setStar1Visibility(int star1Visibility) {
+        this.star1Visibility = star1Visibility;
     }
 
-    public int getStar2Icon() {
-        return star2Icon;
+    public int getStar2Visibility() {
+        return star2Visibility;
     }
 
-    public void setStar2Icon(int star2Icon) {
-        this.star2Icon = star2Icon;
+    public void setStar2Visibility(int star2Visibility) {
+        this.star2Visibility = star2Visibility;
     }
 
-    public int getStar3Icon() {
-        return star3Icon;
+    public int getStar3Visibility() {
+        return star3Visibility;
     }
 
-    public void setStar3Icon(int star3Icon) {
-        this.star3Icon = star3Icon;
+    public void setStar3Visibility(int star3Visibility) {
+        this.star3Visibility = star3Visibility;
     }
 
     public String getPhoneNumber() {

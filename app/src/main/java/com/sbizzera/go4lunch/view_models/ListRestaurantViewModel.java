@@ -13,6 +13,6 @@ public class ListRestaurantViewModel extends ViewModel {
     }
 
     public void checkUserAndInsertInDB() {
-        fireStore.checkUserAndInsertInDB();
+        fireStore.handleUserInFireStore();
     }
 }

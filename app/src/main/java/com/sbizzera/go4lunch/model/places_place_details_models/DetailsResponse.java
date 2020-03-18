@@ -41,6 +41,17 @@ public class DetailsResponse {
         @SerializedName("opening_hours")
         private OpeningHours openingHours;
 
+        @SerializedName("geometry")
+        private Geometry geometry;
+
+        public Geometry getGeometry() {
+            return geometry;
+        }
+
+        public void setGeometry(Geometry geometry) {
+            this.geometry = geometry;
+        }
+
         public String getPlaceId() {
             return placeId;
         }
@@ -136,6 +147,45 @@ public class DetailsResponse {
                 this.openNow = openNow;
             }
         }
+
+        public class Geometry{
+            @SerializedName("location")
+            private Location location;
+
+            public Location getLocation() {
+                return location;
+            }
+
+            public void setLocation(Location location) {
+                this.location = location;
+            }
+
+            public class Location{
+                @SerializedName("lat")
+                private Double lat;
+
+                @SerializedName("lng")
+                private Double lng;
+
+                public Double getLat() {
+                    return lat;
+                }
+
+                public void setLat(Double lat) {
+                    this.lat = lat;
+                }
+
+                public Double getLng() {
+                    return lng;
+                }
+
+                public void setLng(Double lng) {
+                    this.lng = lng;
+                }
+            }
+        }
+
+
 
 
     }

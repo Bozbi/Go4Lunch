@@ -1,5 +1,6 @@
 package com.sbizzera.go4lunch.views.activities;
 
+import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.View;
@@ -100,11 +101,12 @@ public class RestaurantDetailActivity extends AppCompatActivity implements View.
 
     private void updateUI(RestaurantDetailModel model) {
         Glide.with(restaurantImg).load(model.getPhotoUrl()).placeholder(R.drawable.restaurant_photo_placeholder).into(restaurantImg);
+        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(model.getFabColor())));
         fab.setImageResource(model.getFabIcon());
         restaurantNameTxt.setText(model.getRestaurantName());
-        star1Img.setImageResource(model.getStar1Icon());
-        star2Img.setImageResource(model.getStar2Icon());
-        star3Img.setImageResource(model.getStar3Icon());
+        star1Img.setVisibility(model.getStar1Visibility());
+        star2Img.setVisibility(model.getStar2Visibility());
+        star3Img.setVisibility(model.getStar3Visibility());
         restaurantAddressTxt.setText(model.getAddressText());
         phoneImg.getDrawable().setColorFilter(getResources().getColor(model.getPhoneColor()), PorterDuff.Mode.SRC_ATOP);
         phoneTxt.setTextColor(getResources().getColor(model.getPhoneColor()));

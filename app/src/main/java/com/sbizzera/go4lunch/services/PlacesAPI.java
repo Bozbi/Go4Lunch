@@ -16,7 +16,7 @@ public interface PlacesAPI {
     Call<NearbyResults> getNearbyRestaurant(@Query("location") String location);
 
 
-    @GET("maps/api/place/details/json?fields=place_id,website,name,formatted_phone_number,photos,opening_hours,address_component&key=" + Commons.PLACES_API_KEY)
+    @GET("maps/api/place/details/json?fields=place_id,website,name,formatted_phone_number,photos,opening_hours,address_component,geometry&key=" + Commons.PLACES_API_KEY)
     Call<DetailsResponse> getRestaurantDetail(@Query("place_id") String id);
 
 }
