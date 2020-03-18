@@ -6,8 +6,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.sbizzera.go4lunch.FireStoreService;
+import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 
 public class MainEmptyActivity extends AppCompatActivity {
@@ -32,9 +31,6 @@ public class MainEmptyActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                String name = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-                String photoUrl = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString();
-                FireStoreService.addTestToFireBase(name,photoUrl);
                 launchRestaurantAcitivity();
                 finish();
             } else {

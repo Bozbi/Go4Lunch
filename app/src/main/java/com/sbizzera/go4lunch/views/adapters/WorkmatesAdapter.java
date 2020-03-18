@@ -10,12 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
-import com.bumptech.glide.request.BaseRequestOptions;
 import com.bumptech.glide.request.RequestOptions;
-import com.sbizzera.go4lunch.OnItemBindWithRestaurantClickListener;
+import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.model.FakeRestaurants;
 import com.sbizzera.go4lunch.model.FakeWorkmates;
 
 import java.util.List;
@@ -37,7 +34,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onItemBoundWithRestaurantClick();
+                mListener.onItemBoundWithRestaurantClick("");
             }
         });
         return new ViewHolder(view);

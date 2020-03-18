@@ -32,11 +32,12 @@ public class MapFragmentViewModel extends ViewModel {
     private LiveData<List<NearbyPlace>> nearbyRestaurantsLiveData;
 
 
-    public MapFragmentViewModel(DeviceLocator locator, PermissionHandler permissionHandler, RestaurantRepository restaurantRepository) {
+     MapFragmentViewModel(DeviceLocator locator, PermissionHandler permissionHandler, RestaurantRepository restaurantRepository) {
         mLocator = locator;
         mPermissionHandler = permissionHandler;
         mRestaurantRepository = restaurantRepository;
         wireUpMediator();
+
     }
 
     public LiveData<MapFragmentModel> getUIModel() {

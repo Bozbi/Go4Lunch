@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sbizzera.go4lunch.OnItemBindWithRestaurantClickListener;
+import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.FakeRestaurants;
 import com.sbizzera.go4lunch.views.adapters.ListAdapter;

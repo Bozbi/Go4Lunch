@@ -55,4 +55,6 @@ public class FirebaseAuthService {
     public static FirebaseUser getUser() {
         return mFirebaseAuth.getCurrentUser();
     }
+
+    public static String getCurrentUserId(){return mFirebaseAuth.getCurrentUser().getUid();}
 }

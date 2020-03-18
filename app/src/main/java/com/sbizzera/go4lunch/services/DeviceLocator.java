@@ -1,6 +1,7 @@
 package com.sbizzera.go4lunch.services;
 
 import android.app.Activity;
+import android.content.Context;
 import android.location.Location;
 import android.os.Looper;
 import android.util.Log;
@@ -23,40 +24,26 @@ public class DeviceLocator {
     private static final String TAG = "DeviceLocator";
 
     private MutableLiveData<Location> mLocation = new MutableLiveData<>();
-    private Activity mActivity;
+    private Context mContext;
 
-    public DeviceLocator(Activity activity) {
-        mActivity = activity;
-        locateWithUpdate();
+    public DeviceLocator(Context context) {
+        mContext = context;
+        locate();
     }
 
-    private void locate() {
-        Task<Location> locationTask = LocationServices.getFusedLocationProviderClient(mActivity).getLastLocation();
-        locationTask.addOnSuccessListener(mActivity, new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    Log.d(TAG, "Location found :" + Go4LunchUtils.locationToString(location));
-                    mLocation.postValue(location);
-                } else {
-                    Log.d(TAG, "Location not found");
-                }
-            }
-        });
-    }
 
     public LiveData<Location> getLocation() {
-        locate();
         return mLocation;
     }
 
     //Location Updates
 
-    public void locateWithUpdate(){
-        LocationRequest locationRequest = LocationRequest.create().setFastestInterval(30000).setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        LocationServices.getFusedLocationProviderClient(mActivity).requestLocationUpdates(locationRequest,new LocationCallback(){
+    public void locate(){
+        LocationRequest locationRequest = LocationRequest.create().setFastestInterval(300000).setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        LocationServices.getFusedLocationProviderClient(mContext).requestLocationUpdates(locationRequest,new LocationCallback(){
             @Override
             public void onLocationResult(LocationResult locationResult) {
+                mLocation.postValue(locationResult.getLastLocation());
                 Log.d(TAG, "onLocationResult: "+locationResult.getLastLocation().getLatitude());
             }
 

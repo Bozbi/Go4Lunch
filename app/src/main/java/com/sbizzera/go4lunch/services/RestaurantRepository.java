@@ -5,8 +5,12 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.Place;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyResults;
+import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse;
+import com.sbizzera.go4lunch.utils.Commons;
 
 import java.util.List;
 
@@ -32,6 +36,7 @@ public class RestaurantRepository {
 
     private PlacesAPI mPlacesAPI;
     private MutableLiveData<List<NearbyPlace>> mNearbyRestaurants = new MutableLiveData<>();
+    private MutableLiveData<DetailsResponse.DetailResult> mPlaceDetailsLiveData = new MutableLiveData<>();
 
 
     public RestaurantRepository() {
@@ -45,12 +50,14 @@ public class RestaurantRepository {
 
     public LiveData<List<NearbyPlace>> getNearbyRestaurants(String location) {
 
+        Log.d(TAG, "https://maps.googleapis.com/maps/api/place/nearbysearch/json?radius=2000&type=restaurant&location="+location+"&key=" + Commons.PLACES_API_KEY);
+
         mPlacesAPI.getNearbyRestaurant(location).enqueue(new Callback<NearbyResults>() {
             @EverythingIsNonNull
             @Override
             public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {
                 assert response.body() != null;
-                Log.d(TAG, "NearbyRestaurants response: "+ response.body().getRestaurantList().get(0).getName()+",... "+response.body().getRestaurantList().size()+" restaurants");
+                Log.d(TAG, "NearbyRestaurants response: " + response.body().getRestaurantList().get(0).getName() + ",... " + response.body().getRestaurantList().size() + " restaurants");
                 mNearbyRestaurants.postValue(response.body().getRestaurantList());
             }
 
@@ -65,5 +72,23 @@ public class RestaurantRepository {
         return mNearbyRestaurants;
     }
 
+
+    public MutableLiveData<DetailsResponse.DetailResult> getRestaurantByID(String id) {
+        mPlacesAPI.getRestaurantDetail(id).enqueue(new Callback<DetailsResponse>() {
+            @Override
+            public void onResponse(Call<DetailsResponse> call, Response<DetailsResponse> response) {
+                Log.d(TAG, "PlaceDetails response" + response.body().getDetailResult());
+                mPlaceDetailsLiveData.setValue(response.body().getDetailResult());
+            }
+
+            @Override
+            public void onFailure(Call<DetailsResponse> call, Throwable t) {
+                Log.d(TAG, "PlaceDetails request failed" + t.getMessage());
+                mPlaceDetailsLiveData.postValue(null);
+            }
+        });
+
+        return mPlaceDetailsLiveData;
+    }
 
 }

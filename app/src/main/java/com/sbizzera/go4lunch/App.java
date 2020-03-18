@@ -3,6 +3,9 @@ package com.sbizzera.go4lunch;
 import android.app.Application;
 
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.jakewharton.threetenabp.AndroidThreeTen;
 
 public class App extends Application {
 
@@ -34,14 +37,14 @@ public class App extends Application {
         super.onCreate();
         sApplication = this;
 
-        Places.initialize(this,getString(R.string.google_places_API_key));
+        //Initializing ABP
+        AndroidThreeTen.init(this);
+
     }
 
     public static Application getApplication() {
         return sApplication;
     }
-
-
 
 }
 

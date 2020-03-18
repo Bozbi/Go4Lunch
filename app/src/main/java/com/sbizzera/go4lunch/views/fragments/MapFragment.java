@@ -19,14 +19,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.sbizzera.go4lunch.OnItemBindWithRestaurantClickListener;
+import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.MapFragmentModel;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.utils.BitMapCreator;
 import com.sbizzera.go4lunch.utils.Commons;
 import com.sbizzera.go4lunch.view_models.MapFragmentViewModel;
-import com.sbizzera.go4lunch.view_models.MapFragmentViewModelFactory;
+import com.sbizzera.go4lunch.view_models.ViewModelFactory;
 import com.sbizzera.go4lunch.views.activities.RestaurantDetailActivity;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
@@ -58,7 +58,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
         getMapAsync(this);
 
-        mViewModel = new ViewModelProvider(this, MapFragmentViewModelFactory.getInstance(requireActivity())).get(MapFragmentViewModel.class);
+        mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MapFragmentViewModel.class);
 
         mViewModel.getUIModel().observe(this, model -> {
             if (model.getFineLocationPermission()) {
@@ -81,15 +81,18 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
         if (model.getRestaurantsList() != null) {
             for (NearbyPlace restaurant : model.getRestaurantsList()) {
-                map.addMarker(new MarkerOptions()
+
+                Marker marker =map.addMarker(new MarkerOptions()
                         .position(new LatLng(restaurant.getLat(), restaurant.getLng()))
                         .title(restaurant.getName())
-                        .icon(BitMapCreator.bitmapDescriptorFromVector(requireActivity(), R.drawable.ic_restaurant_marker_icon)));
+                        .icon(BitMapCreator.bitmapDescriptorFromVector(requireActivity(), R.drawable.ic_restaurant_marker_icon))
+                );
+                marker.setTag(restaurant.getId());
             }
             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
-                    mListener.onItemBoundWithRestaurantClick();
+                    mListener.onItemBoundWithRestaurantClick(marker.getTag().toString());
                     return true;
                 }
             });
