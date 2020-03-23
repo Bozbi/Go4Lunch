@@ -26,10 +26,6 @@ public class FireStoreService {
     private CollectionReference likes = db.collection("likes");
     private CollectionReference dailyChoice = db.collection("dailyChoice");
 
-    private MutableLiveData<Boolean> isRestaurantLikedByUser = new MutableLiveData<>();
-    private MutableLiveData<Integer> restaurantLikesCount = new MutableLiveData<>();
-    private MutableLiveData<Boolean> restaurantTodayUserChoice = new MutableLiveData<>();
-
 
     public void addRestaurantToFireStore(DetailResult restaurant) {
         restaurants.add(new FireStoreRestaurant(
@@ -101,7 +97,7 @@ public class FireStoreService {
                                 .addOnSuccessListener(querySnapshot2 -> {
                                     if (querySnapshot2.getDocuments().size() == 1) {
                                         dailyChoice.document(querySnapshot2.getDocuments().get(0).getId()).delete();
-                                    }else{
+                                    } else {
                                         dailyChoice.document(querySnapshot.getDocuments().get(0).getId()).delete();
                                         dailyChoice.add(new FireStoreUserDailyChoice(
                                                 LocalDate.now().toString(),
@@ -135,48 +131,48 @@ public class FireStoreService {
                 });
     }
 
-    public void setLikeAndChoiceListener(String restaurantId) {
-        //TODO Factorise
-        //CheckForCurrentUser
-        likes.whereEqualTo("restaurantID", restaurantId).whereEqualTo("userID", currentUserId).addSnapshotListener(
+
+    public LiveData<Boolean> getIsRestaurantLikedByUserLiveData(String id) {
+        MutableLiveData<Boolean> isLikedMutable = new MutableLiveData<>();
+        likes.whereEqualTo("restaurantID", id).whereEqualTo("userID", currentUserId).addSnapshotListener(
                 (snapshot, e) -> {
                     if (snapshot.getDocuments().size() == 0) {
-                        isRestaurantLikedByUser.postValue(false);
+                        isLikedMutable.postValue(false);
                     } else {
-                        isRestaurantLikedByUser.postValue(true);
+                        isLikedMutable.postValue(true);
                     }
                 }
         );
-        //CheckAllLikes
-        likes.whereEqualTo("restaurantID", restaurantId).addSnapshotListener(
+        return isLikedMutable;
+    }
+
+    public LiveData<Integer> getRestaurantLikeCount(String id) {
+        MutableLiveData<Integer> likeCountLiveData = new MutableLiveData<>();
+        likes.whereEqualTo("restaurantID", id).addSnapshotListener(
                 (snapshot, e) -> {
-                    restaurantLikesCount.postValue(snapshot.getDocuments().size());
+                    if (snapshot != null) {
+                            likeCountLiveData.postValue(snapshot.getDocuments().size());
+                    }
                 }
         );
-        //CheckChoice
+        return likeCountLiveData;
+    }
+
+    public LiveData<Boolean> getRestaurantTodayUserChoice(String id) {
+        MutableLiveData<Boolean> isChosenByUserLiveData = new MutableLiveData<>();
         dailyChoice.whereEqualTo("date", LocalDate.now().toString())
                 .whereEqualTo("userId", currentUserId)
-                .whereEqualTo("restaurantId", restaurantId)
+                .whereEqualTo("restaurantId", id)
                 .addSnapshotListener((snapshot, e) -> {
-                    if (snapshot.getDocuments().size() == 0) {
-                        restaurantTodayUserChoice.postValue(false);
-                    } else {
-                        restaurantTodayUserChoice.postValue(true);
+                    if (snapshot != null) {
+                        if (snapshot.getDocuments().size() == 0) {
+                            isChosenByUserLiveData.postValue(false);
+                        } else {
+                            isChosenByUserLiveData.postValue(true);
+                        }
                     }
                 });
-
-    }
-
-    public LiveData<Boolean> getIsRestaurantLikedByUserLiveData() {
-        return isRestaurantLikedByUser;
-    }
-
-    public LiveData<Integer> getRestaurantLikeCount() {
-        return restaurantLikesCount;
-    }
-
-    public LiveData<Boolean> getRestaurantTodayUserChoice() {
-        return restaurantTodayUserChoice;
+        return isChosenByUserLiveData;
     }
 
 

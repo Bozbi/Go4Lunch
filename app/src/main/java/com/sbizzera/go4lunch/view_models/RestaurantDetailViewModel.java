@@ -44,12 +44,11 @@ public class RestaurantDetailViewModel extends ViewModel {
     }
 
     public void fetchPlace(String id) {
-        mFirestore.setLikeAndChoiceListener(id);
 
         placeDetailLiveData = mRestaurantRepository.getRestaurantByID(id);
-        LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestore.getIsRestaurantLikedByUserLiveData();
-        LiveData<Integer> restaurantLikeCountLiveData = mFirestore.getRestaurantLikeCount();
-        LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestore.getRestaurantTodayUserChoice();
+        LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestore.getIsRestaurantLikedByUserLiveData(id);
+        LiveData<Integer> restaurantLikeCountLiveData = mFirestore.getRestaurantLikeCount(id);
+        LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestore.getRestaurantTodayUserChoice(id);
 
         modelLiveData.addSource(placeDetailLiveData, place -> {
             modelLiveData.postValue(combineSources(place, isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue()));

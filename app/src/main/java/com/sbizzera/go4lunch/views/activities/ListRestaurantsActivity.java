@@ -205,6 +205,4 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-
-
 }
