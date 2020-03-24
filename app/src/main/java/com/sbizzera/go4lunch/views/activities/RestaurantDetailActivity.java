@@ -17,7 +17,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.RestaurantDetailAdapterModel;
-import com.sbizzera.go4lunch.model.RestaurantDetailModel;
+import com.sbizzera.go4lunch.model.RestaurantActivityDetailModel;
 import com.sbizzera.go4lunch.view_models.RestaurantDetailViewModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
 import com.sbizzera.go4lunch.views.adapters.RestaurantDetailWorkmateAdapter;
@@ -33,8 +33,6 @@ public class RestaurantDetailActivity extends AppCompatActivity implements View.
     private List<RestaurantDetailAdapterModel> mWorkmateList = new ArrayList<>();
 
     private RestaurantDetailWorkmateAdapter mAdapter;
-
-    private String restaurantId;
 
     private ImageView restaurantImg;
     private FloatingActionButton fab;
@@ -79,10 +77,11 @@ public class RestaurantDetailActivity extends AppCompatActivity implements View.
         websiteTxt = findViewById(R.id.website_txt);
         backArrowImg = findViewById(R.id.back_arrow_img);
 
-        restaurantId = getIntent().getStringExtra(ListRestaurantsActivity.EXTRA_TAG_ID);
+        //Retrieve restaurant id in intent Extra
+        String restaurantId = getIntent().getStringExtra(ListRestaurantsActivity.INTENT_EXTRA_CODE);
 
         mModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(RestaurantDetailViewModel.class);
-        mModel.fetchPlace(restaurantId);
+        mModel.fetchRestaurantInfo(restaurantId);
         mModel.getModelLiveData().observe(this, this::updateUI);
 
         mAdapter = new RestaurantDetailWorkmateAdapter(mWorkmateList);
@@ -99,7 +98,7 @@ public class RestaurantDetailActivity extends AppCompatActivity implements View.
     }
 
 
-    private void updateUI(RestaurantDetailModel model) {
+    private void updateUI(RestaurantActivityDetailModel model) {
         Glide.with(restaurantImg).load(model.getPhotoUrl()).placeholder(R.drawable.restaurant_photo_placeholder).into(restaurantImg);
         fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(model.getFabColor())));
         fab.setImageResource(model.getFabIcon());
@@ -135,14 +134,14 @@ public class RestaurantDetailActivity extends AppCompatActivity implements View.
                 mModel.handleWebSiteClick();
                 break;
             }
-            case R.id.like_block_lilay: {
-                mModel.handleLikeClick();
-                break;
-            }
-            case R.id.restaurant_check_fab: {
-                mModel.handleFabClick();
-                break;
-            }
+//            case R.id.like_block_lilay: {
+//                mModel.handleLikeClick();
+//                break;
+//            }
+//            case R.id.restaurant_check_fab: {
+//                mModel.handleFabClick();
+//                break;
+//            }
         }
     }
 }

@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.model.RestaurantDetailModel;
+import com.sbizzera.go4lunch.model.RestaurantActivityDetailModel;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.DetailResult;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.RestaurantRepository;
@@ -29,26 +29,24 @@ public class RestaurantDetailViewModel extends ViewModel {
 
 
     private RestaurantRepository mRestaurantRepository;
-    private FireStoreService mFirestore;
-    private MediatorLiveData<RestaurantDetailModel> modelLiveData = new MediatorLiveData<>();
-    private LiveData<DetailResult> placeDetailLiveData;
+    private FireStoreService mFirestoreService;
+    private MediatorLiveData<RestaurantActivityDetailModel> modelLiveData = new MediatorLiveData<>();
+//    private LiveData<DetailResult> placeDetailLiveData;
 
     RestaurantDetailViewModel(RestaurantRepository restaurantRepository, FireStoreService firestore) {
         mRestaurantRepository = restaurantRepository;
-        mFirestore = firestore;
-
+        mFirestoreService = firestore;
     }
 
-    public LiveData<RestaurantDetailModel> getModelLiveData() {
+    public LiveData<RestaurantActivityDetailModel> getModelLiveData() {
         return modelLiveData;
     }
 
-    public void fetchPlace(String id) {
-
-        placeDetailLiveData = mRestaurantRepository.getRestaurantByID(id);
-        LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestore.getIsRestaurantLikedByUserLiveData(id);
-        LiveData<Integer> restaurantLikeCountLiveData = mFirestore.getRestaurantLikeCount(id);
-        LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestore.getRestaurantTodayUserChoice(id);
+    public void fetchRestaurantInfo(String id) {
+        LiveData<DetailResult> placeDetailLiveData = mRestaurantRepository.getRestaurantDetailsById(id);
+        LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestoreService.isRestaurantLikedByUser(id);
+        LiveData<Integer> restaurantLikeCountLiveData = mFirestoreService.getRestaurantLikesCount(id);
+        LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestoreService.isRestaurantChosenByUserToday(id);
 
         modelLiveData.addSource(placeDetailLiveData, place -> {
             modelLiveData.postValue(combineSources(place, isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue()));
@@ -67,24 +65,21 @@ public class RestaurantDetailViewModel extends ViewModel {
         });
     }
 
-    private RestaurantDetailModel combineSources(DetailResult place, Boolean isRestaurantLikedByUser, Integer restaurantLikeCount, Boolean isRestaurantTodayUserChoice) {
-        //TODO Comment virer cette ligne
-        if (place == null || isRestaurantLikedByUser == null || restaurantLikeCount == null || isRestaurantTodayUserChoice == null) {
-            return new RestaurantDetailModel(null, R.drawable.restaurant_icon_grey, R.color.white, null, null, View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, null, R.color.missingInfoColor, false, R.drawable.ic_star_yellow, null, R.color.missingInfoColor, false, new ArrayList<>());
-        }
-        String photoUrl = createPhotoUrlFromPhotoRef(place.getPhotosList());
-        String restaurantName = place.getName();
-        String restaurantAddress = createAdress(place.getAddressComponentList());
-        String phoneNumber = place.getPhoneNumber();
+    private RestaurantActivityDetailModel combineSources(DetailResult place, Boolean isRestaurantLikedByUser, Integer restaurantLikeCount, Boolean isRestaurantTodayUserChoice) {
+
+        String photoUrl = getPhotoUrlFromPhotoRef(place);
+        String restaurantName = getName(place);
+        String restaurantAddress = getAddress(place);
+        String phoneNumber = getPhoneNumber(place);
+        String webSite = getWebSite(place);
         @ColorRes
-        int phoneBlockColor = findPhoneBlockColor(place.getPhoneNumber());
-        Boolean isPhoneClickable = findIsPhoneClickable(place.getPhoneNumber());
-        String webSite = place.getWebSiteUrl();
+        int phoneBlockColor = getPhoneBlockColor(phoneNumber);
+        Boolean isPhoneClickable = isPhoneClickable(phoneNumber);
         @ColorRes
-        int webSiteBlockColor = findWebsiteBlockColor(place.getWebSiteUrl());
-        Boolean isWebSiteClickable = findIsWebSiteClickable(place.getWebSiteUrl());
+        int webSiteBlockColor = getWebsiteBlockColor(webSite);
+        Boolean isWebSiteClickable = isWebSiteClickable(webSite);
         @DrawableRes
-        int likeIconRes = findLikeIcon(isRestaurantLikedByUser);
+        int likeIconRes = getLikeIcon(isRestaurantLikedByUser);
         @IntegerRes
         int star1Visibility = setStar1Visibility(restaurantLikeCount);
         @IntegerRes
@@ -92,12 +87,12 @@ public class RestaurantDetailViewModel extends ViewModel {
         @IntegerRes
         int star3Visibility = setStar3Visibility(restaurantLikeCount);
         @IntegerRes
-        int fabIcon = findFabIcon(isRestaurantTodayUserChoice);
+        int fabIcon = getFabIcon(isRestaurantTodayUserChoice);
         @ColorRes
-        int fabColor = findFabColor(isRestaurantTodayUserChoice);
+        int fabColor = getFabColor(isRestaurantTodayUserChoice);
 
 
-        return new RestaurantDetailModel(
+        return new RestaurantActivityDetailModel(
                 photoUrl,
                 fabIcon,
                 fabColor,
@@ -117,116 +112,165 @@ public class RestaurantDetailViewModel extends ViewModel {
                 new ArrayList<>());
     }
 
-    private int findFabColor(Boolean isRestaurantTodayUserChoice) {
-        if (isRestaurantTodayUserChoice){
-            return R.color.green;
+    private String getWebSite(DetailResult place) {
+        //Check nulls
+        if (place == null || place.getWebSiteUrl() == null) {
+            return null;
         }
-        return R.color.white;
+
+        //if not return webSite
+        return place.getWebSiteUrl();
     }
 
-    private int findFabIcon(Boolean isRestaurantTodayUserChoice) {
-        if(isRestaurantTodayUserChoice){
-            return R.drawable.restaurant_icon_white;
+    private String getPhoneNumber(DetailResult place) {
+        //Check nulls
+        if (place == null || place.getPhoneNumber() == null) {
+            return null;
         }
-        return R.drawable.restaurant_icon_grey;
+
+        //if not return phone number
+        return place.getPhoneNumber();
+
+    }
+
+    private String getName(DetailResult place) {
+        //Check nulls
+        if (place == null || place.getName() == null) {
+            return null;
+        }
+        //if not return name
+        return place.getName();
+
+    }
+
+    private int getFabColor(Boolean isRestaurantTodayUserChoice) {
+        //check nulls
+        if (isRestaurantTodayUserChoice == null || !isRestaurantTodayUserChoice) {
+            return R.color.white;
+        }
+        return R.color.green;
+    }
+
+    private int getFabIcon(Boolean isRestaurantTodayUserChoice) {
+        //check nulls
+        if (isRestaurantTodayUserChoice == null || !isRestaurantTodayUserChoice) {
+            return R.drawable.restaurant_icon_grey;
+        }
+        return R.drawable.restaurant_icon_white;
     }
 
     private int setStar1Visibility(Integer restaurantLikeCount) {
-        if (restaurantLikeCount < 1) {
+        //check nulls
+        if (restaurantLikeCount == null || restaurantLikeCount < 1) {
             return View.INVISIBLE;
         }
         return View.VISIBLE;
     }
 
     private int setStar2Visibility(Integer restaurantLikeCount) {
-        if (restaurantLikeCount < 2) {
+        //check nulls
+        if (restaurantLikeCount == null || restaurantLikeCount < 2) {
             return View.INVISIBLE;
         }
         return View.VISIBLE;
     }
 
     private int setStar3Visibility(Integer restaurantLikeCount) {
-        if (restaurantLikeCount < 3) {
+        //check nulls
+        if (restaurantLikeCount == null || restaurantLikeCount < 3) {
             return View.INVISIBLE;
         }
         return View.VISIBLE;
     }
 
-    private int findLikeIcon(Boolean isRestaurantLikedByUser) {
-        if (isRestaurantLikedByUser) {
-            return R.drawable.ic_star_yellow;
-        } else {
+    private int getLikeIcon(Boolean isRestaurantLikedByUser) {
+        //check for nulls or false
+        if (isRestaurantLikedByUser == null || !isRestaurantLikedByUser) {
+            //if return bordered star
             return R.drawable.ic_star_bordered;
         }
+        // if not return plain star
+        return R.drawable.ic_star_yellow;
     }
 
-    private Boolean findIsWebSiteClickable(String webSiteUrl) {
+    private Boolean isWebSiteClickable(String webSiteUrl) {
+        //check nulls
         if (webSiteUrl == null) {
             return false;
         }
+        //if not return isClickable
         return true;
     }
 
-    private int findWebsiteBlockColor(String webSiteUrl) {
+    private int getWebsiteBlockColor(String webSiteUrl) {
+        //check nulls
         if (webSiteUrl == null) {
             return R.color.missingInfoColor;
         }
+        // if not return color
         return R.color.colorPrimary;
     }
 
-    private Boolean findIsPhoneClickable(String phoneNumber) {
+    private Boolean isPhoneClickable(String phoneNumber) {
+        //check nulls
         if (phoneNumber == null) {
             return false;
         }
+        //if not return isClickable
         return true;
     }
 
-    private int findPhoneBlockColor(String phoneNumber) {
+    private int getPhoneBlockColor(String phoneNumber) {
+        //check nulls
         if (phoneNumber == null) {
             return R.color.missingInfoColor;
         }
+
+        //if not return color
         return R.color.colorPrimary;
     }
 
-    private String createAdress(List<DetailResult.AddressComponent> addressComponentList) {
-        String streetNumber = addressComponentList.get(0).getValue();
-        String streetName = addressComponentList.get(1).getValue().substring(0, 1).toLowerCase()
-                + addressComponentList.get(1).getValue().substring(1);
-        StringBuilder builder = new StringBuilder();
-        return builder.append(streetNumber).append(" ").append(streetName).toString();
-    }
-
-
-    private String createPhotoUrlFromPhotoRef(List<DetailResult.Photos> photosList) {
-        String photoUrl = null;
-        if (photosList != null
-        ) {
-            if (photosList.get(0).getPhotoReference() != null) {
-                String photoRef = photosList.get(0).getPhotoReference();
-                Uri.Builder builder = new Uri.Builder();
-                photoUrl = builder.scheme("https")
-                        .authority("maps.googleapis.com")
-                        .appendPath("maps")
-                        .appendPath("api")
-                        .appendPath("place")
-                        .appendPath("photo")
-                        .appendQueryParameter("maxwidth", "600")
-                        .appendQueryParameter("photoreference", photoRef)
-                        .appendQueryParameter("key", Commons.PLACES_API_KEY)
-                        .toString();
-            }
+    private String getAddress(DetailResult place) {
+        //check null
+        if (place == null || place.getAddressComponentList() == null) {
+            return null;
         }
-        return photoUrl;
+        //if not build address
+        List<DetailResult.AddressComponent> componentList = place.getAddressComponentList();
+        String streetNumber = componentList.get(0).getValue();
+        String streetName = componentList.get(1).getValue().substring(0, 1).toLowerCase() + componentList.get(1).getValue().substring(1);
+        return streetNumber + " " + streetName;
     }
 
 
-    public void handleLikeClick() {
+    private String getPhotoUrlFromPhotoRef(DetailResult place) {
+        //check if either restaurant or photolist or firstPhoto not null
+        if (place == null || place.getPhotosList() == null || place.getPhotosList().get(0) == null) {
+            return null;
+        }
+
+        //if not return the URL
+        String photoRef = place.getPhotosList().get(0).getPhotoReference();
+        return new Uri.Builder().scheme("https")
+                .authority("maps.googleapis.com")
+                .appendPath("maps")
+                .appendPath("api")
+                .appendPath("place")
+                .appendPath("photo")
+                .appendQueryParameter("maxwidth", "600")
+                .appendQueryParameter("photoreference", photoRef)
+                .appendQueryParameter("key", Commons.PLACES_API_KEY)
+                .toString();
+    }
+
+
+    /*public void handleLikeClick() {
         mFirestore.updateRestaurantLike(placeDetailLiveData.getValue());
     }
 
     public void handleFabClick() {
         mFirestore.updateRestaurantChoice(placeDetailLiveData.getValue());
-    }
+    }*/
 
 
     public void handleWebSiteClick() {

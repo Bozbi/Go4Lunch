@@ -13,7 +13,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.RestaurantDetailAdapterModel;
-import com.sbizzera.go4lunch.model.RestaurantDetailModel;
 
 import java.util.List;
 

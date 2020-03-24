@@ -6,7 +6,7 @@ import androidx.annotation.IntegerRes;
 
 import java.util.List;
 
-public class RestaurantDetailModel {
+public class RestaurantActivityDetailModel {
 
     private String photoUrl;
     @DrawableRes
@@ -34,7 +34,7 @@ public class RestaurantDetailModel {
     private List<RestaurantDetailAdapterModel> workmatesList;
 
 
-    public RestaurantDetailModel(String photoUrl, int fabIcon, int fabColor, String restaurantName, String addressText, int star1Visibility, int star2Visibility, int star3Visibility, String phoneNumber, int phoneColor, Boolean isPhoneClickable, int likeIcon, String webSiteUrl, int webSiteColor, Boolean isWebSiteClickable, List<RestaurantDetailAdapterModel> workmatesList) {
+    public RestaurantActivityDetailModel(String photoUrl, int fabIcon, int fabColor, String restaurantName, String addressText, int star1Visibility, int star2Visibility, int star3Visibility, String phoneNumber, int phoneColor, Boolean isPhoneClickable, int likeIcon, String webSiteUrl, int webSiteColor, Boolean isWebSiteClickable, List<RestaurantDetailAdapterModel> workmatesList) {
         this.photoUrl = photoUrl;
         this.fabIcon = fabIcon;
         this.fabColor = fabColor;

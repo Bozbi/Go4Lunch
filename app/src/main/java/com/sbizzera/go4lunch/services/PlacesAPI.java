@@ -17,6 +17,6 @@ public interface PlacesAPI {
 
 
     @GET("maps/api/place/details/json?fields=place_id,website,name,formatted_phone_number,photos,opening_hours,address_component,geometry&key=" + Commons.PLACES_API_KEY)
-    Call<DetailsResponse> getRestaurantDetail(@Query("place_id") String id);
+    Call<DetailsResponse> getRestaurantDetailsById(@Query("place_id") String id);
 
 }

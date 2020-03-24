@@ -5,8 +5,6 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.libraries.places.api.model.AutocompletePrediction;
-import com.google.android.libraries.places.api.model.Place;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyResults;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse;
@@ -50,8 +48,6 @@ public class RestaurantRepository {
 
     public LiveData<List<NearbyPlace>> getNearbyRestaurants(String location) {
 
-        Log.d(TAG, "https://maps.googleapis.com/maps/api/place/nearbysearch/json?radius=2000&type=restaurant&location="+location+"&key=" + Commons.PLACES_API_KEY);
-
         mPlacesAPI.getNearbyRestaurant(location).enqueue(new Callback<NearbyResults>() {
             @EverythingIsNonNull
             @Override
@@ -73,18 +69,20 @@ public class RestaurantRepository {
     }
 
 
-    public MutableLiveData<DetailsResponse.DetailResult> getRestaurantByID(String id) {
-        mPlacesAPI.getRestaurantDetail(id).enqueue(new Callback<DetailsResponse>() {
+    public LiveData<DetailsResponse.DetailResult> getRestaurantDetailsById(String id) {
+        MutableLiveData<DetailsResponse.DetailResult> restaurantDetailsLiveData = new MutableLiveData<>();
+        mPlacesAPI.getRestaurantDetailsById(id).enqueue(new Callback<DetailsResponse>() {
             @Override
+            @EverythingIsNonNull
             public void onResponse(Call<DetailsResponse> call, Response<DetailsResponse> response) {
-                Log.d(TAG, "PlaceDetails response" + response.body().getDetailResult());
-                mPlaceDetailsLiveData.setValue(response.body().getDetailResult());
+                //TODO try to put out this exception
+                restaurantDetailsLiveData.postValue(response.body().getDetailResult());
             }
 
             @Override
+            @EverythingIsNonNull
             public void onFailure(Call<DetailsResponse> call, Throwable t) {
-                Log.d(TAG, "PlaceDetails request failed" + t.getMessage());
-                mPlaceDetailsLiveData.postValue(null);
+                restaurantDetailsLiveData.postValue(null);
             }
         });
 

@@ -5,33 +5,33 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 
 public class MainEmptyActivity extends AppCompatActivity {
 
-
-    private static final int RC_SIGN_IN = 012;
+    private static final int RC_SIGN_IN = 123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (FirebaseAuthService.isUserLoged()) {
-            launchRestaurantAcitivity();
+        //Checking if user is logged in.
+        if (FirebaseAuthService.isUserLogged()) {
+            launchRestaurantActivity();
         } else {
+            //Launching FirebaseAuth activity
             startActivityForResult(FirebaseAuthService.getLoginIntent(), RC_SIGN_IN);
         }
     }
 
 
+    //Results of FirebaseAuth activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                launchRestaurantAcitivity();
+                launchRestaurantActivity();
                 finish();
             } else {
                 finish();
@@ -40,10 +40,10 @@ public class MainEmptyActivity extends AppCompatActivity {
 
     }
 
-    private void launchRestaurantAcitivity() {
+    //Launching ListRestaurantsActivity
+    private void launchRestaurantActivity() {
         Intent intent = new Intent(this, ListRestaurantsActivity.class);
         startActivity(intent);
-        finish();
     }
 }
 

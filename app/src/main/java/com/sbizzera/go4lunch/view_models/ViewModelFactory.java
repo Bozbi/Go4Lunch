@@ -1,13 +1,10 @@
 package com.sbizzera.go4lunch.view_models;
 
 
-import android.app.Activity;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.services.DeviceLocator;
 import com.sbizzera.go4lunch.services.FireStoreService;
@@ -19,7 +16,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 
     private static ViewModelFactory sFactory;
 
-    private ViewModelFactory(){
+    private ViewModelFactory() {
     }
 
     public static ViewModelFactory getInstance() {
@@ -44,13 +41,13 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
                     RestaurantRepository.getInstance()
             );
         }
-        if (modelClass.isAssignableFrom(RestaurantDetailViewModel.class)){
+        if (modelClass.isAssignableFrom(RestaurantDetailViewModel.class)) {
             return (T) new RestaurantDetailViewModel(
                     RestaurantRepository.getInstance(),
                     new FireStoreService()
             );
         }
-        if (modelClass.isAssignableFrom(ListRestaurantViewModel.class)){
+        if (modelClass.isAssignableFrom(ListRestaurantViewModel.class)) {
             return (T) new ListRestaurantViewModel(new FireStoreService());
         }
         throw new IllegalArgumentException("Unknown ViewModel class");

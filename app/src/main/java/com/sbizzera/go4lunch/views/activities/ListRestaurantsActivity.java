@@ -29,7 +29,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseUser;
 import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 import com.sbizzera.go4lunch.view_models.ListRestaurantViewModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
@@ -42,16 +41,12 @@ import java.util.Arrays;
 public class ListRestaurantsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener , OnItemBindWithRestaurantClickListener {
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 234 ;
-    public static final String EXTRA_TAG_ID = "EXTRA_TAG_ID";
+    public static final String INTENT_EXTRA_CODE = "INTENT_EXTRA_CODE";
     private DrawerLayout drawerLayout;
-
 
     private TextView mUserName;
     private TextView mUserEmail;
     private ImageView mUserPhoto;
-    private Toolbar mToolbar;
-
-    private ListRestaurantViewModel mModel;
 
 
     @Override
@@ -59,8 +54,8 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_restaurants);
 
-        mModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(ListRestaurantViewModel.class);
-        mModel.checkUserAndInsertInDB();
+        ListRestaurantViewModel model = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(ListRestaurantViewModel.class);
+        model.updateUserInDb();
 
         //Declaration
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -68,7 +63,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         mUserName = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_name);
         mUserEmail = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_email);
         mUserPhoto = navigationView.getHeaderView(0).findViewById(R.id.drawer_avatar);
-        mToolbar = findViewById(R.id.toolbar);
+        Toolbar mToolbar = findViewById(R.id.toolbar);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
 
         mToolbar.setTitle("I'm Hungry");
@@ -76,7 +71,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
         //Setting Custom ToolBar As ActionBar
         setSupportActionBar(mToolbar);
 
-        //Add Toogle button
+        //Add Toggle button
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -86,7 +81,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
 
         //Session Log Out Back to mainEmpty
         navigationView.setNavigationItemSelectedListener(this);
-        getAnddisplayUserInfo();
+        getAndDisplayUserInfo();
 
         loadFragment(new MapFragment(this));
 
@@ -113,7 +108,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //If Drawer is open, we want to close it on backbutton pressed not exiting app
+    //If Drawer is open, we want to close it on backButton pressed not exiting app
     @Override
     public void onBackPressed() {
         //TODO add a byebye message
@@ -169,7 +164,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
 
     private void launchRestaurantDetail(String id) {
         Intent intent = new Intent(this, RestaurantDetailActivity.class);
-        intent.putExtra(EXTRA_TAG_ID,id);
+        intent.putExtra(INTENT_EXTRA_CODE,id);
         startActivity(intent);
     }
 
@@ -192,7 +187,7 @@ public class ListRestaurantsActivity extends AppCompatActivity implements Naviga
     }
 
     //Get Values from Firebase user Instance and push them in views
-    private void getAnddisplayUserInfo() {
+    private void getAndDisplayUserInfo() {
         FirebaseUser user = FirebaseAuthService.getUser();
         mUserName.setText(user.getDisplayName());
         mUserEmail.setText(user.getEmail());

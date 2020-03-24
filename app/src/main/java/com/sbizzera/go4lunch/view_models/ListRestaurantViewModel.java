@@ -8,11 +8,11 @@ public class ListRestaurantViewModel extends ViewModel {
 
     private FireStoreService fireStore;
 
-    public ListRestaurantViewModel(FireStoreService fireStore) {
+    ListRestaurantViewModel(FireStoreService fireStore) {
         this.fireStore = fireStore;
     }
 
-    public void checkUserAndInsertInDB() {
-        fireStore.handleUserInFireStore();
+    public void updateUserInDb() {
+        fireStore.updateUserInDb();
     }
 }

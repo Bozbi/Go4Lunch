@@ -18,12 +18,8 @@ public class FirebaseAuthService {
     private static FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
     private static AuthUI mAuthUi = AuthUI.getInstance();
 
-    public static boolean isUserLoged() {
-        if (mFirebaseAuth.getCurrentUser() != null) {
-            return true;
-        } else {
-            return false;
-        }
+    public static boolean isUserLogged() {
+        return mFirebaseAuth.getCurrentUser() != null;
     }
 
     public static Intent getLoginIntent() {
@@ -37,7 +33,7 @@ public class FirebaseAuthService {
                 .setFacebookButtonId(R.id.facebook_btn)
                 .build();
 
-        Intent intent = AuthUI.getInstance()
+        return AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setIsSmartLockEnabled(false)
                 .setAvailableProviders(providers)
@@ -45,7 +41,6 @@ public class FirebaseAuthService {
                 .setAuthMethodPickerLayout(customLayout)
                 .build();
 
-        return intent;
     }
 
     public static Task<Void> logOut(Context context) {
@@ -55,6 +50,4 @@ public class FirebaseAuthService {
     public static FirebaseUser getUser() {
         return mFirebaseAuth.getCurrentUser();
     }
-
-    public static String getCurrentUserId(){return mFirebaseAuth.getCurrentUser().getUid();}
 }
