@@ -7,14 +7,19 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreLike;
+import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreUser;
-import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreUserDailyChoice;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.DetailResult;
 
 import org.threeten.bp.LocalDate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class FireStoreService {
@@ -23,29 +28,19 @@ public class FireStoreService {
     private String currentUserId = FirebaseAuthService.getUser().getUid();
     private FirebaseUser currentUser = FirebaseAuthService.getUser();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference allUsers = db.collection("users");
+    private CollectionReference users = db.collection("users");
     private CollectionReference restaurants = db.collection("restaurants");
-    private CollectionReference dateNode = db.collection("date");
+    private CollectionReference dates = db.collection("dates");
 
 
-    public void addRestaurantToFireStore(DetailResult restaurant) {
-        restaurants.add(new FireStoreRestaurant(
-                restaurant.getPlaceId(),
-                restaurant.getName(),
-                restaurant.getGeometry().getLocation().getLat(),
-                restaurant.getGeometry().getLocation().getLng()
-        ));
-    }
-
-
-    //Insert or Update user in MainUsers collection
+    //Insert or Update user in FiresStore
     public void updateUserInDb() {
         String photoUrl = null;
         if (currentUser.getPhotoUrl() != null) {
             photoUrl = currentUser.getPhotoUrl().toString();
         }
 
-        allUsers.document(currentUserId).set(new FireStoreUser(
+        users.document(currentUserId).set(new FireStoreUser(
                 currentUserId,
                 currentUser.getDisplayName(),
                 photoUrl
@@ -53,93 +48,88 @@ public class FireStoreService {
     }
 
 
-//    public void updateRestaurantLike(DetailResult restaurant) {
-//        //TODO Factorise
-//        //Check if Restaurant in Likes for this User
-//        likes.whereEqualTo("restaurantID", restaurant.getPlaceId())
-//                .whereEqualTo("userID", currentUserId)
-//                .get().addOnSuccessListener(querySnapshot1 -> {
-//            if (querySnapshot1.getDocuments().size() == 1) {
-//                //Remove Like
-//                likes.document(querySnapshot1.getDocuments().get(0).getId()).delete();
-//            } else {
-//                //check if Retaurant exists
-//                restaurants.whereEqualTo("restaurantID", restaurant.getPlaceId()).get()
-//                        .addOnSuccessListener(querySnapshot2 -> {
-//                            if (querySnapshot2.getDocuments().size() == 0) {
-//                                //Add Restaurant
-//                                addRestaurantToFireStore(restaurant);
-//                                //Add Like
-//                                likes.add(new FireStoreLike(
-//                                        currentUserId,
-//                                        restaurant.getPlaceId()
-//                                ));
-//                            } else {
-//                                likes.add(new FireStoreLike(
-//                                        currentUserId,
-//                                        restaurant.getPlaceId()
-//                                ));
-//                            }
-//                        });
-//            }
-//        });
-//    }
+    public void updateRestaurantLike(DetailResult restaurant) {
+        restaurants.document(restaurant.getPlaceId()).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot != null && documentSnapshot.getData() != null) {
+                //update like
+                FireStoreRestaurant fetchedRestaurant = documentSnapshot.toObject(FireStoreRestaurant.class);
+                if (fetchedRestaurant != null ) {
+                    List<String>likes = new ArrayList<>();
+                    if (fetchedRestaurant.getLikesIds()!=null){
+                        likes = fetchedRestaurant.getLikesIds();
+                    }
+                    if (likes.contains(currentUserId)) {
+                        restaurants.document(restaurant.getPlaceId()).update("likesIds", FieldValue.arrayRemove(currentUserId));
+                    } else {
+                        restaurants.document(restaurant.getPlaceId()).update("likesIds", FieldValue.arrayUnion(currentUserId));
+                    }
+                }
+            } else {
+                //create restaurant and add like
+                FireStoreRestaurant restaurantToAdd = new FireStoreRestaurant(
+                        restaurant.getPlaceId(),
+                        restaurant.getName(),
+                        restaurant.getGeometry().getLocation().getLat(),
+                        restaurant.getGeometry().getLocation().getLng()
+                );
+                List<String> likesIds = new ArrayList<>();
+                likesIds.add(currentUserId);
+                restaurantToAdd.setLikesIds(likesIds);
+                restaurants.document(restaurant.getPlaceId()).set(restaurantToAdd);
+            }
+        });
 
-//    public void updateRestaurantChoice(DetailResult restaurant) {
-//        //Todo Factorise
-//        dailyChoice.whereEqualTo("userId", currentUserId)
-//                .whereEqualTo("date", LocalDate.now().toString()).get()
-//                .addOnSuccessListener(querySnapshot -> {
-//                    if (querySnapshot.getDocuments().size() == 1) {
-//                        dailyChoice.whereEqualTo("restaurantId", restaurant.getPlaceId())
-//                                .whereEqualTo("userId", currentUserId)
-//                                .whereEqualTo("date", LocalDate.now().toString()).get()
-//                                .addOnSuccessListener(querySnapshot2 -> {
-//                                    if (querySnapshot2.getDocuments().size() == 1) {
-//                                        dailyChoice.document(querySnapshot2.getDocuments().get(0).getId()).delete();
-//                                    } else {
-//                                        dailyChoice.document(querySnapshot.getDocuments().get(0).getId()).delete();
-//                                        dailyChoice.add(new FireStoreUserDailyChoice(
-//                                                LocalDate.now().toString(),
-//                                                currentUserId,
-//                                                restaurant.getPlaceId()
-//                                        ));
-//                                    }
-//                                });
-//                    } else {
-//                        //check if Retaurant exists
-//                        restaurants.whereEqualTo("restaurantID", restaurant.getPlaceId()).get()
-//                                .addOnSuccessListener(querySnapshot3 -> {
-//                                    if (querySnapshot3.getDocuments().size() == 0) {
-//                                        //Add Restaurant
-//                                        addRestaurantToFireStore(restaurant);
-//                                        //Add Like
-//                                        dailyChoice.add(new FireStoreUserDailyChoice(
-//                                                LocalDate.now().toString(),
-//                                                currentUserId,
-//                                                restaurant.getPlaceId()
-//                                        ));
-//                                    } else {
-//                                        dailyChoice.add(new FireStoreUserDailyChoice(
-//                                                LocalDate.now().toString(),
-//                                                currentUserId,
-//                                                restaurant.getPlaceId()
-//                                        ));
-//                                    }
-//                                });
-//                    }
-//                });
-//    }
+    }
+
+    public void updateRestaurantChoice(DetailResult restaurant) {
+        FireStoreLunch lunchToAdd = new FireStoreLunch(
+                currentUserId,
+                currentUser.getDisplayName(),
+                currentUser.getPhotoUrl().toString(),
+                restaurant.getPlaceId()
+        );
+        restaurants.document(restaurant.getPlaceId()).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot != null && documentSnapshot.getData() != null) {
+                dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().addOnSuccessListener(documentSnapshot2 -> {
+                    if (documentSnapshot2 != null && documentSnapshot2.getData() != null) {
+                        //user has already made a choice
+                        FireStoreLunch existingLunch = documentSnapshot2.toObject(FireStoreLunch.class);
+                        // if choice is same restaurant remove document and update count
+                        if (existingLunch != null && existingLunch.getRestaurantId().equals(restaurant.getPlaceId())) {
+                            dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).delete();
+                            // if not same restaurant, update lunch
+                        } else {
+                            dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).update("restaurantId", restaurant.getPlaceId());
+                        }
+                    } else {
+                        //user hasn't made a choice
+                        //create lunch
+                        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).set(lunchToAdd);
+
+                    }
+                });
+            } else {
+                //create restaurant add lunch and update count
+                FireStoreRestaurant restaurantToAdd = new FireStoreRestaurant(
+                        restaurant.getPlaceId(),
+                        restaurant.getName(),
+                        restaurant.getGeometry().getLocation().getLat(),
+                        restaurant.getGeometry().getLocation().getLng()
+                );
+                restaurants.document(restaurant.getPlaceId()).set(restaurantToAdd);
+                dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).set(lunchToAdd);
+            }
+        });
+    }
 
 
-    //Check if userId appears in subCollection "likes"
     public LiveData<Boolean> isRestaurantLikedByUser(String id) {
         MutableLiveData<Boolean> isLikedLiveData = new MutableLiveData<>();
-        restaurants.document(id).collection("likes").document(currentUser.getUid()).addSnapshotListener((documentSnapshot, e) -> {
-            if (documentSnapshot != null) {
-                isLikedLiveData.postValue(true);
-            } else {
+        restaurants.whereEqualTo("restaurantId", id).whereArrayContains("likesIds", currentUserId).addSnapshotListener((queryDocumentSnapshots, e) -> {
+            if (queryDocumentSnapshots != null && queryDocumentSnapshots.getDocuments().size() == 0) {
                 isLikedLiveData.postValue(false);
+            } else {
+                isLikedLiveData.postValue(true);
             }
         });
         return isLikedLiveData;
@@ -147,22 +137,54 @@ public class FireStoreService {
 
     public LiveData<Integer> getRestaurantLikesCount(String id) {
         MutableLiveData<Integer> likesCountLiveData = new MutableLiveData<>();
-        restaurants.document(id).collection("likes").addSnapshotListener((queryDocumentSnapshots, e) -> {
-            likesCountLiveData.postValue(queryDocumentSnapshots.size());
+        restaurants.document(id).addSnapshotListener((documentSnapshot, e) -> {
+            if (documentSnapshot != null) {
+                FireStoreRestaurant fetchedRestaurant = documentSnapshot.toObject(FireStoreRestaurant.class);
+                if (fetchedRestaurant != null ) {
+                    int likesCount = 0;
+                    if (fetchedRestaurant.getLikesIds()!=null){
+                        likesCount = fetchedRestaurant.getLikesIds().size();
+                    }
+                    likesCountLiveData.postValue(likesCount);
+                } else {
+                    likesCountLiveData.postValue(0);
+                }
+            } else {
+                likesCountLiveData.postValue(0);
+            }
         });
         return likesCountLiveData;
     }
 
     public LiveData<Boolean> isRestaurantChosenByUserToday(String id) {
         MutableLiveData<Boolean> isRestaurantChosenByUserTodayLiveData = new MutableLiveData<>();
-        dateNode.document(LocalDate.now().toString()).collection("users").document(currentUser.getUid()).addSnapshotListener((documentSnapshot, e) -> {
-           if(documentSnapshot!=null){
-               isRestaurantChosenByUserTodayLiveData.postValue(true);
-           }else {
-               isRestaurantChosenByUserTodayLiveData.postValue(false);
-           }
-        });
+        dates.document(LocalDate.now().toString()).collection("lunches")
+                .document(currentUserId)
+                .addSnapshotListener((documentSnapshots, e) -> {
+                    if (documentSnapshots!=null && documentSnapshots.exists() && documentSnapshots.getData()!=null &&documentSnapshots.getData().containsValue(id)){
+                        isRestaurantChosenByUserTodayLiveData.postValue(true);
+                    }
+                    else{
+                        isRestaurantChosenByUserTodayLiveData.postValue(false);
+                    }
+                });
+
         return isRestaurantChosenByUserTodayLiveData;
     }
 
+    public LiveData<List<FireStoreUser>> getTodayListOfUsers(String id) {
+        MutableLiveData<List<FireStoreUser>> listUsersLiveData = new MutableLiveData<>();
+        List<FireStoreUser> usersToSend = new ArrayList<>();
+        dates.document(LocalDate.now().toString()).collection("lunches").whereEqualTo("restaurantId",id).addSnapshotListener((queryDocumentSnapshots, e) -> {
+            if (queryDocumentSnapshots!=null) {
+                usersToSend.clear();
+                for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                    FireStoreUser userToAdd = document.toObject(FireStoreUser.class);
+                    usersToSend.add(userToAdd);
+                }
+                listUsersLiveData.postValue(usersToSend);
+            }
+        });
+        return listUsersLiveData;
+    }
 }

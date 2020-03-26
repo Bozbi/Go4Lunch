@@ -14,6 +14,8 @@ import androidx.lifecycle.ViewModel;
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.RestaurantActivityDetailModel;
+import com.sbizzera.go4lunch.model.RestaurantDetailAdapterModel;
+import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreUser;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.DetailResult;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.RestaurantRepository;
@@ -31,7 +33,7 @@ public class RestaurantDetailViewModel extends ViewModel {
     private RestaurantRepository mRestaurantRepository;
     private FireStoreService mFirestoreService;
     private MediatorLiveData<RestaurantActivityDetailModel> modelLiveData = new MediatorLiveData<>();
-//    private LiveData<DetailResult> placeDetailLiveData;
+    private LiveData<DetailResult> placeDetailLiveData;
 
     RestaurantDetailViewModel(RestaurantRepository restaurantRepository, FireStoreService firestore) {
         mRestaurantRepository = restaurantRepository;
@@ -43,29 +45,34 @@ public class RestaurantDetailViewModel extends ViewModel {
     }
 
     public void fetchRestaurantInfo(String id) {
-        LiveData<DetailResult> placeDetailLiveData = mRestaurantRepository.getRestaurantDetailsById(id);
+        placeDetailLiveData = mRestaurantRepository.getRestaurantDetailsById(id);
         LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestoreService.isRestaurantLikedByUser(id);
         LiveData<Integer> restaurantLikeCountLiveData = mFirestoreService.getRestaurantLikesCount(id);
         LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestoreService.isRestaurantChosenByUserToday(id);
+        LiveData<List<FireStoreUser>> todayListOfUsersLiveData = mFirestoreService.getTodayListOfUsers(id);
 
         modelLiveData.addSource(placeDetailLiveData, place -> {
-            modelLiveData.postValue(combineSources(place, isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue()));
+            modelLiveData.postValue(combineSources(place, isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue(), todayListOfUsersLiveData.getValue()));
         });
 
         modelLiveData.addSource(isRestaurantLikedByUserLiveData, isRestaurantLikedByUser -> {
-            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUser, restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue()));
+            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUser, restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue(), todayListOfUsersLiveData.getValue()));
         });
 
         modelLiveData.addSource(restaurantLikeCountLiveData, restaurantLikeCount -> {
-            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCount, isRestaurantTodayUserChoiceLiveData.getValue()));
+            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCount, isRestaurantTodayUserChoiceLiveData.getValue(), todayListOfUsersLiveData.getValue()));
         });
 
         modelLiveData.addSource(isRestaurantTodayUserChoiceLiveData, isRestaurantTodayUserChoice -> {
-            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoice));
+            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoice, todayListOfUsersLiveData.getValue()));
+        });
+
+        modelLiveData.addSource(todayListOfUsersLiveData, todayListOfUsers -> {
+            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue(), todayListOfUsers));
         });
     }
 
-    private RestaurantActivityDetailModel combineSources(DetailResult place, Boolean isRestaurantLikedByUser, Integer restaurantLikeCount, Boolean isRestaurantTodayUserChoice) {
+    private RestaurantActivityDetailModel combineSources(DetailResult place, Boolean isRestaurantLikedByUser, Integer restaurantLikeCount, Boolean isRestaurantTodayUserChoice, List<FireStoreUser> todayListOfUsers) {
 
         String photoUrl = getPhotoUrlFromPhotoRef(place);
         String restaurantName = getName(place);
@@ -90,6 +97,7 @@ public class RestaurantDetailViewModel extends ViewModel {
         int fabIcon = getFabIcon(isRestaurantTodayUserChoice);
         @ColorRes
         int fabColor = getFabColor(isRestaurantTodayUserChoice);
+        List<RestaurantDetailAdapterModel> todaysLunchers = getLunchers(todayListOfUsers);
 
 
         return new RestaurantActivityDetailModel(
@@ -108,8 +116,37 @@ public class RestaurantDetailViewModel extends ViewModel {
                 webSite,
                 webSiteBlockColor,
                 isWebSiteClickable,
-                //TODO
-                new ArrayList<>());
+                todaysLunchers);
+    }
+
+    private List<RestaurantDetailAdapterModel> getLunchers(List<FireStoreUser> todayListOfUsers) {
+        List<RestaurantDetailAdapterModel> listToReturn = new ArrayList<>();
+        if (todayListOfUsers != null) {
+            for (FireStoreUser user : todayListOfUsers) {
+                String text = user.getUserName() + " is eating here";
+                RestaurantDetailAdapterModel userModel = new RestaurantDetailAdapterModel(
+                        user.getUserAvatarUrl(),
+                        text
+                );
+                listToReturn.add(userModel);
+            }
+        }
+        return listToReturn;
+    }
+
+
+    public void handleLikeClick() {
+        //check that a restaurant has been fetch
+        if (placeDetailLiveData.getValue() != null) {
+            mFirestoreService.updateRestaurantLike(placeDetailLiveData.getValue());
+        }
+    }
+
+    public void handleFabClick() {
+        //check that a restaurant has been fetch
+        if (placeDetailLiveData.getValue() != null) {
+            mFirestoreService.updateRestaurantChoice(placeDetailLiveData.getValue());
+        }
     }
 
     private String getWebSite(DetailResult place) {
@@ -262,16 +299,6 @@ public class RestaurantDetailViewModel extends ViewModel {
                 .appendQueryParameter("key", Commons.PLACES_API_KEY)
                 .toString();
     }
-
-
-    /*public void handleLikeClick() {
-        mFirestore.updateRestaurantLike(placeDetailLiveData.getValue());
-    }
-
-    public void handleFabClick() {
-        mFirestore.updateRestaurantChoice(placeDetailLiveData.getValue());
-    }*/
-
 
     public void handleWebSiteClick() {
         Uri webpage = Uri.parse(modelLiveData.getValue().getWebSiteUrl());

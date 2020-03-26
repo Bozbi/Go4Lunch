@@ -1,30 +1,36 @@
 package com.sbizzera.go4lunch.model.firestore_database_models;
 
+import java.util.List;
+
 public class FireStoreRestaurant {
 
-    private String restaurantID;
+    private String restaurantId;
+
     private String name;
 
     private Double lat;
 
     private Double lng;
 
+    private List<String> likesIds;
+
+
     public FireStoreRestaurant() {
     }
 
-    public FireStoreRestaurant(String restaurantID, String name,Double lat, Double lng) {
-        this.restaurantID = restaurantID;
+    public FireStoreRestaurant(String restaurantId, String name, Double lat, Double lng) {
+        this.restaurantId = restaurantId;
         this.name = name;
         this.lat = lat;
         this.lng = lng;
     }
 
-    public String getRestaurantID() {
-        return restaurantID;
+    public String getRestaurantId() {
+        return restaurantId;
     }
 
-    public void setRestaurantID(String restaurantID) {
-        this.restaurantID = restaurantID;
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
     }
 
     public String getName() {
@@ -49,5 +55,13 @@ public class FireStoreRestaurant {
 
     public void setLng(Double lng) {
         this.lng = lng;
+    }
+
+    public List<String> getLikesIds() {
+        return likesIds;
+    }
+
+    public void setLikesIds(List<String> likesIds) {
+        this.likesIds = likesIds;
     }
 }

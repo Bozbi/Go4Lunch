@@ -33,9 +33,6 @@ public class RestaurantRepository {
     }
 
     private PlacesAPI mPlacesAPI;
-    private MutableLiveData<List<NearbyPlace>> mNearbyRestaurants = new MutableLiveData<>();
-    private MutableLiveData<DetailsResponse.DetailResult> mPlaceDetailsLiveData = new MutableLiveData<>();
-
 
     public RestaurantRepository() {
         Retrofit retrofit = new Retrofit.Builder()
@@ -47,25 +44,23 @@ public class RestaurantRepository {
     }
 
     public LiveData<List<NearbyPlace>> getNearbyRestaurants(String location) {
-
+        MutableLiveData<List<NearbyPlace>> nearbyRestaurantListLiveData = new MutableLiveData<>();
         mPlacesAPI.getNearbyRestaurant(location).enqueue(new Callback<NearbyResults>() {
             @EverythingIsNonNull
             @Override
             public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {
                 assert response.body() != null;
-                Log.d(TAG, "NearbyRestaurants response: " + response.body().getRestaurantList().get(0).getName() + ",... " + response.body().getRestaurantList().size() + " restaurants");
-                mNearbyRestaurants.postValue(response.body().getRestaurantList());
+                nearbyRestaurantListLiveData.postValue(response.body().getRestaurantList());
             }
 
             @EverythingIsNonNull
             @Override
             public void onFailure(Call<NearbyResults> call, Throwable t) {
-                Log.d(TAG, "NearbyRestaurants request failed");
-                mNearbyRestaurants.postValue(null);
+                nearbyRestaurantListLiveData.postValue(null);
             }
         });
 
-        return mNearbyRestaurants;
+        return nearbyRestaurantListLiveData;
     }
 
 
@@ -75,8 +70,11 @@ public class RestaurantRepository {
             @Override
             @EverythingIsNonNull
             public void onResponse(Call<DetailsResponse> call, Response<DetailsResponse> response) {
-                //TODO try to put out this exception
-                restaurantDetailsLiveData.postValue(response.body().getDetailResult());
+                if (response.body()!= null){
+                    restaurantDetailsLiveData.postValue(response.body().getDetailResult());
+                }else {
+                    restaurantDetailsLiveData.postValue(null);
+                }
             }
 
             @Override
@@ -86,7 +84,7 @@ public class RestaurantRepository {
             }
         });
 
-        return mPlaceDetailsLiveData;
+        return restaurantDetailsLiveData;
     }
 
 }

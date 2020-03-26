@@ -70,7 +70,6 @@ public class RestaurantDetailActivity extends AppCompatActivity implements View.
         phoneTxt = findViewById(R.id.phone_txt);
         likeBlockLiLay = findViewById(R.id.like_block_lilay);
         likeImg = findViewById(R.id.like_img);
-        likeImg.getDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_ATOP);
         likeTxt = findViewById(R.id.like_txt);
         websiteBlockLiLay = findViewById(R.id.website_block_lilay);
         webSiteImg = findViewById(R.id.website_img);
@@ -134,14 +133,14 @@ public class RestaurantDetailActivity extends AppCompatActivity implements View.
                 mModel.handleWebSiteClick();
                 break;
             }
-//            case R.id.like_block_lilay: {
-//                mModel.handleLikeClick();
-//                break;
-//            }
-//            case R.id.restaurant_check_fab: {
-//                mModel.handleFabClick();
-//                break;
-//            }
+            case R.id.like_block_lilay: {
+                mModel.handleLikeClick();
+                break;
+            }
+            case R.id.restaurant_check_fab: {
+                mModel.handleFabClick();
+                break;
+            }
         }
     }
 }

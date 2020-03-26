@@ -1,18 +1,23 @@
 package com.sbizzera.go4lunch.model.firestore_database_models;
 
-public class FireStoreUser {
+public class FireStoreLunch {
+
 
     private String userId;
+
     private String userName;
+
     private String userAvatarUrl;
 
-    public FireStoreUser() {
-    }
+    private String restaurantId;
 
-    public FireStoreUser(String userId, String userName, String userAvatarUrl) {
+    public FireStoreLunch(){}
+
+    public FireStoreLunch(String userId, String userName, String userAvatarUrl, String restaurantId) {
         this.userId = userId;
         this.userName = userName;
         this.userAvatarUrl = userAvatarUrl;
+        this.restaurantId = restaurantId;
     }
 
     public String getUserId() {
@@ -37,5 +42,13 @@ public class FireStoreUser {
 
     public void setUserAvatarUrl(String userAvatarUrl) {
         this.userAvatarUrl = userAvatarUrl;
+    }
+
+    public String getRestaurantId() {
+        return restaurantId;
+    }
+
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
     }
 }
