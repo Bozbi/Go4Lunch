@@ -89,6 +89,7 @@ public class FireStoreService {
                 restaurant.getPlaceId(),
                 restaurant.getName()
         );
+        Log.d(TAG, "updateRestaurantChoice: "+ restaurant.getName() + restaurant.getPlaceId());
         restaurants.document(restaurant.getPlaceId()).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot != null && documentSnapshot.getData() != null) {
                 dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().addOnSuccessListener(documentSnapshot2 -> {
@@ -100,7 +101,8 @@ public class FireStoreService {
                             dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).delete();
                             // if not same restaurant, update lunch
                         } else {
-                            dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).update("restaurantId", restaurant.getPlaceId());
+                            dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).update("restaurantId", restaurant.getPlaceId(),"restaurantName",restaurant.getName());
+//                            dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).update("restaurantName", restaurant.getName());
                         }
                     } else {
                         //user hasn't made a choice

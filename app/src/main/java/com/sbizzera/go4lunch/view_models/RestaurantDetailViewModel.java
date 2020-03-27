@@ -20,6 +20,7 @@ import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.D
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.RestaurantRepository;
 import com.sbizzera.go4lunch.utils.Commons;
+import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,7 +124,7 @@ public class RestaurantDetailViewModel extends ViewModel {
         List<RestaurantDetailAdapterModel> listToReturn = new ArrayList<>();
         if (todayListOfUsers != null) {
             for (FireStoreUser user : todayListOfUsers) {
-                String text = user.getUserName() + " is eating here";
+                String text = Go4LunchUtils.getUserFirstName(user.getUserName()) + " is eating here";
                 RestaurantDetailAdapterModel userModel = new RestaurantDetailAdapterModel(
                         user.getUserAvatarUrl(),
                         text

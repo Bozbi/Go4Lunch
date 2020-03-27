@@ -1,5 +1,7 @@
 package com.sbizzera.go4lunch.view_models;
 
+import android.graphics.Typeface;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
@@ -9,8 +11,11 @@ import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreUser;
 import com.sbizzera.go4lunch.model.places_place_details_models.WorkmatesFragmentModel;
 import com.sbizzera.go4lunch.services.FireStoreService;
+import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class WorkmatesFragmentViewModel extends ViewModel {
@@ -50,20 +55,36 @@ public class WorkmatesFragmentViewModel extends ViewModel {
         List<WorkmatesAdapterModel> workmateModelList = new ArrayList<>();
         if (allUsers != null) {
             for (FireStoreUser user : allUsers) {
+                String userFirstName = Go4LunchUtils.getUserFirstName(user.getUserName());
                 WorkmatesAdapterModel workmateModel = new WorkmatesAdapterModel(
                         user.getUserAvatarUrl(),
-                        user.getUserName() + " hasn't decided yet!"
+                        userFirstName + " hasn't decided yet!",
+                        false,
+                        Typeface.ITALIC,
+                        null
                 );
                 if (allTodayLunch != null && allTodayLunch.size() > 0) {
                     for (FireStoreLunch lunch : allTodayLunch) {
                         if (user.getUserId().equals(lunch.getUserId())) {
-                            workmateModel.setChoice(lunch.getUserName() + " eats at " + lunch.getRestaurantName());
+                            workmateModel.setChoice(userFirstName + " eats at " + lunch.getRestaurantName());
+                            workmateModel.setClickable(true);
+                            workmateModel.setTextStyle(Typeface.BOLD);
+                            workmateModel.setRestaurantId(lunch.getRestaurantId());
                         }
                     }
                 }
                 workmateModelList.add(workmateModel);
             }
         }
+       Collections.sort(workmateModelList, new Comparator<WorkmatesAdapterModel>() {
+           @Override
+           public int compare(WorkmatesAdapterModel o1, WorkmatesAdapterModel o2) {
+               if (o1.getClickable()){
+                   return -1;
+               }else{
+               return 0;}
+           }
+       });
         return workmateModelList;
     }
 

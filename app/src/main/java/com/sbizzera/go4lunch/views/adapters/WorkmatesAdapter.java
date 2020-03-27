@@ -1,5 +1,6 @@
 package com.sbizzera.go4lunch.views.adapters;
 
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,9 +33,6 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workmates_view, parent, false);
-        view.setOnClickListener(v-> {
-                mListener.onItemBoundWithRestaurantClick("");
-        });
         return new ViewHolder(view);
     }
 
@@ -48,6 +46,11 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
                 .into(holder.workmateAvatar);
 
         holder.workmateChoice.setText(workmate.getChoice());
+        holder.workmateChoice.setTypeface(holder.workmateChoice.getTypeface(),workmate.getTextStyle());
+        holder.itemView.setOnClickListener(v->{
+            mListener.onItemBoundWithRestaurantClick(workmate.getRestaurantId());
+        });
+        holder.itemView.setClickable(workmate.getClickable());
     }
 
     @Override

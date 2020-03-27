@@ -17,4 +17,8 @@ public class Go4LunchUtils {
         }
         return str;
     }
+
+    public static String getUserFirstName(String fullName) {
+        return fullName.substring(0,fullName.indexOf(" "));
+    }
 }
