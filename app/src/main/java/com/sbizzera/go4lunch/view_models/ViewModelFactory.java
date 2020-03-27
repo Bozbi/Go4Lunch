@@ -50,6 +50,9 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(ListRestaurantViewModel.class)) {
             return (T) new ListRestaurantViewModel(new FireStoreService());
         }
+        if (modelClass.isAssignableFrom(WorkmatesFragmentViewModel.class)){
+            return (T)new WorkmatesFragmentViewModel(new FireStoreService());
+        }
         throw new IllegalArgumentException("Unknown ViewModel class");
     }
 }

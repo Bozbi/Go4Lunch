@@ -14,16 +14,17 @@ import com.bumptech.glide.request.RequestOptions;
 import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.FakeWorkmates;
+import com.sbizzera.go4lunch.model.WorkmatesAdapterModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.ViewHolder> {
 
-    private List<FakeWorkmates> mWormatesList;
+    private List<WorkmatesAdapterModel> mWormatesList = new ArrayList<>();
     private OnItemBindWithRestaurantClickListener mListener;
 
-    public WorkmatesAdapter(List<FakeWorkmates> workmatesList, OnItemBindWithRestaurantClickListener listener) {
-        mWormatesList = workmatesList;
+    public WorkmatesAdapter(OnItemBindWithRestaurantClickListener listener) {
         mListener = listener;
     }
 
@@ -31,18 +32,15 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workmates_view, parent, false);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        view.setOnClickListener(v-> {
                 mListener.onItemBoundWithRestaurantClick("");
-            }
         });
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        FakeWorkmates workmate = mWormatesList.get(position);
+        WorkmatesAdapterModel workmate = mWormatesList.get(position);
 
         Glide.with(holder.workmateAvatar.getContext())
                 .load(workmate.getPhotoUrl())
@@ -57,14 +55,18 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         return mWormatesList.size();
     }
 
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-
-        public TextView workmateChoice;
-        public ImageView workmateAvatar;
+    public void setWorkmatesList(List<WorkmatesAdapterModel> workmatesList) {
+        mWormatesList = workmatesList;
+    }
 
 
-        public ViewHolder(@NonNull View itemView) {
+    static class ViewHolder extends RecyclerView.ViewHolder {
+
+        TextView workmateChoice;
+        ImageView workmateAvatar;
+
+
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             workmateChoice = itemView.findViewById(R.id.workmates_choice_txt);
             workmateAvatar = itemView.findViewById(R.id.workmates_img);

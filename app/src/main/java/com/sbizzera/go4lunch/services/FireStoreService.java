@@ -86,7 +86,8 @@ public class FireStoreService {
                 currentUserId,
                 currentUser.getDisplayName(),
                 currentUser.getPhotoUrl().toString(),
-                restaurant.getPlaceId()
+                restaurant.getPlaceId(),
+                restaurant.getName()
         );
         restaurants.document(restaurant.getPlaceId()).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot != null && documentSnapshot.getData() != null) {
@@ -186,5 +187,34 @@ public class FireStoreService {
             }
         });
         return listUsersLiveData;
+    }
+
+    public LiveData<List<FireStoreUser>> getAllUsers() {
+        MutableLiveData<List<FireStoreUser>> allUsersLiveData = new MutableLiveData<>();
+        users.addSnapshotListener((queryDocumentSnapshots,e) -> {
+            if (queryDocumentSnapshots!=null ){
+                List<FireStoreUser> usersList = new ArrayList<>();
+                for (int i = 0; i <queryDocumentSnapshots.getDocuments().size() ; i++) {
+                    FireStoreUser user = queryDocumentSnapshots.getDocuments().get(i).toObject(FireStoreUser.class);
+                    usersList.add(user);
+                }
+                allUsersLiveData.postValue(usersList);
+            }
+        });
+
+        return allUsersLiveData;
+    }
+
+    public LiveData<List<FireStoreLunch>> getAllTodaysLunches() {
+        MutableLiveData<List<FireStoreLunch>> allTodaysLunchesLiveData = new MutableLiveData<>();
+        dates.document(LocalDate.now().toString()).collection("lunches").addSnapshotListener((queryDocumentSnapshots, e) -> {
+            List<FireStoreLunch> lunchList = new ArrayList<>();
+            for (int i = 0; i <queryDocumentSnapshots.getDocuments().size() ; i++) {
+                FireStoreLunch lunch = queryDocumentSnapshots.getDocuments().get(i).toObject(FireStoreLunch.class);
+                lunchList.add(lunch);
+            }
+            allTodaysLunchesLiveData.postValue(lunchList);
+        });
+        return allTodaysLunchesLiveData;
     }
 }

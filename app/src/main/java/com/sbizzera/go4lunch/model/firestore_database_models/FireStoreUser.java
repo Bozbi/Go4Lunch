@@ -1,5 +1,7 @@
 package com.sbizzera.go4lunch.model.firestore_database_models;
 
+import androidx.annotation.NonNull;
+
 public class FireStoreUser {
 
     private String userId;
@@ -37,5 +39,11 @@ public class FireStoreUser {
 
     public void setUserAvatarUrl(String userAvatarUrl) {
         this.userAvatarUrl = userAvatarUrl;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "User: " + userName;
     }
 }

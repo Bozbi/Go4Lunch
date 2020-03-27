@@ -11,13 +11,16 @@ public class FireStoreLunch {
 
     private String restaurantId;
 
+    private String restaurantName;
+
     public FireStoreLunch(){}
 
-    public FireStoreLunch(String userId, String userName, String userAvatarUrl, String restaurantId) {
+    public FireStoreLunch(String userId, String userName, String userAvatarUrl, String restaurantId, String restaurantName) {
         this.userId = userId;
         this.userName = userName;
         this.userAvatarUrl = userAvatarUrl;
         this.restaurantId = restaurantId;
+        this.restaurantName = restaurantName;
     }
 
     public String getUserId() {
@@ -50,5 +53,13 @@ public class FireStoreLunch {
 
     public void setRestaurantId(String restaurantId) {
         this.restaurantId = restaurantId;
+    }
+
+    public String getRestaurantName() {
+        return restaurantName;
+    }
+
+    public void setRestaurantName(String restaurantName) {
+        this.restaurantName = restaurantName;
     }
 }

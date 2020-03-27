@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:text="Boris is eating at La Boussole"
-        android:textSize="15sp"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/workmates_img"
         app:layout_constraintTop_toTopOf="parent" />
