@@ -10,6 +10,7 @@ import com.sbizzera.go4lunch.services.DeviceLocator;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.PermissionHandler;
 import com.sbizzera.go4lunch.services.RestaurantRepository;
+import com.sbizzera.go4lunch.views.fragments.ListFragment;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
@@ -52,6 +53,14 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         }
         if (modelClass.isAssignableFrom(WorkmatesFragmentViewModel.class)){
             return (T)new WorkmatesFragmentViewModel(new FireStoreService());
+        }
+        if (modelClass.isAssignableFrom(ListFragmentViewModel.class)){
+            return (T)new ListFragmentViewModel(
+                    new DeviceLocator(App.getApplication()),
+                    PermissionHandler.getInstance(),
+                    RestaurantRepository.getInstance(),
+                    new FireStoreService()
+            );
         }
         throw new IllegalArgumentException("Unknown ViewModel class");
     }

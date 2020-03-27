@@ -1,6 +1,5 @@
 package com.sbizzera.go4lunch.views.adapters;
 
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.model.FakeWorkmates;
 import com.sbizzera.go4lunch.model.WorkmatesAdapterModel;
 
 import java.util.ArrayList;

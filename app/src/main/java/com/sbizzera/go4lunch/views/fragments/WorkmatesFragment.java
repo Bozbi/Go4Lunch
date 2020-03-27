@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.model.places_place_details_models.WorkmatesFragmentModel;
+import com.sbizzera.go4lunch.model.WorkmatesFragmentModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
 import com.sbizzera.go4lunch.view_models.WorkmatesFragmentViewModel;
 import com.sbizzera.go4lunch.views.adapters.WorkmatesAdapter;

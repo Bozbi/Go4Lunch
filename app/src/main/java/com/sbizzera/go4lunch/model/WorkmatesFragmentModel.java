@@ -1,6 +1,4 @@
-package com.sbizzera.go4lunch.model.places_place_details_models;
-
-import com.sbizzera.go4lunch.model.WorkmatesAdapterModel;
+package com.sbizzera.go4lunch.model;
 
 import java.util.List;
 

@@ -22,7 +22,7 @@
             android:scaleType="centerCrop"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/restaurant_placeholder" />
+            tools:src="@drawable/restaurant_photo_placeholder" />
 
         <TextView
             android:id="@+id/restaurant_name_txt"
@@ -86,10 +86,10 @@
 
 
         <ImageView
-            android:id="@+id/restaurant_star_3_img"
+            android:id="@+id/restaurant_star_1_img"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:src="@drawable/ic_star_bordered"
+            android:src="@drawable/ic_star_yellow"
             app:layout_constraintBottom_toBottomOf="@id/restaurant_img"
             app:layout_constraintRight_toRightOf="@id/restaurant_distance_txt" />
 
@@ -97,15 +97,15 @@
             android:id="@+id/restaurant_star_2_img"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:src="@drawable/ic_star_bordered"
-            app:layout_constraintBottom_toBottomOf="@id/restaurant_star_3_img"
-            app:layout_constraintRight_toLeftOf="@id/restaurant_star_3_img" />
+            android:src="@drawable/ic_star_yellow"
+            app:layout_constraintBottom_toBottomOf="@id/restaurant_star_1_img"
+            app:layout_constraintRight_toLeftOf="@id/restaurant_star_1_img" />
 
         <ImageView
-            android:id="@+id/restaurant_star_1_img"
+            android:id="@+id/restaurant_star_3_img"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:src="@drawable/ic_star_bordered"
+            android:src="@drawable/ic_star_yellow"
             app:layout_constraintBottom_toBottomOf="@id/restaurant_img"
             app:layout_constraintRight_toLeftOf="@id/restaurant_star_2_img" />
     </androidx.constraintlayout.widget.ConstraintLayout>

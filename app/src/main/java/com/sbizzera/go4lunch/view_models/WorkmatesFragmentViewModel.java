@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel;
 import com.sbizzera.go4lunch.model.WorkmatesAdapterModel;
 import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreUser;
-import com.sbizzera.go4lunch.model.places_place_details_models.WorkmatesFragmentModel;
+import com.sbizzera.go4lunch.model.WorkmatesFragmentModel;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 

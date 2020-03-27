@@ -10,20 +10,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.model.FakeRestaurants;
+import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
+import com.sbizzera.go4lunch.model.ListFragmentAdapterModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
-    private List<FakeRestaurants> mRestaurantsList;
+    private List<ListFragmentAdapterModel> restaurantModelList = new ArrayList<>();
 
     private OnItemBindWithRestaurantClickListener mListener;
 
-    public ListAdapter(List<FakeRestaurants> restaurantsList,OnItemBindWithRestaurantClickListener listener) {
-        mRestaurantsList = restaurantsList;
+    public ListAdapter(OnItemBindWithRestaurantClickListener listener) {
         mListener = listener;
     }
 
@@ -31,45 +31,56 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_view, parent, false);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListener.onItemBoundWithRestaurantClick("");
-            }
-        });
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        FakeRestaurants restaurant = mRestaurantsList.get(position);
-        holder.name.setText(restaurant.getName());
-        holder.address.setText(restaurant.getAddress());
-        holder.openingHours.setText(restaurant.getOpeningHours());
+        ListFragmentAdapterModel restaurant = restaurantModelList.get(position);
+        holder.name.setText(restaurant.getRestaurantName());
+        holder.address.setText(restaurant.getRestaurantAddress());
+        holder.openingHours.setText(restaurant.getOpenHoursText());
+        holder.openingHours.setTextColor(restaurant.getOpenHoursTextColor());
         holder.distance.setText(restaurant.getDistance());
-        holder.workmateFreq.setText(restaurant.getWorkmateFrequentation());
+        holder.workmateFreq.setText(restaurant.getWorkmatesLunchesCount());
+        holder.star1Img.setVisibility(restaurant.getStar1Visibility());
+        holder.star2Img.setVisibility(restaurant.getStar1Visibility());
+        holder.star3Img.setVisibility(restaurant.getStar1Visibility());
+
         Glide.with(holder.img.getContext())
                 .load(restaurant.getPhotoUrl())
+                .placeholder(R.drawable.restaurant_photo_placeholder)
                 .into(holder.img);
+
+        holder.itemView.setOnClickListener(v -> {
+            mListener.onItemBoundWithRestaurantClick(restaurant.getRestaurantId());
+        });
 
     }
 
     @Override
     public int getItemCount() {
-        return mRestaurantsList.size();
+        return restaurantModelList.size();
+    }
+
+    public void setList(List<ListFragmentAdapterModel> restaurantModelList) {
+        this.restaurantModelList = restaurantModelList;
     }
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView name;
-        public TextView address;
-        public TextView openingHours;
-        public TextView distance;
-        public TextView workmateFreq;
-        public ImageView img;
+        TextView name;
+        TextView address;
+        TextView openingHours;
+        TextView distance;
+        TextView workmateFreq;
+        ImageView img;
+        ImageView star1Img;
+        ImageView star2Img;
+        ImageView star3Img;
 
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.restaurant_name_txt);
             address = itemView.findViewById(R.id.restaurant_address_txt);
@@ -77,6 +88,9 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             distance = itemView.findViewById(R.id.restaurant_distance_txt);
             workmateFreq = itemView.findViewById(R.id.restaurant_workmates_frequentation);
             img = itemView.findViewById(R.id.restaurant_img);
+            star1Img = itemView.findViewById(R.id.restaurant_star_1_img);
+            star2Img = itemView.findViewById(R.id.restaurant_star_2_img);
+            star3Img = itemView.findViewById(R.id.restaurant_star_3_img);
 
         }
     }

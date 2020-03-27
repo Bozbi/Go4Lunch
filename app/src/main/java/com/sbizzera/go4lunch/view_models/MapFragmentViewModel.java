@@ -47,14 +47,9 @@ public class MapFragmentViewModel extends ViewModel {
 
     public void wireUpMediator() {
 
-        fineLocationPermissionLiveData = mPermissionHandler.getPermissionLiveData();
-        locationLiveData = mLocator.getLocation();
-        nearbyRestaurantsLiveData = Transformations.switchMap(locationLiveData, new Function<Location, LiveData<List<NearbyPlace>>>() {
-            @Override
-            public LiveData<List<NearbyPlace>> apply(Location location) {
-                return mRestaurantRepository.getNearbyRestaurants(Go4LunchUtils.locationToString(location));
-            }
-        });
+        LiveData<Boolean> fineLocationPermissionLiveData = mPermissionHandler.getPermissionLiveData();
+        LiveData<Location> locationLiveData = mLocator.getLocation();
+        LiveData<List<NearbyPlace>> nearbyRestaurantsLiveData = Transformations.switchMap(locationLiveData, location -> mRestaurantRepository.getNearbyRestaurants(Go4LunchUtils.locationToString(location)));
 
         mUiModelLiveData.addSource(fineLocationPermissionLiveData, fineLocationPermission -> {
             mUiModelLiveData.postValue(combineLocationAndPermission(locationLiveData.getValue(), fineLocationPermission, nearbyRestaurantsLiveData.getValue()));
