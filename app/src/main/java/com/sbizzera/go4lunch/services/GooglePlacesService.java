@@ -1,5 +1,7 @@
 package com.sbizzera.go4lunch.services;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -63,7 +65,7 @@ public class GooglePlacesService {
     }
 
 
-    public DetailsResponse.DetailResult getRestaurantDetailsById(String id) {
+    public DetailsResponse.DetailResult getRestaurantDetailsByIdAsync(String id) {
 
         DetailsResponse.DetailResult placeDetail = null;
         try {
@@ -74,6 +76,30 @@ public class GooglePlacesService {
         }
 
         return placeDetail;
+    }
+
+    public LiveData<DetailsResponse.DetailResult> getRestaurantDetailsById(String id) {
+        MutableLiveData<DetailsResponse.DetailResult> restaurantDetailsLiveData = new MutableLiveData<>();
+        mGooglePlacesAPI.getRestaurantDetailsById(id).enqueue(new Callback<DetailsResponse>() {
+            @Override
+            @EverythingIsNonNull
+            public void onResponse(Call<DetailsResponse> call, Response<DetailsResponse> response) {
+                if (response.body() != null) {
+                    restaurantDetailsLiveData.postValue(response.body().getDetailResult());
+                    Log.d(TAG, "onResponse: " + response.body().getDetailResult().getName());
+                } else {
+                    restaurantDetailsLiveData.postValue(null);
+                }
+            }
+
+            @Override
+            @EverythingIsNonNull
+            public void onFailure(Call<DetailsResponse> call, Throwable t) {
+                restaurantDetailsLiveData.postValue(null);
+            }
+        });
+
+        return restaurantDetailsLiveData;
     }
 
 

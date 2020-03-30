@@ -46,7 +46,7 @@ public class RestaurantViewModel extends ViewModel {
     }
 
     public void fetchRestaurantInfo(String id) {
-//        placeDetailLiveData = mGooglePlacesService.getRestaurantDetailsById(id);
+        placeDetailLiveData = mGooglePlacesService.getRestaurantDetailsById(id);
         LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestoreService.isRestaurantLikedByUser(id);
         LiveData<Integer> restaurantLikeCountLiveData = mFirestoreService.getRestaurantLikesCount(id);
         LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestoreService.isRestaurantChosenByUserToday(id);

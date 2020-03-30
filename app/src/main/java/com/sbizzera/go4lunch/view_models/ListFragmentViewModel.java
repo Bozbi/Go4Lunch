@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import timber.log.Timber;
+
 public class ListFragmentViewModel extends ViewModel {
 
     private static final String TAG = "ListFragmentViewModel";
@@ -58,20 +60,25 @@ public class ListFragmentViewModel extends ViewModel {
         LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = fireStoreService.getAllKnownRestaurants();
 
         modelLiveData.addSource(nearbyRestaurantsLiveData, nearbyPlaces -> {
+
             combineSources(nearbyPlaces, knownRestaurantsLiveData.getValue(), detailsMapLD.getValue());
         });
 
         modelLiveData.addSource(knownRestaurantsLiveData, knownRestaurants -> {
+
             combineSources(nearbyRestaurantsLiveData.getValue(), knownRestaurants, detailsMapLD.getValue());
         });
 
         modelLiveData.addSource(detailsMapLD, detailsMap -> {
+
             combineSources(nearbyRestaurantsLiveData.getValue(), knownRestaurantsLiveData.getValue(), detailsMap);
         });
 
     }
 
     private void combineSources(
+            //TODO verify With Nino for numbers of request
+
             List<NearbyPlace> nearbyPlaces,
             List<FireStoreRestaurant> knownRestaurants,
             Map<String, DetailsResponse.DetailResult> detailsMap) {
@@ -80,10 +87,14 @@ public class ListFragmentViewModel extends ViewModel {
             return;
         }
         List<ListFragmentAdapterModel> results = new ArrayList<>();
+        Map<String, DetailsResponse.DetailResult> fakeMap = new HashMap<>();
         if (nearbyPlaces != null) {
             for (NearbyPlace place : nearbyPlaces) {
                 DetailsResponse.DetailResult placeDetail = detailsMap.get(place.getId());
-                if (placeDetail == null) {
+                if (placeDetail == null && !detailsMap.containsKey(place.getId())) {
+                    Timber.d("place %s was not in map and key wasn't inserted", place.getId());
+                    fakeMap.put(place.getId(), null);
+                    Timber.d("FakeMap size: %s", fakeMap.size());
                     new DetailResultAsyncTask(place.getId(), new WeakReference<>(this), googlePlacesService).execute();
                     results.add(new ListFragmentAdapterModel(
                             place.getName(),
@@ -99,23 +110,30 @@ public class ListFragmentViewModel extends ViewModel {
                             View.INVISIBLE,
                             null
                     ));
-                }else{
-                    results.add(new ListFragmentAdapterModel(
-                            place.getName(),
-                            place.getId(),
-                            placeDetail.getAddressComponentList().get(1).getValue(),
-                            null,
-                            R.color.missingInfoColor,
-                            //TODO
-                            "0",
-                            "0",
-                            View.INVISIBLE,
-                            View.INVISIBLE,
-                            View.INVISIBLE,
-                            placeDetail.getPhotosList().get(0).getPhotoReference()
-                            )
-                    );
+                } else {
+                    if (placeDetail != null) {
+
+                        results.add(new ListFragmentAdapterModel(
+                                        place.getName(),
+                                        place.getId(),
+                                        placeDetail.getAddressComponentList().get(1).getValue(),
+                                        null,
+                                        R.color.missingInfoColor,
+                                        //TODO
+                                        "0",
+                                        "0",
+                                        View.INVISIBLE,
+                                        View.INVISIBLE,
+                                        View.INVISIBLE,
+                                        null
+                                )
+                        );
+                    }
                 }
+
+            }
+            if (fakeMap.size() > 0) {
+                detailsMapLD.setValue(fakeMap);
             }
         }
         modelLiveData.setValue(new ListFragmentModel(results));
@@ -126,6 +144,7 @@ public class ListFragmentViewModel extends ViewModel {
         private String restaurantId;
         private WeakReference<ListFragmentViewModel> viewModelRef;
         private GooglePlacesService googlePlacesService;
+        private static int count;
 
         public DetailResultAsyncTask(String restaurantId, WeakReference<ListFragmentViewModel> viewModelRef, GooglePlacesService googlePlacesService) {
             super();
@@ -136,12 +155,18 @@ public class ListFragmentViewModel extends ViewModel {
 
         @Override
         protected DetailsResponse.DetailResult doInBackground(Void... voids) {
-            return googlePlacesService.getRestaurantDetailsById(restaurantId);
+            return googlePlacesService.getRestaurantDetailsByIdAsync(restaurantId);
         }
 
         @Override
-        protected void onPostExecute(DetailsResponse.DetailResult detailResult) {
+        protected void onPreExecute() {
+            count++;
+            Timber.d("Number of requests : %s", count);
+        }
 
+
+        @Override
+        protected void onPostExecute(DetailsResponse.DetailResult detailResult) {
             if (viewModelRef.get() != null) {
                 Map<String, DetailsResponse.DetailResult> map = viewModelRef.get().detailsMapLD.getValue();
                 map.put(restaurantId, detailResult);
