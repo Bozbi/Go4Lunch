@@ -6,7 +6,7 @@ import androidx.annotation.IntegerRes;
 
 import java.util.List;
 
-public class RestaurantActivityDetailModel {
+public class RestaurantActivityModel {
 
     private String photoUrl;
     @DrawableRes
@@ -31,10 +31,10 @@ public class RestaurantActivityDetailModel {
     @ColorRes
     private int webSiteColor;
     private Boolean isWebSiteClickable;
-    private List<RestaurantDetailAdapterModel> workmatesList;
+    private List<RestaurantAdapterModel> workmatesList;
 
 
-    public RestaurantActivityDetailModel(String photoUrl, int fabIcon, int fabColor, String restaurantName, String addressText, int star1Visibility, int star2Visibility, int star3Visibility, String phoneNumber, int phoneColor, Boolean isPhoneClickable, int likeIcon, String webSiteUrl, int webSiteColor, Boolean isWebSiteClickable, List<RestaurantDetailAdapterModel> workmatesList) {
+    public RestaurantActivityModel(String photoUrl, int fabIcon, int fabColor, String restaurantName, String addressText, int star1Visibility, int star2Visibility, int star3Visibility, String phoneNumber, int phoneColor, Boolean isPhoneClickable, int likeIcon, String webSiteUrl, int webSiteColor, Boolean isWebSiteClickable, List<RestaurantAdapterModel> workmatesList) {
         this.photoUrl = photoUrl;
         this.fabIcon = fabIcon;
         this.fabColor = fabColor;
@@ -173,11 +173,11 @@ public class RestaurantActivityDetailModel {
         isWebSiteClickable = webSiteClickable;
     }
 
-    public List<RestaurantDetailAdapterModel> getWorkmatesList() {
+    public List<RestaurantAdapterModel> getWorkmatesList() {
         return workmatesList;
     }
 
-    public void setWorkmatesList(List<RestaurantDetailAdapterModel> workmatesList) {
+    public void setWorkmatesList(List<RestaurantAdapterModel> workmatesList) {
         this.workmatesList = workmatesList;
     }
 }

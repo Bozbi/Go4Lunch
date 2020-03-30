@@ -13,12 +13,12 @@ import androidx.lifecycle.ViewModel;
 
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.model.RestaurantActivityDetailModel;
-import com.sbizzera.go4lunch.model.RestaurantDetailAdapterModel;
-import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreUser;
+import com.sbizzera.go4lunch.model.RestaurantActivityModel;
+import com.sbizzera.go4lunch.model.RestaurantAdapterModel;
+import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.DetailResult;
 import com.sbizzera.go4lunch.services.FireStoreService;
-import com.sbizzera.go4lunch.services.RestaurantRepository;
+import com.sbizzera.go4lunch.services.GooglePlacesService;
 import com.sbizzera.go4lunch.utils.Commons;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
@@ -26,27 +26,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RestaurantDetailViewModel extends ViewModel {
+public class RestaurantViewModel extends ViewModel {
 
     private static final String TAG = "RestaurantDetailVM";
 
 
-    private RestaurantRepository mRestaurantRepository;
+    private GooglePlacesService mGooglePlacesService;
     private FireStoreService mFirestoreService;
-    private MediatorLiveData<RestaurantActivityDetailModel> modelLiveData = new MediatorLiveData<>();
+    private MediatorLiveData<RestaurantActivityModel> modelLiveData = new MediatorLiveData<>();
     private LiveData<DetailResult> placeDetailLiveData;
 
-    RestaurantDetailViewModel(RestaurantRepository restaurantRepository, FireStoreService firestore) {
-        mRestaurantRepository = restaurantRepository;
+    RestaurantViewModel(GooglePlacesService googlePlacesService, FireStoreService firestore) {
+        mGooglePlacesService = googlePlacesService;
         mFirestoreService = firestore;
     }
 
-    public LiveData<RestaurantActivityDetailModel> getModelLiveData() {
+    public LiveData<RestaurantActivityModel> getModelLiveData() {
         return modelLiveData;
     }
 
     public void fetchRestaurantInfo(String id) {
-        placeDetailLiveData = mRestaurantRepository.getRestaurantDetailsById(id);
+//        placeDetailLiveData = mGooglePlacesService.getRestaurantDetailsById(id);
         LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestoreService.isRestaurantLikedByUser(id);
         LiveData<Integer> restaurantLikeCountLiveData = mFirestoreService.getRestaurantLikesCount(id);
         LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestoreService.isRestaurantChosenByUserToday(id);
@@ -73,7 +73,7 @@ public class RestaurantDetailViewModel extends ViewModel {
         });
     }
 
-    private RestaurantActivityDetailModel combineSources(DetailResult place, Boolean isRestaurantLikedByUser, Integer restaurantLikeCount, Boolean isRestaurantTodayUserChoice, List<FireStoreUser> todayListOfUsers) {
+    private RestaurantActivityModel combineSources(DetailResult place, Boolean isRestaurantLikedByUser, Integer restaurantLikeCount, Boolean isRestaurantTodayUserChoice, List<FireStoreUser> todayListOfUsers) {
 
         String photoUrl = getPhotoUrlFromPhotoRef(place);
         String restaurantName = getName(place);
@@ -98,10 +98,10 @@ public class RestaurantDetailViewModel extends ViewModel {
         int fabIcon = getFabIcon(isRestaurantTodayUserChoice);
         @ColorRes
         int fabColor = getFabColor(isRestaurantTodayUserChoice);
-        List<RestaurantDetailAdapterModel> todaysLunchers = getLunchers(todayListOfUsers);
+        List<RestaurantAdapterModel> todaysLunchers = getLunchers(todayListOfUsers);
 
 
-        return new RestaurantActivityDetailModel(
+        return new RestaurantActivityModel(
                 photoUrl,
                 fabIcon,
                 fabColor,
@@ -120,12 +120,12 @@ public class RestaurantDetailViewModel extends ViewModel {
                 todaysLunchers);
     }
 
-    private List<RestaurantDetailAdapterModel> getLunchers(List<FireStoreUser> todayListOfUsers) {
-        List<RestaurantDetailAdapterModel> listToReturn = new ArrayList<>();
+    private List<RestaurantAdapterModel> getLunchers(List<FireStoreUser> todayListOfUsers) {
+        List<RestaurantAdapterModel> listToReturn = new ArrayList<>();
         if (todayListOfUsers != null) {
             for (FireStoreUser user : todayListOfUsers) {
                 String text = Go4LunchUtils.getUserFirstName(user.getUserName()) + " is eating here";
-                RestaurantDetailAdapterModel userModel = new RestaurantDetailAdapterModel(
+                RestaurantAdapterModel userModel = new RestaurantAdapterModel(
                         user.getUserAvatarUrl(),
                         text
                 );

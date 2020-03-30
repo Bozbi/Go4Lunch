@@ -13,22 +13,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
-import com.sbizzera.go4lunch.model.FakeRestaurants;
-import com.sbizzera.go4lunch.model.ListFragmentAdapterModel;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.model.ListFragmentModel;
 import com.sbizzera.go4lunch.view_models.ListFragmentViewModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
-import com.sbizzera.go4lunch.views.adapters.ListAdapter;
-
-import java.util.List;
+import com.sbizzera.go4lunch.views.adapters.ListFragmentAdapter;
 
 public class ListFragment extends Fragment {
 
-    private ListAdapter mAdapter;
-    private OnItemBindWithRestaurantClickListener mListener;
+    private ListFragmentAdapter mAdapter;
+    private OnItemBoundWithRestaurantClickListener mListener;
 
-    public ListFragment(OnItemBindWithRestaurantClickListener listener) {
+    public ListFragment(OnItemBoundWithRestaurantClickListener listener) {
         mListener = listener;
     }
 
@@ -37,7 +33,7 @@ public class ListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
 
-        mAdapter = new ListAdapter(mListener);
+        mAdapter = new ListFragmentAdapter(mListener);
 
         ListFragmentViewModel viewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(ListFragmentViewModel.class);
         viewModel.getModel().observe(this, this::updateUI);

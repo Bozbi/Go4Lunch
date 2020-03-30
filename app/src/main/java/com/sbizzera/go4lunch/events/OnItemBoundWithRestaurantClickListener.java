@@ -1,5 +1,5 @@
 package com.sbizzera.go4lunch.events;
 
-public interface OnItemBindWithRestaurantClickListener {
+public interface OnItemBoundWithRestaurantClickListener {
     void onItemBoundWithRestaurantClick(String id);
 }

@@ -11,19 +11,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.model.ListFragmentAdapterModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
+public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapter.ViewHolder> {
 
     private List<ListFragmentAdapterModel> restaurantModelList = new ArrayList<>();
 
-    private OnItemBindWithRestaurantClickListener mListener;
+    private OnItemBoundWithRestaurantClickListener mListener;
 
-    public ListAdapter(OnItemBindWithRestaurantClickListener listener) {
+    public ListFragmentAdapter(OnItemBoundWithRestaurantClickListener listener) {
         mListener = listener;
     }
 

@@ -11,19 +11,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.model.WorkmatesAdapterModel;
+import com.sbizzera.go4lunch.model.WorkmatesFragmentAdapterModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.ViewHolder> {
+public class WorkmatesFragmentAdapter extends RecyclerView.Adapter<WorkmatesFragmentAdapter.ViewHolder> {
 
-    private List<WorkmatesAdapterModel> mWormatesList = new ArrayList<>();
-    private OnItemBindWithRestaurantClickListener mListener;
+    private List<WorkmatesFragmentAdapterModel> mWormatesList = new ArrayList<>();
+    private OnItemBoundWithRestaurantClickListener mListener;
 
-    public WorkmatesAdapter(OnItemBindWithRestaurantClickListener listener) {
+    public WorkmatesFragmentAdapter(OnItemBoundWithRestaurantClickListener listener) {
         mListener = listener;
     }
 
@@ -36,7 +36,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        WorkmatesAdapterModel workmate = mWormatesList.get(position);
+        WorkmatesFragmentAdapterModel workmate = mWormatesList.get(position);
 
         Glide.with(holder.workmateAvatar.getContext())
                 .load(workmate.getPhotoUrl())
@@ -56,7 +56,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         return mWormatesList.size();
     }
 
-    public void setWorkmatesList(List<WorkmatesAdapterModel> workmatesList) {
+    public void setWorkmatesList(List<WorkmatesFragmentAdapterModel> workmatesList) {
         mWormatesList = workmatesList;
     }
 

@@ -1,15 +1,14 @@
 package com.sbizzera.go4lunch.services;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyResults;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse;
-import com.sbizzera.go4lunch.utils.Commons;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -19,33 +18,33 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.internal.EverythingIsNonNull;
 
-public class RestaurantRepository {
+public class GooglePlacesService {
 
     private static final String TAG = "RestaurantRepository";
 
-    private static RestaurantRepository sRestaurantRepository;
+    private static GooglePlacesService sGooglePlacesService;
 
-    public static RestaurantRepository getInstance() {
-        if (sRestaurantRepository == null) {
-            sRestaurantRepository = new RestaurantRepository();
+    public static GooglePlacesService getInstance() {
+        if (sGooglePlacesService == null) {
+            sGooglePlacesService = new GooglePlacesService();
         }
-        return sRestaurantRepository;
+        return sGooglePlacesService;
     }
 
-    private PlacesAPI mPlacesAPI;
+    private GooglePlacesAPI mGooglePlacesAPI;
 
-    public RestaurantRepository() {
+    public GooglePlacesService() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://maps.googleapis.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        mPlacesAPI = retrofit.create(PlacesAPI.class);
+        mGooglePlacesAPI = retrofit.create(GooglePlacesAPI.class);
     }
 
     public LiveData<List<NearbyPlace>> getNearbyRestaurants(String location) {
         MutableLiveData<List<NearbyPlace>> nearbyRestaurantListLiveData = new MutableLiveData<>();
-        mPlacesAPI.getNearbyRestaurant(location).enqueue(new Callback<NearbyResults>() {
+        mGooglePlacesAPI.getNearbyRestaurant(location).enqueue(new Callback<NearbyResults>() {
             @EverythingIsNonNull
             @Override
             public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {
@@ -64,27 +63,18 @@ public class RestaurantRepository {
     }
 
 
-    public LiveData<DetailsResponse.DetailResult> getRestaurantDetailsById(String id) {
-        MutableLiveData<DetailsResponse.DetailResult> restaurantDetailsLiveData = new MutableLiveData<>();
-        mPlacesAPI.getRestaurantDetailsById(id).enqueue(new Callback<DetailsResponse>() {
-            @Override
-            @EverythingIsNonNull
-            public void onResponse(Call<DetailsResponse> call, Response<DetailsResponse> response) {
-                if (response.body()!= null){
-                    restaurantDetailsLiveData.postValue(response.body().getDetailResult());
-                }else {
-                    restaurantDetailsLiveData.postValue(null);
-                }
-            }
+    public DetailsResponse.DetailResult getRestaurantDetailsById(String id) {
 
-            @Override
-            @EverythingIsNonNull
-            public void onFailure(Call<DetailsResponse> call, Throwable t) {
-                restaurantDetailsLiveData.postValue(null);
-            }
-        });
+        DetailsResponse.DetailResult placeDetail = null;
+        try {
+            // TODO if body not null
+            placeDetail = mGooglePlacesAPI.getRestaurantDetailsById(id).execute().body().getDetailResult();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        return restaurantDetailsLiveData;
+        return placeDetail;
     }
+
 
 }

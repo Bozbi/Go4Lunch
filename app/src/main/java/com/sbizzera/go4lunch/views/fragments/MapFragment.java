@@ -1,15 +1,14 @@
 package com.sbizzera.go4lunch.views.fragments;
 
 import android.Manifest;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -19,15 +18,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.model.CustomMapMarker;
 import com.sbizzera.go4lunch.model.MapFragmentModel;
-import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.utils.BitMapCreator;
 import com.sbizzera.go4lunch.utils.Commons;
 import com.sbizzera.go4lunch.view_models.MapFragmentViewModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
-import com.sbizzera.go4lunch.views.activities.RestaurantDetailActivity;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
 
@@ -39,27 +37,27 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     private MapFragmentViewModel mViewModel;
 
-    private OnItemBindWithRestaurantClickListener mListener;
+    private OnItemBoundWithRestaurantClickListener mListener;
 
 
-
-    public MapFragment(OnItemBindWithRestaurantClickListener listener) {
-        mListener =listener;
+    public MapFragment(OnItemBoundWithRestaurantClickListener listener) {
+        mListener = listener;
     }
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
-        return super.onCreateView(layoutInflater, viewGroup, bundle);
+        //Inserting Button over SupportMapFragment
+        ConstraintLayout layout = (ConstraintLayout) layoutInflater.inflate(R.layout.fragment_map_fragment_overlay, viewGroup, false);
+        View v = super.onCreateView(layoutInflater, viewGroup, bundle);
+        layout.addView(v, 0);
+        return layout;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         getMapAsync(this);
-
         mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MapFragmentViewModel.class);
-
         mViewModel.getUIModel().observe(this, model -> {
             if (model.getFineLocationPermission()) {
                 updateUi(model);
@@ -67,27 +65,23 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_FINE_LOCATION_REQUEST_CODE);
             }
         });
-
-
     }
 
     private void updateUi(MapFragmentModel model) {
         if (model.getLocation() != null) {
-            Log.d(TAG, "updateUi: moving camera");
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(model.getLocation().getLatitude(), model.getLocation().getLongitude()), Commons.DEFAULT_ZOOM));
             map.setMyLocationEnabled(true);
             map.getUiSettings().setMyLocationButtonEnabled(true);
-
         }
-        if (model.getRestaurantsList() != null) {
-            for (NearbyPlace restaurant : model.getRestaurantsList()) {
 
-                Marker marker =map.addMarker(new MarkerOptions()
-                        .position(new LatLng(restaurant.getLat(), restaurant.getLng()))
-                        .title(restaurant.getName())
-                        .icon(BitMapCreator.bitmapDescriptorFromVector(requireActivity(), R.drawable.ic_restaurant_marker_icon))
+        if (model.getMapMarkersList() != null) {
+            for (CustomMapMarker marker : model.getMapMarkersList()) {
+                Marker newMarker = map.addMarker(new MarkerOptions()
+                        .position(new LatLng(marker.getLat(), marker.getLng()))
+                        .title(marker.getRestaurantName())
+                        .icon(BitMapCreator.bitmapDescriptorFromVector(requireActivity(), marker.getMarkerIcon()))
                 );
-                marker.setTag(restaurant.getId());
+                newMarker.setTag(marker.getRestaurantId());
             }
             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
@@ -96,9 +90,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                     return true;
                 }
             });
-
         }
-
     }
 
 
@@ -113,9 +105,4 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         mViewModel.updatePermissionAndLocation();
     }
 
-
-    private void lauchRestaurantDetailActivity(){
-        Intent intent = new Intent(requireContext(), RestaurantDetailActivity.class);
-        startActivity(intent);
-    }
 }

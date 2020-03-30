@@ -6,11 +6,10 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.sbizzera.go4lunch.App;
-import com.sbizzera.go4lunch.services.DeviceLocator;
+import com.sbizzera.go4lunch.services.LocationService;
 import com.sbizzera.go4lunch.services.FireStoreService;
-import com.sbizzera.go4lunch.services.PermissionHandler;
-import com.sbizzera.go4lunch.services.RestaurantRepository;
-import com.sbizzera.go4lunch.views.fragments.ListFragment;
+import com.sbizzera.go4lunch.services.PermissionService;
+import com.sbizzera.go4lunch.services.GooglePlacesService;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
@@ -37,28 +36,28 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(MapFragmentViewModel.class)) {
             return (T) new MapFragmentViewModel(
-                    new DeviceLocator(App.getApplication()),
-                    PermissionHandler.getInstance(),
-                    RestaurantRepository.getInstance()
-            );
-        }
-        if (modelClass.isAssignableFrom(RestaurantDetailViewModel.class)) {
-            return (T) new RestaurantDetailViewModel(
-                    RestaurantRepository.getInstance(),
+                    new LocationService(App.getApplication()),
+                    PermissionService.getInstance(),
+                    GooglePlacesService.getInstance(),
                     new FireStoreService()
             );
         }
-        if (modelClass.isAssignableFrom(ListRestaurantViewModel.class)) {
-            return (T) new ListRestaurantViewModel(new FireStoreService());
+        if (modelClass.isAssignableFrom(RestaurantViewModel.class)) {
+            return (T) new RestaurantViewModel(
+                    GooglePlacesService.getInstance(),
+                    new FireStoreService()
+            );
+        }
+        if (modelClass.isAssignableFrom(MainActivityViewModel.class)) {
+            return (T) new MainActivityViewModel(new FireStoreService(), PermissionService.getInstance(),new LocationService(App.getApplication()));
         }
         if (modelClass.isAssignableFrom(WorkmatesFragmentViewModel.class)){
             return (T)new WorkmatesFragmentViewModel(new FireStoreService());
         }
         if (modelClass.isAssignableFrom(ListFragmentViewModel.class)){
             return (T)new ListFragmentViewModel(
-                    new DeviceLocator(App.getApplication()),
-                    PermissionHandler.getInstance(),
-                    RestaurantRepository.getInstance(),
+                    new LocationService(App.getApplication()),
+                    GooglePlacesService.getInstance(),
                     new FireStoreService()
             );
         }

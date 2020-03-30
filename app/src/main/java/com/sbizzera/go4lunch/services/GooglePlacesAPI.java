@@ -10,7 +10,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-public interface PlacesAPI {
+public interface GooglePlacesAPI {
 
     @GET("maps/api/place/nearbysearch/json?radius=2000&type=restaurant&key=" + Commons.PLACES_API_KEY)
     Call<NearbyResults> getNearbyRestaurant(@Query("location") String location);

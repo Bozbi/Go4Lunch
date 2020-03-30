@@ -20,14 +20,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".views.activities.RestaurantDetailActivity"
+        <activity android:name=".views.activities.RestaurantActivity"
             android:theme="@style/RestaurantDetailTheme"
             ></activity>
         <activity
-            android:name=".views.activities.ListRestaurantsActivity"
+            android:name=".views.activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".views.activities.MainEmptyActivity"
+            android:name=".views.activities.LaunchActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,6 +48,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCvQSB0M8Httgl8O5k9EKJx1jANcjeTG0Y" />
+        <receiver android:name=".services.AlarmReceiver"/>
     </application>
 
 </manifest>

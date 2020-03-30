@@ -7,19 +7,20 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreLunch;
-import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreRestaurant;
-import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreUser;
+import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
+import com.sbizzera.go4lunch.model.firestore_models.FireStoreRestaurant;
+import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.DetailResult;
 
 import org.threeten.bp.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 
 public class FireStoreService {
@@ -89,28 +90,10 @@ public class FireStoreService {
                 restaurant.getPlaceId(),
                 restaurant.getName()
         );
-        Log.d(TAG, "updateRestaurantChoice: "+ restaurant.getName() + restaurant.getPlaceId());
         restaurants.document(restaurant.getPlaceId()).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot != null && documentSnapshot.getData() != null) {
-                dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().addOnSuccessListener(documentSnapshot2 -> {
-                    if (documentSnapshot2 != null && documentSnapshot2.getData() != null) {
-                        //user has already made a choice
-                        FireStoreLunch existingLunch = documentSnapshot2.toObject(FireStoreLunch.class);
-                        // if choice is same restaurant remove document and update count
-                        if (existingLunch != null && existingLunch.getRestaurantId().equals(restaurant.getPlaceId())) {
-                            dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).delete();
-                            // if not same restaurant, update lunch
-                        } else {
-                            dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).update("restaurantId", restaurant.getPlaceId(),"restaurantName",restaurant.getName());
-//                            dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).update("restaurantName", restaurant.getName());
-                        }
-                    } else {
-                        //user hasn't made a choice
-                        //create lunch
-                        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).set(lunchToAdd);
-
-                    }
-                });
+                //restaurant exists in Database
+                updateLunch(restaurant, lunchToAdd);
             } else {
                 //create restaurant add lunch and update count
                 FireStoreRestaurant restaurantToAdd = new FireStoreRestaurant(
@@ -120,6 +103,28 @@ public class FireStoreService {
                         restaurant.getGeometry().getLocation().getLng()
                 );
                 restaurants.document(restaurant.getPlaceId()).set(restaurantToAdd);
+                updateLunch(restaurant, lunchToAdd);
+            }
+        });
+    }
+
+    private void updateLunch(DetailResult restaurant, FireStoreLunch lunchToAdd) {
+        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().addOnSuccessListener(documentSnapshot2 -> {
+            if (documentSnapshot2 != null && documentSnapshot2.getData() != null) {
+                //user has already made a choice
+                FireStoreLunch existingLunch = documentSnapshot2.toObject(FireStoreLunch.class);
+                if (existingLunch != null) {
+                    if (existingLunch.getRestaurantId().equals(restaurant.getPlaceId())) {
+                        // if choice is same restaurant remove document
+                        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).delete();
+                    } else {
+                        // if not same restaurant, update lunch
+                        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).update("restaurantId", restaurant.getPlaceId(), "restaurantName", restaurant.getName());
+                    }
+                }
+            } else {
+                //user hasn't made a choice
+                //create lunch
                 dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).set(lunchToAdd);
             }
         });
@@ -219,4 +224,45 @@ public class FireStoreService {
         });
         return allTodaysLunchesLiveData;
     }
+
+    public LiveData<List<FireStoreRestaurant>> getAllKnownRestaurants() {
+        MutableLiveData<List<FireStoreRestaurant>> allKnownRestaurantsLiveData = new MutableLiveData<>();
+        restaurants.get().addOnSuccessListener(allRestaurants ->{
+            List<FireStoreRestaurant> allRestaurantsToReturn = new ArrayList<>();
+            for (DocumentSnapshot restaurant: allRestaurants) {
+                FireStoreRestaurant restaurantToAdd = restaurant.toObject(FireStoreRestaurant.class);
+                assert restaurantToAdd != null;
+                dates.document(LocalDate.now().toString()).collection("lunches")
+                        .whereEqualTo("restaurantId",restaurantToAdd.getRestaurantId())
+                        .get()
+                        .addOnSuccessListener(matchedLunches ->{
+                            restaurantToAdd.setTodaysLunches(matchedLunches.size());
+                            allRestaurantsToReturn.add(restaurantToAdd);
+                            Timber.d("Restaurant : %s, %s",restaurantToAdd.getName(),restaurantToAdd.getRestaurantId());
+                        });
+            }
+            allKnownRestaurantsLiveData.postValue(allRestaurantsToReturn);
+        });
+        return allKnownRestaurantsLiveData;
+    }
+
+    public LiveData<String> getUserLunch() {
+        MutableLiveData<String> todayUserLunchLD = new MutableLiveData<>();
+            dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().addOnSuccessListener(lunch ->{
+               if(lunch.getData()!=null){
+                   todayUserLunchLD.postValue(lunch.get("restaurantName").toString());
+                   Timber.d("today's Lunch : %s",lunch.get("restaurantName").toString());
+               }
+               else todayUserLunchLD.postValue(null);
+            });
+        return todayUserLunchLD;
+    }
+
+//    public String getUserLunch(){
+//
+//        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().continueWith(document->{
+//            Timber.d("today's Lunch : %s", document.getResult().get("restaurantName").toString());
+//            return document.getResult().get("restaurantName").toString();
+//        });
+//    }
 }

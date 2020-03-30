@@ -6,9 +6,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.sbizzera.go4lunch.model.WorkmatesAdapterModel;
-import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreLunch;
-import com.sbizzera.go4lunch.model.firestore_database_models.FireStoreUser;
+import com.sbizzera.go4lunch.model.WorkmatesFragmentAdapterModel;
+import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
+import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
 import com.sbizzera.go4lunch.model.WorkmatesFragmentModel;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
@@ -44,19 +44,19 @@ public class WorkmatesFragmentViewModel extends ViewModel {
     }
 
     private WorkmatesFragmentModel combineSources(List<FireStoreUser> allUsers, List<FireStoreLunch> allTodayLunch) {
-        List<WorkmatesAdapterModel> workmatesModeList = fromUserAndLunchesToModel(allUsers, allTodayLunch);
+        List<WorkmatesFragmentAdapterModel> workmatesModeList = fromUserAndLunchesToModel(allUsers, allTodayLunch);
 
         return new WorkmatesFragmentModel(
                 workmatesModeList
         );
     }
 
-    private List<WorkmatesAdapterModel> fromUserAndLunchesToModel(List<FireStoreUser> allUsers, List<FireStoreLunch> allTodayLunch) {
-        List<WorkmatesAdapterModel> workmateModelList = new ArrayList<>();
+    private List<WorkmatesFragmentAdapterModel> fromUserAndLunchesToModel(List<FireStoreUser> allUsers, List<FireStoreLunch> allTodayLunch) {
+        List<WorkmatesFragmentAdapterModel> workmateModelList = new ArrayList<>();
         if (allUsers != null) {
             for (FireStoreUser user : allUsers) {
                 String userFirstName = Go4LunchUtils.getUserFirstName(user.getUserName());
-                WorkmatesAdapterModel workmateModel = new WorkmatesAdapterModel(
+                WorkmatesFragmentAdapterModel workmateModel = new WorkmatesFragmentAdapterModel(
                         user.getUserAvatarUrl(),
                         userFirstName + " hasn't decided yet!",
                         false,
@@ -76,9 +76,9 @@ public class WorkmatesFragmentViewModel extends ViewModel {
                 workmateModelList.add(workmateModel);
             }
         }
-       Collections.sort(workmateModelList, new Comparator<WorkmatesAdapterModel>() {
+       Collections.sort(workmateModelList, new Comparator<WorkmatesFragmentAdapterModel>() {
            @Override
-           public int compare(WorkmatesAdapterModel o1, WorkmatesAdapterModel o2) {
+           public int compare(WorkmatesFragmentAdapterModel o1, WorkmatesFragmentAdapterModel o2) {
                if (o1.getClickable()){
                    return -1;
                }else{

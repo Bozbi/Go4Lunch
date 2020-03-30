@@ -16,23 +16,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.model.RestaurantDetailAdapterModel;
-import com.sbizzera.go4lunch.model.RestaurantActivityDetailModel;
-import com.sbizzera.go4lunch.view_models.RestaurantDetailViewModel;
+import com.sbizzera.go4lunch.model.RestaurantAdapterModel;
+import com.sbizzera.go4lunch.model.RestaurantActivityModel;
+import com.sbizzera.go4lunch.view_models.RestaurantViewModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
-import com.sbizzera.go4lunch.views.adapters.RestaurantDetailWorkmateAdapter;
+import com.sbizzera.go4lunch.views.adapters.RestaurantAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RestaurantDetailActivity extends AppCompatActivity implements View.OnClickListener {
+public class RestaurantActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "RestaurantDtlActivity";
 
-    private RestaurantDetailViewModel mModel;
-    private List<RestaurantDetailAdapterModel> mWorkmateList = new ArrayList<>();
+    private RestaurantViewModel mModel;
+    private List<RestaurantAdapterModel> mWorkmateList = new ArrayList<>();
 
-    private RestaurantDetailWorkmateAdapter mAdapter;
+    private RestaurantAdapter mAdapter;
 
     private ImageView restaurantImg;
     private FloatingActionButton fab;
@@ -77,13 +77,13 @@ public class RestaurantDetailActivity extends AppCompatActivity implements View.
         backArrowImg = findViewById(R.id.back_arrow_img);
 
         //Retrieve restaurant id in intent Extra
-        String restaurantId = getIntent().getStringExtra(ListRestaurantsActivity.INTENT_EXTRA_CODE);
+        String restaurantId = getIntent().getStringExtra(MainActivity.INTENT_EXTRA_CODE);
 
-        mModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(RestaurantDetailViewModel.class);
+        mModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
         mModel.fetchRestaurantInfo(restaurantId);
         mModel.getModelLiveData().observe(this, this::updateUI);
 
-        mAdapter = new RestaurantDetailWorkmateAdapter(mWorkmateList);
+        mAdapter = new RestaurantAdapter(mWorkmateList);
         RecyclerView rcv = findViewById(R.id.rcv);
         rcv.setLayoutManager(new LinearLayoutManager(this));
         rcv.setAdapter(mAdapter);
@@ -97,7 +97,7 @@ public class RestaurantDetailActivity extends AppCompatActivity implements View.
     }
 
 
-    private void updateUI(RestaurantActivityDetailModel model) {
+    private void updateUI(RestaurantActivityModel model) {
         Glide.with(restaurantImg).load(model.getPhotoUrl()).placeholder(R.drawable.restaurant_photo_placeholder).into(restaurantImg);
         fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(model.getFabColor())));
         fab.setImageResource(model.getFabIcon());

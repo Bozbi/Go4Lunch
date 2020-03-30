@@ -6,25 +6,25 @@ import com.google.gson.annotations.SerializedName;
 public class NearbyLocation {
     @SerializedName("lat")
     @Expose
-    private float lat;
+    private Double lat;
 
     @SerializedName("lng")
     @Expose
-    private float lng;
+    private Double lng;
 
-    public float getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public void setLat(float lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 
-    public float getLng() {
+    public Double getLng() {
         return lng;
     }
 
-    public void setLng(float lng) {
+    public void setLng(Double lng) {
         this.lng = lng;
     }
 }

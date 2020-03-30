@@ -3,17 +3,17 @@ package com.sbizzera.go4lunch.model;
 import java.util.List;
 
 public class WorkmatesFragmentModel {
-    private List<WorkmatesAdapterModel> workmatesList;
+    private List<WorkmatesFragmentAdapterModel> workmatesList;
 
-    public WorkmatesFragmentModel(List<WorkmatesAdapterModel> workmatesList) {
+    public WorkmatesFragmentModel(List<WorkmatesFragmentAdapterModel> workmatesList) {
         this.workmatesList = workmatesList;
     }
 
-    public List<WorkmatesAdapterModel> getWorkmatesList() {
+    public List<WorkmatesFragmentAdapterModel> getWorkmatesList() {
         return workmatesList;
     }
 
-    public void setWorkmatesList(List<WorkmatesAdapterModel> workmatesList) {
+    public void setWorkmatesList(List<WorkmatesFragmentAdapterModel> workmatesList) {
         this.workmatesList = workmatesList;
     }
 }

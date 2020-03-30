@@ -1,10 +1,10 @@
 package com.sbizzera.go4lunch.model;
 
-public class RestaurantDetailAdapterModel {
+public class RestaurantAdapterModel {
     private String photoUrl;
     private String text;
 
-    public RestaurantDetailAdapterModel(String photoUrl, String text) {
+    public RestaurantAdapterModel(String photoUrl, String text) {
         this.photoUrl = photoUrl;
         this.text = text;
     }

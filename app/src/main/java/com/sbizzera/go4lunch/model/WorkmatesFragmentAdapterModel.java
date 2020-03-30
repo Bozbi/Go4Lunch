@@ -2,7 +2,7 @@ package com.sbizzera.go4lunch.model;
 
 import androidx.annotation.AnyRes;
 
-public class WorkmatesAdapterModel {
+public class WorkmatesFragmentAdapterModel {
 
     private String photoUrl;
 
@@ -16,7 +16,7 @@ public class WorkmatesAdapterModel {
 
     private String restaurantId;
 
-    public WorkmatesAdapterModel(String photoUrl, String choice, Boolean isClickable, int textStyle, String restaurantId) {
+    public WorkmatesFragmentAdapterModel(String photoUrl, String choice, Boolean isClickable, int textStyle, String restaurantId) {
         this.photoUrl = photoUrl;
         this.choice = choice;
         this.isClickable = isClickable;

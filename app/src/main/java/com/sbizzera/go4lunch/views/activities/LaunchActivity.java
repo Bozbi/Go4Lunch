@@ -2,13 +2,12 @@ package com.sbizzera.go4lunch.views.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 
-public class MainEmptyActivity extends AppCompatActivity {
+public class LaunchActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
 
@@ -43,7 +42,7 @@ public class MainEmptyActivity extends AppCompatActivity {
 
     //Launching ListRestaurantsActivity
     private void launchRestaurantActivity() {
-        Intent intent = new Intent(this, ListRestaurantsActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 }

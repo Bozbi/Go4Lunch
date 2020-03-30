@@ -33,11 +33,11 @@ public class NearbyPlace {
         this.name = name;
     }
 
-    public float getLat() {
+    public Double getLat() {
         return geometry.getLocation().getLat();
     }
 
-    public float getLng() {
+    public Double getLng() {
         return geometry.getLocation().getLng();
     }
 

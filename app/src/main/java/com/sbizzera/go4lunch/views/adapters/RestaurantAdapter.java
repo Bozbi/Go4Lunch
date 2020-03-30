@@ -12,15 +12,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.model.RestaurantDetailAdapterModel;
+import com.sbizzera.go4lunch.model.RestaurantAdapterModel;
 
 import java.util.List;
 
-public class RestaurantDetailWorkmateAdapter extends RecyclerView.Adapter<RestaurantDetailWorkmateAdapter.ViewHolder> {
+public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder> {
 
-    private List<RestaurantDetailAdapterModel> mWorkmateList;
+    private List<RestaurantAdapterModel> mWorkmateList;
 
-    public RestaurantDetailWorkmateAdapter(List<RestaurantDetailAdapterModel> workmateModelList) {
+    public RestaurantAdapter(List<RestaurantAdapterModel> workmateModelList) {
         mWorkmateList = workmateModelList;
     }
 
@@ -35,7 +35,7 @@ public class RestaurantDetailWorkmateAdapter extends RecyclerView.Adapter<Restau
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        RestaurantDetailAdapterModel workmate = mWorkmateList.get(position);
+        RestaurantAdapterModel workmate = mWorkmateList.get(position);
 
         Glide.with(holder.wormateAvatarImg.getContext())
                 .load(workmate.getPhotoUrl())
@@ -51,7 +51,7 @@ public class RestaurantDetailWorkmateAdapter extends RecyclerView.Adapter<Restau
         return mWorkmateList.size();
     }
 
-    public void setList(List<RestaurantDetailAdapterModel> list){
+    public void setList(List<RestaurantAdapterModel> list){
         mWorkmateList = list;
     };
 

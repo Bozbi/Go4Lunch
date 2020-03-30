@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.model.firestore_database_models;
+package com.sbizzera.go4lunch.model.firestore_models;
 
 public class FireStoreLunch {
 

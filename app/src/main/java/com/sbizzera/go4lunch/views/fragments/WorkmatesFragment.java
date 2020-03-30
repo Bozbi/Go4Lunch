@@ -12,19 +12,19 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sbizzera.go4lunch.events.OnItemBindWithRestaurantClickListener;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.WorkmatesFragmentModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
 import com.sbizzera.go4lunch.view_models.WorkmatesFragmentViewModel;
-import com.sbizzera.go4lunch.views.adapters.WorkmatesAdapter;
+import com.sbizzera.go4lunch.views.adapters.WorkmatesFragmentAdapter;
 
 public class WorkmatesFragment extends Fragment {
 
-    private OnItemBindWithRestaurantClickListener mListener;
-    private WorkmatesAdapter mAdapter;
+    private OnItemBoundWithRestaurantClickListener mListener;
+    private WorkmatesFragmentAdapter mAdapter;
 
-    public WorkmatesFragment(OnItemBindWithRestaurantClickListener listener) {
+    public WorkmatesFragment(OnItemBoundWithRestaurantClickListener listener) {
         mListener = listener;
     }
 
@@ -35,7 +35,7 @@ public class WorkmatesFragment extends Fragment {
 
         WorkmatesFragmentViewModel viewModel = new ViewModelProvider(this,ViewModelFactory.getInstance()).get(WorkmatesFragmentViewModel.class);
         viewModel.getModelLiveData().observe(this, this::updateUI);
-        mAdapter = new WorkmatesAdapter(mListener);
+        mAdapter = new WorkmatesFragmentAdapter(mListener);
 
         RecyclerView rcv = view.findViewById(R.id.workmates_rcv);
         rcv.setLayoutManager(new LinearLayoutManager(requireContext()));

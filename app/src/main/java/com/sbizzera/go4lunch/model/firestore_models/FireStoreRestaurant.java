@@ -1,4 +1,6 @@
-package com.sbizzera.go4lunch.model.firestore_database_models;
+package com.sbizzera.go4lunch.model.firestore_models;
+
+import androidx.annotation.NonNull;
 
 import java.util.List;
 
@@ -14,6 +16,9 @@ public class FireStoreRestaurant {
 
     private List<String> likesIds;
 
+    private int todaysLunches;
+
+
 
     public FireStoreRestaurant() {
     }
@@ -23,6 +28,7 @@ public class FireStoreRestaurant {
         this.name = name;
         this.lat = lat;
         this.lng = lng;
+
     }
 
     public String getRestaurantId() {
@@ -63,5 +69,19 @@ public class FireStoreRestaurant {
 
     public void setLikesIds(List<String> likesIds) {
         this.likesIds = likesIds;
+    }
+
+    public int getTodaysLunches() {
+        return todaysLunches;
+    }
+
+    public void setTodaysLunches(int todaysLunches) {
+        this.todaysLunches = todaysLunches;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "Name: "+ name + " Numbers of Lunches Today: " + todaysLunches + " ID: " + restaurantId ;
     }
 }

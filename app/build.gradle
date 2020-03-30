@@ -70,11 +70,24 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata:2.2.0"
 
     //FireStore
-    implementation 'com.google.firebase:firebase-auth:19.2.0'
+    implementation 'com.google.firebase:firebase-auth:19.3.0'
     implementation 'com.google.firebase:firebase-firestore:21.4.1'
+
+
 
     //ThreeTenABP
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.2'
+
+    //Timber
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    //Work
+    implementation("androidx.work:work-runtime:2.3.4") {
+        exclude group: "com.google.guava", module: "listenablefuture"
+    }
+    implementation("androidx.concurrent:concurrent-futures:1.0.0") {
+        exclude group: "com.google.guava", module: "listenablefuture"
+    }
 
 
 }
