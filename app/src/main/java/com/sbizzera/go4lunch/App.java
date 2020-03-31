@@ -3,13 +3,21 @@ package com.sbizzera.go4lunch;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Build;
+import android.util.Base64;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import timber.log.Timber;
 
@@ -56,6 +64,8 @@ public class App extends Application {
     public static Application getApplication() {
         return sApplication;
     }
+
+
 
 
 

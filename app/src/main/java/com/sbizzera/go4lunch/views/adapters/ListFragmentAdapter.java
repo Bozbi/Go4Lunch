@@ -23,6 +23,8 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
 
     private OnItemBoundWithRestaurantClickListener mListener;
 
+
+
     public ListFragmentAdapter(OnItemBoundWithRestaurantClickListener listener) {
         mListener = listener;
     }
@@ -40,12 +42,12 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
         holder.name.setText(restaurant.getRestaurantName());
         holder.address.setText(restaurant.getRestaurantAddress());
         holder.openingHours.setText(restaurant.getOpenHoursText());
-        holder.openingHours.setTextColor(restaurant.getOpenHoursTextColor());
+        holder.openingHours.setTextColor(holder.openingHours.getResources().getColor(restaurant.getOpenHoursTextColor()));
         holder.distance.setText(restaurant.getDistance());
         holder.workmateFreq.setText(restaurant.getWorkmatesLunchesCount());
         holder.star1Img.setVisibility(restaurant.getStar1Visibility());
-        holder.star2Img.setVisibility(restaurant.getStar1Visibility());
-        holder.star3Img.setVisibility(restaurant.getStar1Visibility());
+        holder.star2Img.setVisibility(restaurant.getStar2Visibility());
+        holder.star3Img.setVisibility(restaurant.getStar3Visibility());
 
         Glide.with(holder.img.getContext())
                 .load(restaurant.getPhotoUrl())

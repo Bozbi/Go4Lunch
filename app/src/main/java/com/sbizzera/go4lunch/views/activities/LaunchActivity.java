@@ -1,11 +1,19 @@
 package com.sbizzera.go4lunch.views.activities;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class LaunchActivity extends AppCompatActivity {
 
@@ -22,8 +30,8 @@ public class LaunchActivity extends AppCompatActivity {
             //Launching FirebaseAuth activity
             startActivityForResult(FirebaseAuthService.getLoginIntent(), RC_SIGN_IN);
         }
-    }
 
+    }
 
     //Results of FirebaseAuth activity
     @Override
