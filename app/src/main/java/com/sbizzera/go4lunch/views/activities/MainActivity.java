@@ -1,10 +1,5 @@
 package com.sbizzera.go4lunch.views.activities;
 
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,15 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-import androidx.work.Worker;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -39,10 +29,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseUser;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.services.AlarmReceiver;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
-import com.sbizzera.go4lunch.services.NotificationWorker;
-import com.sbizzera.go4lunch.services.NotifyWorker;
 import com.sbizzera.go4lunch.view_models.MainActivityViewModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
 import com.sbizzera.go4lunch.views.fragments.ListFragment;
@@ -50,13 +37,7 @@ import com.sbizzera.go4lunch.views.fragments.MapFragment;
 import com.sbizzera.go4lunch.views.fragments.NoPermissionFragment;
 import com.sbizzera.go4lunch.views.fragments.WorkmatesFragment;
 
-import java.nio.channels.Channel;
-import java.time.Duration;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
-
-import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener , OnItemBoundWithRestaurantClickListener {
 
@@ -73,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_restaurants);
-
 
         //Declaration
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -110,25 +90,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getAndDisplayUserInfo();
 
         loadFragment(new MapFragment(this));
-
-        //Worker
-//        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(NotificationWorker.class)
-//                .setInitialDelay(3, TimeUnit.SECONDS)
-//                .build();
-//        WorkManager.getInstance(this).enqueue(work);
-//
-//        Calendar c = Calendar.getInstance();
-//        c.set(Calendar.HOUR_OF_DAY, 0);
-//        c.set(Calendar.MINUTE, 8);
-//
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//        Intent intent = new Intent(this, AlarmReceiver.class);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,1,intent,0);
-//        alarmManager.setExact(AlarmManager.RTC_WAKEUP,c.getTimeInMillis(),pendingIntent);
-
-
-
-
 
     }
 

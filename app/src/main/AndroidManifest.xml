@@ -48,7 +48,6 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCvQSB0M8Httgl8O5k9EKJx1jANcjeTG0Y" />
-        <receiver android:name=".services.AlarmReceiver"/>
     </application>
 
 </manifest>
