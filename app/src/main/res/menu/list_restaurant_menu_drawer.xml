@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="navigation_view">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:showIn="navigation_view"
 
-    <group>
+    >
+
 
 
         <item
@@ -13,13 +15,15 @@
         <item
             android:id="@+id/drawer_settings"
             android:icon="@drawable/settings_icon_white"
-            android:title="SETTINGS" />
+            android:enabled="false"
+            app:actionLayout="@layout/notification_switch"
+            android:title="NOTIFICATIONS" />
 
         <item
             android:id="@+id/drawer_logout"
             android:icon="@drawable/logout_icon_white"
             android:title="LOG OUT" />
-    </group>
+
 
 
 </menu>

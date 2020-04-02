@@ -54,6 +54,8 @@
         android:background="@color/colorPrimary"
         android:fitsSystemWindows="true"
         android:theme="@style/ThemeOverlay.MyApp.NavigationView"
+        app:itemTextColor="@color/white"
+        app:itemIconTint="@color/white"
         app:headerLayout="@layout/activity_main_nav_header"
         app:menu="@menu/list_restaurant_menu_drawer"
         tools:layout_gravity="right" />

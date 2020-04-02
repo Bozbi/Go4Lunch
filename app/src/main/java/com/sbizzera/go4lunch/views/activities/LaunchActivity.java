@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 
 import java.security.MessageDigest;
@@ -22,6 +23,7 @@ public class LaunchActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main_empty);
 
         //Checking if user is logged in.
         if (FirebaseAuthService.isUserLogged()) {

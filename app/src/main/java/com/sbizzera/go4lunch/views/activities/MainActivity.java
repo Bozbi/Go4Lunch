@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -27,9 +29,10 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseUser;
-import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
+import com.sbizzera.go4lunch.services.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.view_models.MainActivityViewModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
 import com.sbizzera.go4lunch.views.fragments.ListFragment;
@@ -39,15 +42,17 @@ import com.sbizzera.go4lunch.views.fragments.WorkmatesFragment;
 
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener , OnItemBoundWithRestaurantClickListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener, OnItemBoundWithRestaurantClickListener {
 
-    private static final int AUTOCOMPLETE_REQUEST_CODE = 234 ;
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 234;
     public static final String INTENT_EXTRA_CODE = "INTENT_EXTRA_CODE";
     private DrawerLayout drawerLayout;
 
     private TextView mUserName;
     private TextView mUserEmail;
     private ImageView mUserPhoto;
+
+    private NavigationView navigationView;
 
 
     @Override
@@ -57,7 +62,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Declaration
         drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
+        wireUpNotificationSwitch();
+
         mUserName = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_name);
         mUserEmail = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_email);
         mUserPhoto = navigationView.getHeaderView(0).findViewById(R.id.drawer_avatar);
@@ -66,8 +73,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         MainActivityViewModel model = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MainActivityViewModel.class);
         model.updateUserInDb();
-        model.isLocationPermissionOn().observe(this,isPermissionOn->{
-            if (!isPermissionOn){
+        model.isLocationPermissionOn().observe(this, isPermissionOn -> {
+            if (!isPermissionOn) {
                 loadFragment(new NoPermissionFragment());
             }
         });
@@ -91,6 +98,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         loadFragment(new MapFragment(this));
 
+    }
+
+    private void wireUpNotificationSwitch() {
+        MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_settings);
+        Switch notificationSwitch = (Switch) menuItem.getActionView().findViewById(R.id.notification_switch);
+        notificationSwitch.setChecked(SharedPreferencesRepo.loadNotificationPreferences());
+        notificationSwitch.setOnCheckedChangeListener((view, isChecked) -> {
+            SharedPreferencesRepo.saveNotificationPreferences(isChecked);
+        });
     }
 
 
@@ -124,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    //Check wich item of Drawer Menu or BottomNav has been selected and triggers response
+    //Check which item of Drawer Menu or BottomNav has been selected and triggers response
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()) {
@@ -141,13 +157,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.bottom_nav_workmates_item:
                 loadFragment(new WorkmatesFragment(this));
                 break;
+            case R.id.drawer_your_lunch:
+                Toast.makeText(this, "your Lunch to implement", Toast.LENGTH_LONG).show();
+                break;
         }
         return true;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.app_bar,menu);
+        getMenuInflater().inflate(R.menu.app_bar, menu);
         return true;
     }
 
@@ -158,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setCountry("FR")
                 .setTypeFilter(TypeFilter.ESTABLISHMENT)
                 .build(this);
-        startActivityForResult(intent,AUTOCOMPLETE_REQUEST_CODE);
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
         return true;
     }
 
@@ -169,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void launchRestaurantDetail(String id) {
         Intent intent = new Intent(this, RestaurantActivity.class);
-        intent.putExtra(INTENT_EXTRA_CODE,id);
+        intent.putExtra(INTENT_EXTRA_CODE, id);
         startActivity(intent);
     }
 
