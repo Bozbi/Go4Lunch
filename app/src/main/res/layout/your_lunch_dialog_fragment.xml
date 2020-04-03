@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/ic_launcher_background"
+    android:padding="10dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/dialog_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_launcher_foreground"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/dialog_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hey Boris!\nYou haven't choose your lunch place yet"
+        android:textColor="@color/white"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_logo"
+        app:layout_constraintLeft_toLeftOf="@+id/dialog_logo"
+        app:layout_constraintRight_toRightOf="@+id/dialog_logo"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>

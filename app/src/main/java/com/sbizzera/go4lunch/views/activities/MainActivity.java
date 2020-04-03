@@ -40,6 +40,7 @@ import com.sbizzera.go4lunch.views.fragments.ListFragment;
 import com.sbizzera.go4lunch.views.fragments.MapFragment;
 import com.sbizzera.go4lunch.views.fragments.NoPermissionFragment;
 import com.sbizzera.go4lunch.views.fragments.WorkmatesFragment;
+import com.sbizzera.go4lunch.views.fragments.YourLunchDialogFragment;
 
 import java.util.Arrays;
 
@@ -166,7 +167,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 loadFragment(new WorkmatesFragment(this));
                 break;
             case R.id.drawer_your_lunch:
-                Toast.makeText(this, "your Lunch to implement", Toast.LENGTH_LONG).show();
+                YourLunchDialogFragment dialog = new YourLunchDialogFragment();
+                dialog.show(getSupportFragmentManager(),"TAG");
                 break;
         }
         return true;
