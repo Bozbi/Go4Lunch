@@ -5,16 +5,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-
 import com.jakewharton.threetenabp.AndroidThreeTen;
-import com.sbizzera.go4lunch.services.NotificationWorker;
+import com.sbizzera.go4lunch.services.WorkManagerHelper;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
@@ -40,39 +34,11 @@ public class App extends Application {
             }
         });
 
-        //TODO Need to put this in a class WorkManagerHelper
-        getWorkManager();
+        WorkManagerHelper.handleNotificationWork();
 
         createNotificationChannels();
     }
 
-    private void getWorkManager() {
-        Calendar currentDate = Calendar.getInstance();
-//        Calendar dueDate = Calendar.getInstance();
-//        dueDate.set(Calendar.HOUR_OF_DAY, 16);
-//        dueDate.set(Calendar.MINUTE, 59);
-//        dueDate.set(Calendar.SECOND, 0);
-
-//        if (dueDate.before(currentDate)) {
-//            dueDate.add(Calendar.HOUR_OF_DAY, 24);
-//        }
-
-//        long timeDiff = dueDate.getTimeInMillis() - currentDate.getTimeInMillis();
-        long timeDiff = currentDate.getTimeInMillis()+30000 - currentDate.getTimeInMillis();
-
-        OneTimeWorkRequest dailyWorkRequest =
-                new OneTimeWorkRequest.Builder(NotificationWorker.class)
-                        .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-                        .addTag(TAG_DAILY_WORK)
-                        .build();
-
-        // Clear every work that has been programmed in NotificationWorker itself (avoiding doubles)
-        WorkManager.getInstance(this).pruneWork();
-
-        // Enqueue notification work
-        //TODO add if user ok and Toggle on or off on settings click
-        WorkManager.getInstance(this).enqueue(dailyWorkRequest);
-    }
 
     private void createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

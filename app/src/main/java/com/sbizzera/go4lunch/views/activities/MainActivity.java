@@ -33,6 +33,7 @@ import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 import com.sbizzera.go4lunch.services.SharedPreferencesRepo;
+import com.sbizzera.go4lunch.services.WorkManagerHelper;
 import com.sbizzera.go4lunch.view_models.MainActivityViewModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
 import com.sbizzera.go4lunch.views.fragments.ListFragment;
@@ -103,9 +104,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void wireUpNotificationSwitch() {
         MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_settings);
         Switch notificationSwitch = (Switch) menuItem.getActionView().findViewById(R.id.notification_switch);
-        notificationSwitch.setChecked(SharedPreferencesRepo.loadNotificationPreferences());
+        notificationSwitch.setChecked(!SharedPreferencesRepo.loadNotificationPreferences());
         notificationSwitch.setOnCheckedChangeListener((view, isChecked) -> {
-            SharedPreferencesRepo.saveNotificationPreferences(isChecked);
+            //Inverting isChecked for personal UI preferences (Side of toggle switch more appropriate this way)
+            SharedPreferencesRepo.saveNotificationPreferences(!isChecked);
+            //Handle notification work depending on user's choices
+            if (!isChecked){
+                WorkManagerHelper.enqueueWork();
+            }else{
+                WorkManagerHelper.clearAllWork();
+            }
         });
     }
 

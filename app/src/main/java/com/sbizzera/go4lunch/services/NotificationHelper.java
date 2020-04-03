@@ -58,7 +58,7 @@ class NotificationHelper {
     }
 
     private static void createNotification(String notificationText) {
-        PendingIntent contentIntent = PendingIntent.getActivity(App.getApplication(),0,new Intent(App.getApplication(),MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(App.getApplication(),0,new Intent(App.getApplication(),MainActivity.class),0);
 
         Notification notification = new NotificationCompat.Builder(App.getApplication(), App.CHANNEL_USER_LUNCH_ID)
                 .setSmallIcon(R.drawable.ic_notification_icon)
@@ -67,8 +67,6 @@ class NotificationHelper {
                 .setChannelId(App.CHANNEL_USER_LUNCH_ID)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setContentIntent(contentIntent)
-                //TODO on content click listener
-//                .setContentIntent()
                 .build();
 
         sendNotification(notification);

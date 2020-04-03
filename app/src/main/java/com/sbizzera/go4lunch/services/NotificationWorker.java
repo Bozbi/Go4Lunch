@@ -12,7 +12,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,36 +24,11 @@ public class NotificationWorker extends ListenableWorker {
         super(appContext, workerParams);
     }
 
-//    @NonNull
-//    @Override
-//    public ListenableFuture<Result> startWork() {
-//        Timber.d("I'm Doing some wort at %s", LocalDateTime.now().toString());
-//        return CallbackToFutureAdapter.getFuture(completer -> {
-//            return FirebaseFirestore.getInstance().collection("dates")
-//                    .document(LocalDate.now().toString())
-//                    .collection("lunches")
-//                    .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                    .get()
-//                    .addOnFailureListener(completer::setException)
-//                    .addOnSuccessListener(documentSnapshot -> {
-//                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-//
-//                        Notification notification = new NotificationCompat.Builder(getApplicationContext(), App.CHANNEL_USER_LUNCH_ID)
-//                                .setSmallIcon(R.drawable.ic_launcher_foreground)
-//                                .setContentTitle("Todays Lunch")
-//                                .setContentText(documentSnapshot.get("restaurantName").toString())
-//                                .build();
-//
-//                        notificationManager.notify(1, notification);
-//                        completer.set(Result.success());
-//                    });
-//        });
-//    }
 
     @NonNull
     @Override
     public ListenableFuture<Result> startWork() {
-        Timber.d("I'm Doing some wort at %s", LocalDateTime.now().toString());
+        WorkManagerHelper.handleNotificationWork();
         return CallbackToFutureAdapter.getFuture(completer -> {
             if (FirebaseAuthService.getUser() != null) {
                 return FirebaseFirestore.getInstance().collection("dates")
@@ -67,7 +41,6 @@ public class NotificationWorker extends ListenableWorker {
                             if (userLunch.exists()) {
                                 //user is logged and made a choice
                                 String restaurantChosen = userLunch.get("restaurantName").toString();
-                                Timber.d("Lunch and User exists, %s is eating at %s", FirebaseAuthService.getUser().getDisplayName(), restaurantChosen);
                                 FirebaseFirestore.getInstance().collection("dates")
                                         .document(LocalDate.now().toString())
                                         .collection("lunches")
@@ -85,14 +58,13 @@ public class NotificationWorker extends ListenableWorker {
                                                 Timber.d("List of joining Mates: %s", joiningWorkmatesNames.toString());
                                                 if (joiningWorkmatesNames.size() > 0) {
                                                     NotificationHelper.notifyLunchChoice(restaurantChosen, joiningWorkmatesNames);
-                                                }else{
+                                                } else {
                                                     NotificationHelper.notifyLunchChoice(restaurantChosen);
                                                 }
                                             }
                                         });
                             } else {
                                 //user is logged but didn't make a choice
-                                Timber.d("User exists but no lunch found for him");
                                 NotificationHelper.notifyLunchChoice();
                             }
 
@@ -103,7 +75,6 @@ public class NotificationWorker extends ListenableWorker {
             return completer.set(Result.success());
         });
     }
-
 }
 
 
