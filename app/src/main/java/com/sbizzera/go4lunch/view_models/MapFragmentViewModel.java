@@ -123,7 +123,7 @@ public class MapFragmentViewModel extends ViewModel {
     }
 
     public void updatePermissionAndLocation() {
-        PermissionService.getInstance().checkLocationPermission();
+        mPermissionService.checkPermission();
         mLocator.getLocation();
     }
 

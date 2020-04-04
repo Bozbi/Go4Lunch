@@ -10,6 +10,7 @@ import com.sbizzera.go4lunch.services.LocationService;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.PermissionService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
+import com.sbizzera.go4lunch.services.SharedPreferencesRepo;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
@@ -36,7 +37,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(MapFragmentViewModel.class)) {
             return (T) new MapFragmentViewModel(
-                    new LocationService(App.getApplication()),
+                    LocationService.getInstance(App.getApplication()),
                     PermissionService.getInstance(),
                     GooglePlacesService.getInstance(),
                     new FireStoreService()
@@ -49,14 +50,15 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             );
         }
         if (modelClass.isAssignableFrom(MainActivityViewModel.class)) {
-            return (T) new MainActivityViewModel(new FireStoreService(), PermissionService.getInstance(),new LocationService(App.getApplication()));
+            return (T) new MainActivityViewModel(new FireStoreService(), PermissionService.getInstance(),
+                    LocationService.getInstance(App.getApplication()),new SharedPreferencesRepo());
         }
         if (modelClass.isAssignableFrom(WorkmatesFragmentViewModel.class)){
             return (T)new WorkmatesFragmentViewModel(new FireStoreService());
         }
         if (modelClass.isAssignableFrom(ListFragmentViewModel.class)){
             return (T)new ListFragmentViewModel(
-                    new LocationService(App.getApplication()),
+                    LocationService.getInstance(App.getApplication()),
                     GooglePlacesService.getInstance(),
                     new FireStoreService()
             );

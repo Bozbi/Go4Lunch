@@ -50,4 +50,27 @@ public class FirebaseAuthService {
     public static FirebaseUser getUser() {
         return mFirebaseAuth.getCurrentUser();
     }
+
+    public static String getUserPhotoUrl() {
+        String photoUrl = "";
+        if (mFirebaseAuth.getCurrentUser() != null&& mFirebaseAuth.getCurrentUser().getPhotoUrl()!=null) {
+            photoUrl =  mFirebaseAuth.getCurrentUser().getPhotoUrl().toString();
+        }
+        return photoUrl;
+    }
+    public static String getUserName(){
+        String userName = "";
+        if (mFirebaseAuth.getCurrentUser()!=null&&mFirebaseAuth.getCurrentUser().getDisplayName()!=null){
+            userName = mFirebaseAuth.getCurrentUser().getDisplayName();
+        }
+        return userName;
+    }
+
+    public static String getUserEmail(){
+        String userEmail = "";
+        if (mFirebaseAuth.getCurrentUser()!=null&&mFirebaseAuth.getCurrentUser().getEmail()!=null){
+            userEmail = mFirebaseAuth.getCurrentUser().getEmail();
+        }
+        return userEmail;
+    }
 }

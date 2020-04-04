@@ -1,20 +1,12 @@
 package com.sbizzera.go4lunch.views.activities;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class LaunchActivity extends AppCompatActivity {
 
@@ -27,12 +19,12 @@ public class LaunchActivity extends AppCompatActivity {
 
         //Checking if user is logged in.
         if (FirebaseAuthService.isUserLogged()) {
-            launchRestaurantActivity();
+            launchMainActivity();
+            finish();
         } else {
             //Launching FirebaseAuth activity
             startActivityForResult(FirebaseAuthService.getLoginIntent(), RC_SIGN_IN);
         }
-
     }
 
     //Results of FirebaseAuth activity
@@ -41,17 +33,16 @@ public class LaunchActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                launchRestaurantActivity();
+                launchMainActivity();
                 finish();
             } else {
                 finish();
             }
         }
-
     }
 
     //Launching ListRestaurantsActivity
-    private void launchRestaurantActivity() {
+    private void launchMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }

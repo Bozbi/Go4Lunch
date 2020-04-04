@@ -2,16 +2,10 @@ package com.sbizzera.go4lunch.services;
 
 import android.content.Context;
 import android.location.Location;
-import android.os.Looper;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
@@ -20,18 +14,24 @@ import timber.log.Timber;
 
 public class LocationService {
 
-    private Context mContext;
+    private MutableLiveData<Location> locationLD = new MutableLiveData<>();
+    private static LocationService sLocationService;
 
-    public LocationService(Context context) {
-        mContext = context;
+    private LocationService(Context context) {
+        LocationServices.getFusedLocationProviderClient(context).getLastLocation().addOnSuccessListener(location -> {
+            Timber.d("last known location : %s",Go4LunchUtils.locationToString(location));
+            locationLD.postValue(location);
+        });
     }
 
-    public LiveData<Location> getLocation(){
-        MutableLiveData<Location> locationLD = new MutableLiveData<>();
-        LocationServices.getFusedLocationProviderClient(mContext).getLastLocation().addOnSuccessListener(location -> {
-            locationLD.postValue(location);
-            Timber.d("getLocation : %s", Go4LunchUtils.locationToString(location));
-        });
+    public static LocationService getInstance(Context context){
+        if(sLocationService == null){
+            sLocationService = new LocationService(context);
+        }
+        return sLocationService;
+    }
+
+    public LiveData<Location> getLocation() {
         return locationLD;
     }
 

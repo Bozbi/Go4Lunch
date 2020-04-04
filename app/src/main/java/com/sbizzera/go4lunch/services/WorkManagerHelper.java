@@ -20,7 +20,7 @@ public class WorkManagerHelper {
         clearAllWork();
 
         //If User Wants Notification
-        if (SharedPreferencesRepo.loadNotificationPreferences()) {
+        if (SharedPreferencesRepo.isNotificationPrefOn()) {
             enqueueWork();
         }
     }
@@ -28,8 +28,8 @@ public class WorkManagerHelper {
     public static void enqueueWork(){
         Calendar currentDate = Calendar.getInstance();
         Calendar dueDate = Calendar.getInstance();
-        dueDate.set(Calendar.HOUR_OF_DAY, 12);
-        dueDate.set(Calendar.MINUTE, 0);
+        dueDate.set(Calendar.HOUR_OF_DAY, 22);
+        dueDate.set(Calendar.MINUTE, 46);
         dueDate.set(Calendar.SECOND, 0);
 
         if (dueDate.before(currentDate)) {
@@ -50,6 +50,8 @@ public class WorkManagerHelper {
     }
 
     public static void clearAllWork(){
+        Timber.d("Clearing all work");
         workManager.pruneWork();
+        workManager.cancelAllWork();
     }
 }

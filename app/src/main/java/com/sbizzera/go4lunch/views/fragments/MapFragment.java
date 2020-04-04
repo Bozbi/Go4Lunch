@@ -29,18 +29,11 @@ import com.sbizzera.go4lunch.view_models.ViewModelFactory;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
 
-
-    private static final String TAG = "MapFragment";
-    private static final int ACCESS_FINE_LOCATION_REQUEST_CODE = 123;
-
     private GoogleMap map;
-
-    private MapFragmentViewModel mViewModel;
-
     private OnItemBoundWithRestaurantClickListener mListener;
 
-
     public MapFragment(OnItemBoundWithRestaurantClickListener listener) {
+        super();
         mListener = listener;
     }
 
@@ -57,14 +50,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getMapAsync(this);
-        mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MapFragmentViewModel.class);
-        mViewModel.getUIModel().observe(this, model -> {
-            if (model.getFineLocationPermission()) {
-                updateUi(model);
-            } else {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_FINE_LOCATION_REQUEST_CODE);
-            }
-        });
+        MapFragmentViewModel mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MapFragmentViewModel.class);
+        mViewModel.getUIModel().observe(this, this::updateUi);
     }
 
     private void updateUi(MapFragmentModel model) {
@@ -83,12 +70,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 );
                 newMarker.setTag(marker.getRestaurantId());
             }
-            map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(Marker marker) {
-                    mListener.onItemBoundWithRestaurantClick(marker.getTag().toString());
-                    return true;
-                }
+            map.setOnMarkerClickListener(marker -> {
+                mListener.onItemBoundWithRestaurantClick(marker.getTag().toString());
+                return true;
             });
         }
     }
@@ -97,12 +81,6 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        //TODO need to work on GPS Access and Permissions
-        mViewModel.updatePermissionAndLocation();
     }
 
 }

@@ -24,7 +24,6 @@ public class NotificationWorker extends ListenableWorker {
         super(appContext, workerParams);
     }
 
-
     @NonNull
     @Override
     public ListenableFuture<Result> startWork() {

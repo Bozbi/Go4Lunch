@@ -7,6 +7,7 @@ import android.os.Build;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.sbizzera.go4lunch.services.WorkManagerHelper;
+import com.sbizzera.go4lunch.views.fragments.MapFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -33,8 +34,6 @@ public class App extends Application {
                 super.log(priority, "OWN TAGS || " + tag, message, t);
             }
         });
-
-        WorkManagerHelper.handleNotificationWork();
 
         createNotificationChannels();
     }

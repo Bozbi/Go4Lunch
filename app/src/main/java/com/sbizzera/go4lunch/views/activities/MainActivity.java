@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -22,27 +24,20 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.TypeFilter;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseUser;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.model.MainActivityModel;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
-import com.sbizzera.go4lunch.services.SharedPreferencesRepo;
-import com.sbizzera.go4lunch.services.WorkManagerHelper;
 import com.sbizzera.go4lunch.view_models.MainActivityViewModel;
 import com.sbizzera.go4lunch.view_models.ViewModelFactory;
 import com.sbizzera.go4lunch.views.fragments.ListFragment;
 import com.sbizzera.go4lunch.views.fragments.MapFragment;
-import com.sbizzera.go4lunch.views.fragments.NoPermissionFragment;
 import com.sbizzera.go4lunch.views.fragments.WorkmatesFragment;
 import com.sbizzera.go4lunch.views.fragments.YourLunchDialogFragment;
 
-import java.util.Arrays;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener, OnItemBoundWithRestaurantClickListener {
 
@@ -53,6 +48,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView mUserName;
     private TextView mUserEmail;
     private ImageView mUserPhoto;
+    private Toolbar mToolbar;
+    private Switch notificationSwitch;
+    private TextView switchText;
+    MainActivityViewModel viewModel;
 
     private NavigationView navigationView;
 
@@ -65,23 +64,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Declaration
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
-        wireUpNotificationSwitch();
 
         mUserName = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_name);
         mUserEmail = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_email);
         mUserPhoto = navigationView.getHeaderView(0).findViewById(R.id.drawer_avatar);
-        Toolbar mToolbar = findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
+        MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_settings);
+        notificationSwitch = menuItem.getActionView().findViewById(R.id.notification_switch);
+        switchText = menuItem.getActionView().findViewById(R.id.notification_switch_txt);
+        wireUpNotificationSwitch();
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
 
-        MainActivityViewModel model = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MainActivityViewModel.class);
-        model.updateUserInDb();
-        model.isLocationPermissionOn().observe(this, isPermissionOn -> {
-            if (!isPermissionOn) {
-                loadFragment(new NoPermissionFragment());
-            }
+        viewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MainActivityViewModel.class);
+        viewModel.getModel().observe(this, model -> {
+            updateUI(model);
         });
-
-        mToolbar.setTitle("I'm Hungry");
 
         //Setting Custom ToolBar As ActionBar
         setSupportActionBar(mToolbar);
@@ -96,25 +93,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Session Log Out Back to mainEmpty
         navigationView.setNavigationItemSelectedListener(this);
-        getAndDisplayUserInfo();
 
         loadFragment(new MapFragment(this));
 
     }
 
+    private void updateUI(MainActivityModel model) {
+        Glide.with(this).load(model.getUserPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(mUserPhoto);
+        mUserName.setText(model.getUserName());
+        mUserEmail.setText(model.getUserEmail());
+        mToolbar.setTitle(model.getToolBarTitle());
+        notificationSwitch.setChecked(!model.getNotificationOn());
+        switchText.setText(model.getSwitchText());
+    }
+
     private void wireUpNotificationSwitch() {
-        MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_settings);
-        Switch notificationSwitch = (Switch) menuItem.getActionView().findViewById(R.id.notification_switch);
-        notificationSwitch.setChecked(!SharedPreferencesRepo.loadNotificationPreferences());
-        notificationSwitch.setOnCheckedChangeListener((view, isChecked) -> {
-            //Inverting isChecked for personal UI preferences (Side of toggle switch more appropriate this way)
-            SharedPreferencesRepo.saveNotificationPreferences(!isChecked);
-            //Handle notification work depending on user's choices
-            if (!isChecked){
-                WorkManagerHelper.enqueueWork();
-            }else{
-                WorkManagerHelper.clearAllWork();
-            }
+        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                viewModel.updateSharedPrefs(!isChecked);
         });
     }
 
@@ -168,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.drawer_your_lunch:
                 YourLunchDialogFragment dialog = new YourLunchDialogFragment();
-                dialog.show(getSupportFragmentManager(),"TAG");
+                dialog.show(getSupportFragmentManager(), "TAG");
                 break;
         }
         return true;
@@ -180,16 +175,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, Arrays.asList(Place.Field.NAME))
-                .setHint("Restaurants")
-                .setCountry("FR")
-                .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                .build(this);
-        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-        return true;
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, Arrays.asList(Place.Field.NAME))
+//                .setHint("Restaurants")
+//                .setCountry("FR")
+//                .setTypeFilter(TypeFilter.ESTABLISHMENT)
+//                .build(this);
+//        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+//        return true;
+//    }
 
     @Override
     public void onItemBoundWithRestaurantClick(String id) {
@@ -220,18 +215,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
     }
 
-    //Get Values from Firebase user Instance and push them in views
-    private void getAndDisplayUserInfo() {
-        FirebaseUser user = FirebaseAuthService.getUser();
-        mUserName.setText(user.getDisplayName());
-        mUserEmail.setText(user.getEmail());
-        Glide.with(this).load(user.getPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(mUserPhoto);
-    }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Timber.d("requestPermissionResults");
     }
 
 }
