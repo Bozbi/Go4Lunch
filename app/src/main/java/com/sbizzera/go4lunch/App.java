@@ -1,12 +1,9 @@
 package com.sbizzera.go4lunch;
 
 import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.os.Build;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
-import com.sbizzera.go4lunch.services.WorkManagerHelper;
+import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -21,13 +21,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".views.activities.RestaurantActivity"
+            android:name=".restaurant_activity.RestaurantActivity"
             android:theme="@style/RestaurantDetailTheme" />
         <activity
-            android:name=".views.activities.MainActivity"
+            android:name=".main_activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".views.activities.LaunchActivity"
+            android:name=".launch_activity.LaunchActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
