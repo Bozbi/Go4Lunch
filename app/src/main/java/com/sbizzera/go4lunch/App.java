@@ -7,7 +7,6 @@ import android.os.Build;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.sbizzera.go4lunch.services.WorkManagerHelper;
-import com.sbizzera.go4lunch.views.fragments.MapFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -15,9 +14,8 @@ import timber.log.Timber;
 
 public class App extends Application {
 
-    public static final String TAG_DAILY_WORK = "TAG_DAILY_WORK";
+
     private static Application sApplication;
-    public static final String CHANNEL_USER_LUNCH_ID = "CHANNEL_USER_LUNCH";
 
     @Override
     public void onCreate() {
@@ -35,31 +33,15 @@ public class App extends Application {
             }
         });
 
-        createNotificationChannels();
+       WorkManagerHelper.createNotificationChannels();
     }
-
-
-    private void createNotificationChannels() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channelUserLunch = new NotificationChannel(
-                    CHANNEL_USER_LUNCH_ID,
-                    "notify for lunch choice",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            channelUserLunch.setDescription("Notify you're lunch choice every Day at noon");
-
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            //TODO why this line
-            assert manager!=null;
-            manager.createNotificationChannel(channelUserLunch);
-        }
-    }
-
 
     //Returning Application for later user of Context.
     public static Application getApplication() {
         return sApplication;
     }
+
+
 
 
 }

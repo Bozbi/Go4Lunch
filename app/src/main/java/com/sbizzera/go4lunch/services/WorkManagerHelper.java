@@ -1,5 +1,9 @@
 package com.sbizzera.go4lunch.services;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
+
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
@@ -13,6 +17,7 @@ import timber.log.Timber;
 public class WorkManagerHelper {
 
     private static final String TAG_DAILY_WORK = "TAG_DAILY_WORK";
+    public static final String CHANNEL_USER_LUNCH_ID = "CHANNEL_USER_LUNCH";
     private static WorkManager workManager = WorkManager.getInstance(App.getApplication());
 
     public static void handleNotificationWork() {
@@ -25,11 +30,11 @@ public class WorkManagerHelper {
         }
     }
 
-    public static void enqueueWork(){
+    private static void enqueueWork(){
         Calendar currentDate = Calendar.getInstance();
         Calendar dueDate = Calendar.getInstance();
-        dueDate.set(Calendar.HOUR_OF_DAY, 22);
-        dueDate.set(Calendar.MINUTE, 46);
+        dueDate.set(Calendar.HOUR_OF_DAY, 12);
+        dueDate.set(Calendar.MINUTE, 0);
         dueDate.set(Calendar.SECOND, 0);
 
         if (dueDate.before(currentDate)) {
@@ -49,9 +54,27 @@ public class WorkManagerHelper {
         workManager.enqueue(workRequest);
     }
 
-    public static void clearAllWork(){
+    private static void clearAllWork(){
         Timber.d("Clearing all work");
-        workManager.pruneWork();
-        workManager.cancelAllWork();
+        workManager.cancelAllWorkByTag(TAG_DAILY_WORK);
     }
+
+    public static void createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channelUserLunch = new NotificationChannel(
+                    CHANNEL_USER_LUNCH_ID,
+                    "Notify Lunch Choice",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            channelUserLunch.setDescription("Notify you're lunch choice every day ");
+
+            NotificationManager manager = App.getApplication().getSystemService(NotificationManager.class);
+            //TODO why this line
+            assert manager!=null;
+            manager.createNotificationChannel(channelUserLunch);
+        }
+    }
+
+
+
 }

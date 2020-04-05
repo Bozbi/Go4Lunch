@@ -19,6 +19,8 @@ public class Go4LunchUtils {
     }
 
     public static String getUserFirstName(String fullName) {
-        return fullName.substring(0,fullName.indexOf(" "));
+        String firstName = fullName.substring(0,fullName.indexOf(" "));
+        firstName = firstName.substring(0,1).toUpperCase()+ firstName.substring(1);
+        return firstName;
     }
 }

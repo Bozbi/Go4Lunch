@@ -3,69 +3,69 @@ package com.sbizzera.go4lunch.services;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.renderscript.RenderScript;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.utils.BitMapCreator;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.views.activities.MainActivity;
 
 import java.util.List;
 import java.util.Objects;
 
-import static com.firebase.ui.auth.AuthUI.getApplicationContext;
-
 class NotificationHelper {
 
     //TODO Work on notification Text
 
     static void notifyLunchChoice(String restaurantName, List<String> joiningWorkmates) {
-        //TODO J'en ai marre de checker ça partout??? Comment on fait ?? (Réponse passe à Kotlin non acceptée)
-        String userFirstName = Go4LunchUtils.getUserFirstName(Objects.requireNonNull(FirebaseAuthService.getUser().getDisplayName()));
-        StringBuilder notificationText = new StringBuilder("Hi " + userFirstName + ", \nToday you're eating at " + restaurantName + " with ");
+        String notificationText = "Hi %User%,\nToday you're eating at %Restaurant% with %Workmates%.\nHave a good time!";
+        notificationText = notificationText.replace("%Restaurant%", restaurantName);
+        StringBuilder workmatesList = new StringBuilder();
         if (joiningWorkmates.size() > 1) {
             for (int i = 0; i < joiningWorkmates.size(); i++) {
                 if (i != joiningWorkmates.size() - 1) {
-                    notificationText.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i))).append(", ");
+                    workmatesList.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i))).append(", ");
                 } else {
-                    notificationText.append("and ").append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i))).append(".");
+                    workmatesList.append("and ").append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i)));
                 }
             }
-        }else{
-            notificationText.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(0))).append(".");
+        } else {
+            workmatesList.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(0)));
         }
-        notificationText.append("\nHave a Good Time!");
+        notificationText = notificationText.replace("%Workmates%", workmatesList.toString());
 
-        createNotification(notificationText.toString());
+        createNotification(notificationText);
     }
 
     static void notifyLunchChoice(String restaurantName) {
-        String userFirstName = Go4LunchUtils.getUserFirstName(Objects.requireNonNull(FirebaseAuthService.getUser().getDisplayName()));
-        String notificationText ="Hi " + userFirstName + ", \nToday you're eating at " + restaurantName+ ".";
-        notificationText = notificationText + "\nHave a Good Time!";
+        String notificationText = "Hi %User%,\nToday you're eating at %Restaurant%.\nHave a good time!";
+        notificationText = notificationText.replace("%Restaurant%", restaurantName);
         createNotification(notificationText);
     }
 
     static void notifyLunchChoice() {
-        String userFirstName = Go4LunchUtils.getUserFirstName(Objects.requireNonNull(FirebaseAuthService.getUser().getDisplayName()));
-        String notificationText ="Hi " + userFirstName + ", \nYou haven't shared your lunch choice today!\n Do it now so Workmates can join you!";
+        String notificationText = "Hi %User%,\nYou have'nt shared your choice today !\nDo it now so workmates can join you !";
         createNotification(notificationText);
     }
 
     private static void createNotification(String notificationText) {
-        PendingIntent contentIntent = PendingIntent.getActivity(App.getApplication(),0,new Intent(App.getApplication(),MainActivity.class),0);
+        PendingIntent contentIntent = PendingIntent.getActivity(App.getApplication(), 0, new Intent(App.getApplication(), MainActivity.class), 0);
 
-        Notification notification = new NotificationCompat.Builder(App.getApplication(), App.CHANNEL_USER_LUNCH_ID)
+        String title = "Your Lunch !";
+        String userFirstName = Go4LunchUtils.getUserFirstName(Objects.requireNonNull(FirebaseAuthService.getUserName()));
+        notificationText = notificationText.replace("%User%", userFirstName);
+
+        Notification notification = new NotificationCompat.Builder(App.getApplication(), WorkManagerHelper.CHANNEL_USER_LUNCH_ID)
                 .setSmallIcon(R.drawable.ic_notification_icon)
-                .setContentTitle("I'm Hungry!")
-                .setContentText(notificationText)
-                .setChannelId(App.CHANNEL_USER_LUNCH_ID)
-                .setPriority(Notification.PRIORITY_HIGH)
+                .setColor(App.getApplication().getResources().getColor(R.color.colorPrimary))
+                .setAutoCancel(true)
+                .setContentTitle(title)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(notificationText))
+                .setChannelId(WorkManagerHelper.CHANNEL_USER_LUNCH_ID)
+                .setPriority(Notification.PRIORITY_DEFAULT)
                 .setContentIntent(contentIntent)
                 .build();
 
