@@ -84,7 +84,6 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             LatLngBounds cameraBounds = map.getProjection().getVisibleRegion().latLngBounds;
             mViewModel.shouldNewAreaFetchBeVisible(cameraLatLng, cameraBounds);
         });
-        map.clear();
         if (model.getMapMarkersList() != null) {
             for (CustomMapMarker marker : model.getMapMarkersList()) {
                 Marker newMarker = map.addMarker(new MarkerOptions()
