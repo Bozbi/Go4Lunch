@@ -20,6 +20,7 @@ import java.util.Objects;
 class NotificationHelper {
 
     //TODO Work on notification Text
+    //TODO Inject App.context in constructor
 
     static void notifyLunchChoice(String restaurantName, List<String> joiningWorkmates) {
         String notificationText = "Hi %User%,\nToday you're eating at %Restaurant% with %Workmates%.\nHave a good time!";
@@ -56,7 +57,7 @@ class NotificationHelper {
         PendingIntent contentIntent = PendingIntent.getActivity(App.getApplication(), 0, new Intent(App.getApplication(), MainActivity.class), 0);
 
         String title = "Your Lunch !";
-        String userFirstName = Go4LunchUtils.getUserFirstName(Objects.requireNonNull(FirebaseAuthService.getUserName()));
+        String userFirstName = Go4LunchUtils.getUserFirstName(FirebaseAuthService.getUserName());
         notificationText = notificationText.replace("%User%", userFirstName);
 
         Notification notification = new NotificationCompat.Builder(App.getApplication(), WorkManagerHelper.CHANNEL_USER_LUNCH_ID)

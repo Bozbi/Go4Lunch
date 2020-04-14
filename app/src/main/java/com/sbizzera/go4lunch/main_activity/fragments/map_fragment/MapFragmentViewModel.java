@@ -5,90 +5,85 @@ import android.location.Location;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
 import com.sbizzera.go4lunch.services.LocationService;
-import com.sbizzera.go4lunch.services.PermissionService;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
+import com.sbizzera.go4lunch.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MapFragmentViewModel extends ViewModel {
 
-    private static final String TAG = "MapFragmentViewModel";
-
     private MediatorLiveData<MapFragmentModel> mUiModelLiveData = new MediatorLiveData<>();
     private LocationService mLocator;
-    private PermissionService mPermissionService;
     private GooglePlacesService mGooglePlacesService;
     private FireStoreService mFireStoreService;
-
-    private LiveData<Boolean> fineLocationPermissionLiveData;
-    private LiveData<Location> locationLiveData;
+    private LiveData<Location> userLocationLD;
     private LiveData<List<NearbyPlace>> nearbyRestaurantsLiveData;
+    private LiveData<List<FireStoreRestaurant>> fireStoreRestaurantsLiveData;
+    private SingleLiveEvent<ViewAction> actionLE = new SingleLiveEvent<>();
+    private SingleLiveEvent<Location> locationFoundLE ;
+    private int nearbySearchRadius = 1000;
 
 
-    public MapFragmentViewModel(LocationService locator, PermissionService permissionService, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
+    public MapFragmentViewModel(LocationService locator, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
         mLocator = locator;
-        mPermissionService = permissionService;
         mGooglePlacesService = googlePlacesService;
         mFireStoreService = fireStoreService;
+        locationFoundLE = mLocator.getLocationLE();
         wireUpMediator();
-
     }
 
     public LiveData<MapFragmentModel> getUIModel() {
         return mUiModelLiveData;
     }
 
+    public LiveData<ViewAction> getAction() {
+        return actionLE;
+    }
+
+    public LiveData<Location> getLocationLE() {
+        return locationFoundLE;
+    }
 
     public void wireUpMediator() {
 
-        LiveData<Boolean> fineLocationPermissionLiveData = mPermissionService.getPermissionLiveData();
-        LiveData<Location> locationLiveData = mLocator.getLocation();
-        LiveData<List<NearbyPlace>> nearbyRestaurantsLiveData = Transformations.switchMap(locationLiveData, location -> mGooglePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(location)));
-        LiveData<List<FireStoreRestaurant>> fireStoreRestaurantsLiveData = mFireStoreService.getAllKnownRestaurants();
-
-        mUiModelLiveData.addSource(fineLocationPermissionLiveData, fineLocationPermission -> {
-            mUiModelLiveData.postValue(combineSources(locationLiveData.getValue(), fineLocationPermission, nearbyRestaurantsLiveData.getValue(), fireStoreRestaurantsLiveData.getValue()));
-        });
-
-        mUiModelLiveData.addSource(locationLiveData, location -> {
-            mUiModelLiveData.postValue(combineSources(location, fineLocationPermissionLiveData.getValue(), nearbyRestaurantsLiveData.getValue(), fireStoreRestaurantsLiveData.getValue()));
-        });
+        userLocationLD = mLocator.getLocationLD();
+        nearbyRestaurantsLiveData = Transformations.switchMap(userLocationLD, location -> mGooglePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(location), nearbySearchRadius));
+        fireStoreRestaurantsLiveData =  mFireStoreService.getAllKnownRestaurants();
 
         mUiModelLiveData.addSource(nearbyRestaurantsLiveData, nearbyRestaurants -> {
-            mUiModelLiveData.postValue(combineSources(locationLiveData.getValue(), fineLocationPermissionLiveData.getValue(), nearbyRestaurants, fireStoreRestaurantsLiveData.getValue()));
+            combineSources(nearbyRestaurants, fireStoreRestaurantsLiveData.getValue());
         });
 
         mUiModelLiveData.addSource(fireStoreRestaurantsLiveData, fireStoreRestaurants -> {
-            mUiModelLiveData.postValue(combineSources(locationLiveData.getValue(), fineLocationPermissionLiveData.getValue(), nearbyRestaurantsLiveData.getValue(), fireStoreRestaurants));
+            combineSources(nearbyRestaurantsLiveData.getValue(), fireStoreRestaurants);
         });
 
     }
 
-
-    private MapFragmentModel combineSources(Location location, Boolean fineLocationPermission, List<NearbyPlace> restaurantslist, List<FireStoreRestaurant> fireStoreRestaurants) {
-        List<CustomMapMarker> listMapMarkers = createMarkers(restaurantslist, fireStoreRestaurants);
-        MapFragmentModel model = new MapFragmentModel();
-        model.setFineLocationPermission(fineLocationPermission);
-        model.setLocation(location);
-        model.setRestaurantsList(restaurantslist);
-        model.setMapMarkersList(listMapMarkers);
-        return model;
+    private void combineSources(List<NearbyPlace> restaurantsList, List<FireStoreRestaurant> fireStoreRestaurants) {
+        if (userLocationLD != null) {
+            List<CustomMapMarker> listMapMarkers = createMarkers(restaurantsList, fireStoreRestaurants);
+            mUiModelLiveData.setValue(new MapFragmentModel(listMapMarkers));
+        }
     }
 
-    private List<CustomMapMarker> createMarkers(List<NearbyPlace> restaurantslist, List<FireStoreRestaurant> fireStoreRestaurants) {
+    private List<CustomMapMarker> createMarkers(List<NearbyPlace> restaurantsList, List<FireStoreRestaurant> fireStoreRestaurants) {
         List<CustomMapMarker> markersListToReturn = new ArrayList<>();
-        if (restaurantslist != null) {
-            for (NearbyPlace nearbyRestaurant : restaurantslist) {
+        if (restaurantsList != null) {
+            for (NearbyPlace nearbyRestaurant : restaurantsList) {
                 CustomMapMarker marker = new CustomMapMarker(
                         nearbyRestaurant.getLat(),
                         nearbyRestaurant.getLng(),
@@ -120,10 +115,62 @@ public class MapFragmentViewModel extends ViewModel {
         return markersListToReturn;
     }
 
-    public void updatePermissionAndLocation() {
-        mPermissionService.checkPermission();
-        mLocator.getLocation();
+
+    private int getRadiusShownFromBounds(LatLngBounds latLngBounds) {
+        double southEastLat = latLngBounds.southwest.latitude;
+        double southEastLng = latLngBounds.northeast.longitude;
+        Location southEast = new Location("");
+        southEast.setLatitude(southEastLat);
+        southEast.setLongitude(southEastLng);
+        double southWestLat = latLngBounds.southwest.latitude;
+        double southWestLng = latLngBounds.southwest.longitude;
+        Location southWest = new Location("");
+        southWest.setLatitude(southWestLat);
+        southWest.setLongitude(southWestLng);
+
+        return (int) (southEast.distanceTo(southWest) / 2);
     }
 
+    public void shouldNewAreaFetchBeVisible(LatLng cameraLatLng, LatLngBounds cameraBounds) {
+        int cameraRadius = getRadiusShownFromBounds(cameraBounds);
+        int radiusDiff = Math.abs(cameraRadius - nearbySearchRadius);
+        if (radiusDiff > 400) {
+            actionLE.setValue(ViewAction.FETCH_NEW_AREA_VISIBLE);
+        }
+
+        Location cameraLocation = new Location("");
+        cameraLocation.setLatitude(cameraLatLng.latitude);
+        cameraLocation.setLongitude(cameraLatLng.longitude);
+
+
+        int distanceDiff = (int) cameraLocation.distanceTo(userLocationLD.getValue());
+        if (distanceDiff > 200) {
+            actionLE.setValue(ViewAction.FETCH_NEW_AREA_VISIBLE);
+        }
+
+    }
+
+
+    public void changeLocationSourceLD(LatLng cameraLocation, LatLngBounds bounds) {
+        Location locationToFetch = new Location("");
+        locationToFetch.setLatitude(cameraLocation.latitude);
+        locationToFetch.setLongitude(cameraLocation.longitude);
+        int radiusToFetch = getRadiusShownFromBounds(bounds);
+        nearbySearchRadius = radiusToFetch;
+        userLocationLD = new MutableLiveData<>(locationToFetch);
+        mUiModelLiveData.removeSource(nearbyRestaurantsLiveData);
+        LiveData<List<NearbyPlace>> nearbyPlacesLD = mGooglePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(locationToFetch), radiusToFetch);
+
+        mUiModelLiveData.addSource(nearbyPlacesLD, nearbyPlaces -> {
+            combineSources(nearbyPlaces, fireStoreRestaurantsLiveData.getValue());
+        });
+
+        actionLE.setValue(ViewAction.FETCH_NEW_AREA_INVISIBLE);
+    }
+
+    public enum ViewAction {
+        FETCH_NEW_AREA_VISIBLE,
+        FETCH_NEW_AREA_INVISIBLE
+    }
 
 }

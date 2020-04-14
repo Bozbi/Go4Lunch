@@ -18,16 +18,19 @@ public class FireStoreRestaurant {
 
     private int todaysLunches;
 
+    private int lunchCount;
+
 
 
     public FireStoreRestaurant() {
     }
 
-    public FireStoreRestaurant(String restaurantId, String name, Double lat, Double lng) {
+    public FireStoreRestaurant(String restaurantId, String name, Double lat, Double lng, int lunchCount) {
         this.restaurantId = restaurantId;
         this.name = name;
         this.lat = lat;
         this.lng = lng;
+        this.lunchCount = lunchCount;
 
     }
 
@@ -77,6 +80,15 @@ public class FireStoreRestaurant {
 
     public void setTodaysLunches(int todaysLunches) {
         this.todaysLunches = todaysLunches;
+
+    }
+
+    public int getLunchCount() {
+        return lunchCount;
+    }
+
+    public void setLunchCount(int lunchCount) {
+        this.lunchCount = lunchCount;
     }
 
     @NonNull

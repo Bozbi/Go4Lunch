@@ -14,6 +14,8 @@ public class MainActivityModel {
 
     private String switchText;
 
+
+
     public MainActivityModel(String userPhotoUrl, String userName, String userEmail, String toolBarTitle, Boolean isNotificationOn, String switchText) {
         this.userPhotoUrl = userPhotoUrl;
         this.userName = userName;
@@ -21,6 +23,7 @@ public class MainActivityModel {
         this.toolBarTitle = toolBarTitle;
         this.isNotificationOn = isNotificationOn;
         this.switchText = switchText;
+
     }
 
     public Boolean getNotificationOn() {
@@ -45,5 +48,7 @@ public class MainActivityModel {
 
     public String getSwitchText() {
         return switchText;
+
     }
+
 }

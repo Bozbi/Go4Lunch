@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.location.LocationServices;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
+import com.sbizzera.go4lunch.utils.SingleLiveEvent;
 
 import timber.log.Timber;
 
@@ -15,24 +16,23 @@ import timber.log.Timber;
 public class LocationService {
 
     private MutableLiveData<Location> locationLD = new MutableLiveData<>();
-    private static LocationService sLocationService;
+    private SingleLiveEvent<Location> locationLE = new SingleLiveEvent<>();
 
-    private LocationService(Context context) {
+    public LocationService(Context context) {
+        Timber.d("creating a LocationService");
         LocationServices.getFusedLocationProviderClient(context).getLastLocation().addOnSuccessListener(location -> {
-            Timber.d("last known location : %s",Go4LunchUtils.locationToString(location));
+            Timber.d("last known location : %s", Go4LunchUtils.locationToString(location));
             locationLD.postValue(location);
+            locationLE.postValue(location);
         });
     }
 
-    public static LocationService getInstance(Context context){
-        if(sLocationService == null){
-            sLocationService = new LocationService(context);
-        }
-        return sLocationService;
+    public LiveData<Location> getLocationLD() {
+        return locationLD;
     }
 
-    public LiveData<Location> getLocation() {
-        return locationLD;
+    public SingleLiveEvent<Location> getLocationLE() {
+        return locationLE;
     }
 
 }

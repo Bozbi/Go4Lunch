@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.main_activity.MainActivity;
 import com.sbizzera.go4lunch.services.ViewModelFactory;
 
 public class ListFragment extends Fragment {
@@ -21,9 +22,13 @@ public class ListFragment extends Fragment {
     private ListFragmentAdapter mAdapter;
     private OnItemBoundWithRestaurantClickListener mListener;
 
-    public ListFragment(OnItemBoundWithRestaurantClickListener listener) {
-        mListener = listener;
+   public static ListFragment newInstance() {
+        Bundle args = new Bundle();
+        ListFragment fragment = new ListFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
+
 
     @Nullable
     @Override
@@ -45,6 +50,10 @@ public class ListFragment extends Fragment {
     public void updateUI(ListFragmentModel model){
         mAdapter.setList(model.getListAdapterModel());
         mAdapter.notifyDataSetChanged();
+    }
+
+    public void setListener(OnItemBoundWithRestaurantClickListener listener) {
+       mListener = listener;
     }
 }
 

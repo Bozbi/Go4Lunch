@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.main_activity.MainActivity;
 import com.sbizzera.go4lunch.services.ViewModelFactory;
 
 public class WorkmatesFragment extends Fragment {
@@ -21,8 +22,11 @@ public class WorkmatesFragment extends Fragment {
     private OnItemBoundWithRestaurantClickListener mListener;
     private WorkmatesFragmentAdapter mAdapter;
 
-    public WorkmatesFragment(OnItemBoundWithRestaurantClickListener listener) {
-        mListener = listener;
+    public static WorkmatesFragment newInstance() {
+        Bundle args = new Bundle();
+        WorkmatesFragment fragment = new WorkmatesFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -44,5 +48,9 @@ public class WorkmatesFragment extends Fragment {
     private void updateUI(WorkmatesFragmentModel model){
         mAdapter.setWorkmatesList(model.getWorkmatesList());
         mAdapter.notifyDataSetChanged();
+    }
+
+    public void setListener(OnItemBoundWithRestaurantClickListener listener) {
+        mListener = listener;
     }
 }

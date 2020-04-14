@@ -9,6 +9,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,6 +63,15 @@ public class FirebaseAuthService {
         String userName = "";
         if (mFirebaseAuth.getCurrentUser()!=null&&mFirebaseAuth.getCurrentUser().getDisplayName()!=null){
             userName = mFirebaseAuth.getCurrentUser().getDisplayName();
+        }
+        return userName;
+    }
+
+    public static String getUserFirstName(){
+        String userName = "";
+        if (mFirebaseAuth.getCurrentUser()!=null&&mFirebaseAuth.getCurrentUser().getDisplayName()!=null){
+            userName = mFirebaseAuth.getCurrentUser().getDisplayName();
+            userName = Go4LunchUtils.getUserFirstName(userName);
         }
         return userName;
     }

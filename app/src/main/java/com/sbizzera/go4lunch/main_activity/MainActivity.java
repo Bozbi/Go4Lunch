@@ -1,17 +1,23 @@
 package com.sbizzera.go4lunch.main_activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -25,14 +31,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
-import com.sbizzera.go4lunch.main_activity.fragments.YourLunchDialogFragment;
-import com.sbizzera.go4lunch.services.FirebaseAuthService;
-import com.sbizzera.go4lunch.services.ViewModelFactory;
-import com.sbizzera.go4lunch.launch_activity.LaunchActivity;
-import com.sbizzera.go4lunch.restaurant_activity.RestaurantActivity;
+import com.sbizzera.go4lunch.dispatch_activity.DispatchActivity;
 import com.sbizzera.go4lunch.main_activity.fragments.list_fragment.ListFragment;
 import com.sbizzera.go4lunch.main_activity.fragments.map_fragment.MapFragment;
 import com.sbizzera.go4lunch.main_activity.fragments.workmates_fragment.WorkmatesFragment;
+import com.sbizzera.go4lunch.main_activity.your_lunch_dialog.YourLunchDialogFragment;
+import com.sbizzera.go4lunch.restaurant_activity.RestaurantActivity;
+import com.sbizzera.go4lunch.services.FirebaseAuthService;
+import com.sbizzera.go4lunch.services.ViewModelFactory;
 
 import timber.log.Timber;
 
@@ -40,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 234;
     public static final String INTENT_EXTRA_CODE = "INTENT_EXTRA_CODE";
+    private static final int PERMISSION_LOCATION_REQUEST_CODE = 123;
     private DrawerLayout drawerLayout;
 
     private TextView mUserName;
@@ -49,8 +56,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Switch notificationSwitch;
     private TextView switchText;
     MainActivityViewModel viewModel;
-
-    private NavigationView navigationView;
+    private MapFragment mapFragment;
+    private ListFragment listFragment;
+    private WorkmatesFragment workmatesFragment;
 
 
     @Override
@@ -60,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Declaration
         drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
 
         mUserName = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_name);
         mUserEmail = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_email);
@@ -73,8 +81,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
 
         viewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MainActivityViewModel.class);
-        viewModel.getModel().observe(this, model -> {
-            updateUI(model);
+        viewModel.getModel().observe(this, this::updateUI);
+        viewModel.getActionLEvent().observe(this, viewAction -> {
+            if (viewAction == MainActivityViewModel.ViewAction.DISPLAY_PERMISSION_DIALOG) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage("We need permission");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("Go to permissions", (x, y) -> {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
+
+                    });
+                    builder.show();
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_LOCATION_REQUEST_CODE);
+                }
+            }
         });
 
         //Setting Custom ToolBar As ActionBar
@@ -91,9 +116,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Session Log Out Back to mainEmpty
         navigationView.setNavigationItemSelectedListener(this);
 
-        loadFragment(new MapFragment(this));
+        //loadFragment(MapFragment.newInstance());
+        loadFragments();
 
     }
+
+
 
     private void updateUI(MainActivityModel model) {
         Glide.with(this).load(model.getUserPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(mUserPhoto);
@@ -105,9 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void wireUpNotificationSwitch() {
-        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                viewModel.updateSharedPrefs(!isChecked);
-        });
+        notificationSwitch.setOnClickListener(v -> viewModel.updateSharedPrefs(!((Switch)v).isChecked()));
     }
 
 
@@ -121,6 +147,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // loadFragment to container
     private void loadFragment(Fragment fragmentToLoad) {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragmentToLoad).commit();
+    }
+
+    private void loadFragments() {
+        mapFragment = MapFragment.newInstance();
+        listFragment = ListFragment.newInstance();
+        workmatesFragment = WorkmatesFragment.newInstance();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragment_container,mapFragment)
+                .add(R.id.fragment_container,listFragment)
+                .add(R.id.fragment_container,workmatesFragment)
+                .hide(listFragment)
+                .hide(workmatesFragment)
+                .commit();
+
     }
 
 
@@ -150,16 +191,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 logOut();
                 break;
             case R.id.bottom_nav_map_item:
-                loadFragment(new MapFragment(this));
+                getSupportFragmentManager().beginTransaction().show(mapFragment).hide(workmatesFragment).hide(listFragment).commit();
                 break;
             case R.id.bottom_nav_list_item:
-                loadFragment(new ListFragment(this));
+                getSupportFragmentManager().beginTransaction().show(listFragment).hide(workmatesFragment).hide(mapFragment).commit();
+//                loadFragment(ListFragment.newInstance());
                 break;
             case R.id.bottom_nav_workmates_item:
-                loadFragment(new WorkmatesFragment(this));
+                getSupportFragmentManager().beginTransaction().show(workmatesFragment).hide(mapFragment).hide(listFragment).commit();
+//                loadFragment(WorkmatesFragment.newInstance());
                 break;
             case R.id.drawer_your_lunch:
-                YourLunchDialogFragment dialog = new YourLunchDialogFragment();
+                YourLunchDialogFragment dialog = YourLunchDialogFragment.newInstance();
                 dialog.show(getSupportFragmentManager(), "TAG");
                 break;
         }
@@ -205,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FirebaseAuthService.logOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     public void onComplete(@NonNull Task<Void> task) {
-                        Intent intent = new Intent(MainActivity.this, LaunchActivity.class);
+                        Intent intent = new Intent(MainActivity.this, DispatchActivity.class);
                         startActivity(intent);
                         finish();
                     }
@@ -214,8 +257,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Timber.d("requestPermissionResults");
+    protected void onResume() {
+        super.onResume();
+        viewModel.checkPermissions();
     }
 
+    @Override
+    public void onAttachFragment(@NonNull Fragment fragment) {
+        if (fragment instanceof MapFragment) {
+            ((MapFragment) fragment).setListener(this);
+        }
+        if (fragment instanceof ListFragment) {
+            ((ListFragment) fragment).setListener(this);
+        }
+        if (fragment instanceof WorkmatesFragment) {
+            ((WorkmatesFragment) fragment).setListener(this);
+        }
+        if (fragment instanceof YourLunchDialogFragment) {
+            ((YourLunchDialogFragment) fragment).setListener(this);
+        }
+    }
 }

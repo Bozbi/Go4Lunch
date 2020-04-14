@@ -17,6 +17,7 @@ public class SharedPreferencesRepo {
     private static final String NOTIFICATION_STATUS= "NOTIFICATION_STATUS";
     private MutableLiveData<Boolean> notificationPreferencesLD = new MutableLiveData<>();
 
+    //TODO inject APP.context here
     public SharedPreferencesRepo(){
         updateLiveData();
     }
@@ -31,7 +32,7 @@ public class SharedPreferencesRepo {
         WorkManagerHelper.handleNotificationWork();
     }
 
-    public void updateLiveData(){
+    private void updateLiveData(){
         notificationPreferencesLD.setValue(App.getApplication().getSharedPreferences(FirebaseAuthService.getUser().getUid(),Context.MODE_PRIVATE).getBoolean(NOTIFICATION_STATUS,true));
         Timber.d("NotificationOn : %s",notificationPreferencesLD.getValue());
     }

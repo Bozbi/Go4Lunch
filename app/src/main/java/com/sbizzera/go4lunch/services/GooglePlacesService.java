@@ -44,9 +44,9 @@ public class GooglePlacesService {
         mGooglePlacesAPI = retrofit.create(GooglePlacesAPI.class);
     }
 
-    public LiveData<List<NearbyPlace>> getNearbyRestaurants(String location) {
+    public LiveData<List<NearbyPlace>> getNearbyRestaurants(String location, int radius) {
         MutableLiveData<List<NearbyPlace>> nearbyRestaurantListLiveData = new MutableLiveData<>();
-        mGooglePlacesAPI.getNearbyRestaurant(location).enqueue(new Callback<NearbyResults>() {
+        mGooglePlacesAPI.getNearbyRestaurant(location,radius).enqueue(new Callback<NearbyResults>() {
             @EverythingIsNonNull
             @Override
             public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {

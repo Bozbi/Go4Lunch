@@ -31,6 +31,7 @@ public class WorkManagerHelper {
     }
 
     private static void enqueueWork(){
+        //TODO ABP ThreeTen
         Calendar currentDate = Calendar.getInstance();
         Calendar dueDate = Calendar.getInstance();
         dueDate.set(Calendar.HOUR_OF_DAY, 12);
@@ -44,7 +45,7 @@ public class WorkManagerHelper {
 
         Timber.d("enqueuing work for %s", dueDate.getTime().toString());
         //TODO next line for testing purposes
-//        timeDiff = 10000;
+        timeDiff = 10000;
 
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(NotificationWorker.class)
                 .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)

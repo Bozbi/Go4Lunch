@@ -58,9 +58,9 @@ public class ListFragmentViewModel extends ViewModel {
     }
 
     private void wireUpMediator() {
-        locationLiveData = locator.getLocation();
+        locationLiveData = locator.getLocationLD();
         LiveData<List<NearbyPlace>> nearbyRestaurantsLiveData = Transformations.switchMap(locationLiveData,
-                location -> googlePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(location)));
+                location -> googlePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(location),500));
         LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = fireStoreService.getAllKnownRestaurants();
 
         modelLiveData.addSource(nearbyRestaurantsLiveData, nearbyPlaces -> {
