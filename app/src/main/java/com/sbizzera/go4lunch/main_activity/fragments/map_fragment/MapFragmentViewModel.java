@@ -17,6 +17,7 @@ import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
 import com.sbizzera.go4lunch.services.LocationService;
+import com.sbizzera.go4lunch.services.PermissionService;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.SingleLiveEvent;
 
@@ -27,6 +28,7 @@ public class MapFragmentViewModel extends ViewModel {
 
     private MediatorLiveData<MapFragmentModel> mUiModelLiveData = new MediatorLiveData<>();
     private LocationService mLocator;
+    private PermissionService mPermissionService;
     private GooglePlacesService mGooglePlacesService;
     private FireStoreService mFireStoreService;
     private LiveData<Location> userLocationLD;
@@ -37,12 +39,20 @@ public class MapFragmentViewModel extends ViewModel {
     private int nearbySearchRadius = 1000;
 
 
-    public MapFragmentViewModel(LocationService locator, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
+    public MapFragmentViewModel(LocationService locator, GooglePlacesService googlePlacesService, FireStoreService fireStoreService,PermissionService permissionService) {
         mLocator = locator;
         mGooglePlacesService = googlePlacesService;
         mFireStoreService = fireStoreService;
+        mPermissionService = permissionService;
         locationFoundLE = mLocator.getLocationLE();
+        permissionChecking();
         wireUpMediator();
+    }
+
+    private void permissionChecking() {
+        if(!mPermissionService.hasPermissionBeenChecked()&&!mPermissionService.isLocationPermissionGranted()){
+            actionLE.postValue(ViewAction.ASK_LOCATION_PERMISSION);
+        }
     }
 
     public LiveData<MapFragmentModel> getUIModel() {
@@ -147,7 +157,6 @@ public class MapFragmentViewModel extends ViewModel {
         if (distanceDiff > 200) {
             actionLE.setValue(ViewAction.FETCH_NEW_AREA_VISIBLE);
         }
-
     }
 
 
@@ -170,7 +179,8 @@ public class MapFragmentViewModel extends ViewModel {
 
     public enum ViewAction {
         FETCH_NEW_AREA_VISIBLE,
-        FETCH_NEW_AREA_INVISIBLE
+        FETCH_NEW_AREA_INVISIBLE,
+        ASK_LOCATION_PERMISSION
     }
 
 }

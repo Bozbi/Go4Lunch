@@ -1,6 +1,10 @@
 package com.sbizzera.go4lunch.main_activity.fragments.map_fragment;
 
+import android.Manifest;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +12,7 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -25,6 +30,8 @@ import com.sbizzera.go4lunch.services.ViewModelFactory;
 import com.sbizzera.go4lunch.utils.Commons;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
+
+    private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 123;
 
     private GoogleMap map;
     private OnItemBoundWithRestaurantClickListener mListener;
@@ -67,7 +74,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 fetchNewAreaBtn.setClickable(false);
                 fetchNewAreaBtn.setVisibility(View.INVISIBLE);
             }
-
+            if (action == MapFragmentViewModel.ViewAction.ASK_LOCATION_PERMISSION){
+                showPermissionAppropriateRequest();
+            }
         });
         mViewModel.getLocationLE().observe(this, location -> {
             if (location != null) {
@@ -76,6 +85,28 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 map.getUiSettings().setMyLocationButtonEnabled(true);
             }
         });
+    }
+
+    private void showPermissionAppropriateRequest() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Permission is Mandatory");
+            builder.setMessage("We need permission to give you the best experience navigating the map");
+            builder.setNegativeButton("BACK", (x, y) -> {
+            });
+            builder.setPositiveButton("Go to permissions", (x, y) -> {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", requireActivity().getPackageName(), null);
+                intent.setData(uri);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            });
+            builder.show();
+        } else {
+            requestPermissions(
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION_REQUEST_CODE);
+        }
     }
 
     private void updateUi(MapFragmentModel model) {

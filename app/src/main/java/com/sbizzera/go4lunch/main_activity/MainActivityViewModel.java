@@ -26,7 +26,6 @@ public class MainActivityViewModel extends ViewModel {
     private FireStoreService fireStore;
     private SharedPreferencesRepo sharedPreferencesRepo;
     private MediatorLiveData<MainActivityModel> modelLD = new MediatorLiveData<>();
-    private SingleLiveEvent<ViewAction> actionLEvent = new SingleLiveEvent<>();
 
 
     public MainActivityViewModel(FireStoreService fireStore, SharedPreferencesRepo sharedPreferencesRepo) {
@@ -74,18 +73,6 @@ public class MainActivityViewModel extends ViewModel {
         fireStore.updateUserInDb();
     }
 
-    SingleLiveEvent<ViewAction> getActionLEvent() {
-        return actionLEvent;
-    }
 
 
-    public void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(App.getApplication(),Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
-            actionLEvent.setValue(ViewAction.DISPLAY_PERMISSION_DIALOG);
-        }
-    }
-
-    public enum ViewAction {
-        DISPLAY_PERMISSION_DIALOG,
-    }
 }

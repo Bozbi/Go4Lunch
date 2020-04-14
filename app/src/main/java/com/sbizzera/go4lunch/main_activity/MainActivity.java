@@ -56,9 +56,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Switch notificationSwitch;
     private TextView switchText;
     MainActivityViewModel viewModel;
-    private MapFragment mapFragment;
-    private ListFragment listFragment;
-    private WorkmatesFragment workmatesFragment;
+
 
 
     @Override
@@ -82,25 +80,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         viewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MainActivityViewModel.class);
         viewModel.getModel().observe(this, this::updateUI);
-        viewModel.getActionLEvent().observe(this, viewAction -> {
-            if (viewAction == MainActivityViewModel.ViewAction.DISPLAY_PERMISSION_DIALOG) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setMessage("We need permission");
-                    builder.setCancelable(false);
-                    builder.setPositiveButton("Go to permissions", (x, y) -> {
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        Uri uri = Uri.fromParts("package", getPackageName(), null);
-                        intent.setData(uri);
-                        startActivity(intent);
-
-                    });
-                    builder.show();
-                } else {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_LOCATION_REQUEST_CODE);
-                }
-            }
-        });
 
         //Setting Custom ToolBar As ActionBar
         setSupportActionBar(mToolbar);
@@ -116,8 +95,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Session Log Out Back to mainEmpty
         navigationView.setNavigationItemSelectedListener(this);
 
-        //loadFragment(MapFragment.newInstance());
-        loadFragments();
+        loadFragment(MapFragment.newInstance());
+
 
     }
 
@@ -149,20 +128,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragmentToLoad).commit();
     }
 
-    private void loadFragments() {
-        mapFragment = MapFragment.newInstance();
-        listFragment = ListFragment.newInstance();
-        workmatesFragment = WorkmatesFragment.newInstance();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.fragment_container,mapFragment)
-                .add(R.id.fragment_container,listFragment)
-                .add(R.id.fragment_container,workmatesFragment)
-                .hide(listFragment)
-                .hide(workmatesFragment)
-                .commit();
-
-    }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,15 +156,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 logOut();
                 break;
             case R.id.bottom_nav_map_item:
-                getSupportFragmentManager().beginTransaction().show(mapFragment).hide(workmatesFragment).hide(listFragment).commit();
+                loadFragment(MapFragment.newInstance());
                 break;
             case R.id.bottom_nav_list_item:
-                getSupportFragmentManager().beginTransaction().show(listFragment).hide(workmatesFragment).hide(mapFragment).commit();
-//                loadFragment(ListFragment.newInstance());
+                loadFragment(ListFragment.newInstance());
                 break;
             case R.id.bottom_nav_workmates_item:
-                getSupportFragmentManager().beginTransaction().show(workmatesFragment).hide(mapFragment).hide(listFragment).commit();
-//                loadFragment(WorkmatesFragment.newInstance());
+                loadFragment(WorkmatesFragment.newInstance());
                 break;
             case R.id.drawer_your_lunch:
                 YourLunchDialogFragment dialog = YourLunchDialogFragment.newInstance();
@@ -259,7 +222,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
-        viewModel.checkPermissions();
     }
 
     @Override

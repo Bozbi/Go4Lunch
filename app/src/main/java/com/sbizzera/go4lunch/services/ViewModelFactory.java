@@ -41,7 +41,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new MapFragmentViewModel(
                    new LocationService(App.getApplication()),
                     GooglePlacesService.getInstance(),
-                    new FireStoreService()
+                    new FireStoreService(),
+                    PermissionService.getInstance()
             );
         }
         if (modelClass.isAssignableFrom(RestaurantViewModel.class)) {

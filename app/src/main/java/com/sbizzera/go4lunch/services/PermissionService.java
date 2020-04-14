@@ -15,11 +15,7 @@ import timber.log.Timber;
 public class PermissionService{
 
     private static PermissionService sPermissionService;
-    private MutableLiveData<Boolean> mFineLocationPermission = new MutableLiveData<>();
-
-    public PermissionService() {
-        checkPermission();
-    }
+    private Boolean hasPermissionBeenChecked = false;
 
     public static PermissionService getInstance() {
         if (sPermissionService == null) {
@@ -28,14 +24,13 @@ public class PermissionService{
         return sPermissionService;
     }
 
-    public LiveData<Boolean> getPermissionLiveData() {
-        return mFineLocationPermission;
+    public Boolean isLocationPermissionGranted() {
+        hasPermissionBeenChecked = true;
+        return ContextCompat.checkSelfPermission(App.getApplication(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
-    public void checkPermission() {
-        Boolean fineLocalPermission = ContextCompat.checkSelfPermission(App.getApplication(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        Timber.d("Permission is set to %s", fineLocalPermission);
-        mFineLocationPermission.postValue(fineLocalPermission);
+    public Boolean hasPermissionBeenChecked(){
+        return hasPermissionBeenChecked;
     }
 
 }
