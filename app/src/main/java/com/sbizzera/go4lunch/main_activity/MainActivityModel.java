@@ -1,6 +1,8 @@
 package com.sbizzera.go4lunch.main_activity;
 
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.VisibleRegion;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 
 public class MainActivityModel {
 
@@ -15,6 +17,7 @@ public class MainActivityModel {
     private Boolean isNotificationOn;
 
     private String switchText;
+
 
 
 
@@ -52,6 +55,5 @@ public class MainActivityModel {
         return switchText;
 
     }
-
 
 }

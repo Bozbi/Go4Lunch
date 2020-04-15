@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,7 +85,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     private void showPermissionAppropriateRequest() {
         if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(requireContext(),R.style.AppTheme));
+
             builder.setTitle("Permission is Mandatory");
             builder.setMessage("We need permission to give you the best experience navigating the map");
             builder.setNegativeButton("BACK", (x, y) -> {
@@ -137,6 +139,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     @Override
     public void onMapLoaded() {
         map.setOnCameraIdleListener(this);
+        mViewModel.setLastVisibleRegion(map.getProjection().getVisibleRegion());
     }
 
     public void setListener(OnItemBoundWithRestaurantClickListener listener) {
@@ -150,6 +153,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         LatLng cameraLatLng = map.getCameraPosition().target;
         LatLngBounds cameraBounds = map.getProjection().getVisibleRegion().latLngBounds;
         mViewModel.shouldNewAreaFetchBeVisible(cameraLatLng, cameraBounds);
+        mViewModel.setLastVisibleRegion(map.getProjection().getVisibleRegion());
     }
 
     @Override

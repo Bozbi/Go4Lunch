@@ -1,51 +1,52 @@
 package com.sbizzera.go4lunch.main_activity;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.content.Intent;
+import android.widget.Toast;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.firebase.auth.FirebaseUser;
-import com.sbizzera.go4lunch.App;
-import com.sbizzera.go4lunch.main_activity.fragments.NoPermissionFragment;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.widget.Autocomplete;
 import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 import com.sbizzera.go4lunch.services.CameraPositionRepo;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
-import com.sbizzera.go4lunch.services.LocationService;
-import com.sbizzera.go4lunch.services.PermissionService;
 import com.sbizzera.go4lunch.utils.SingleLiveEvent;
+
+import java.util.List;
 
 public class MainActivityViewModel extends ViewModel {
 
     private FireStoreService fireStore;
     private SharedPreferencesRepo sharedPreferencesRepo;
     private MediatorLiveData<MainActivityModel> modelLD = new MediatorLiveData<>();
+    private SingleLiveEvent<ViewAction> mActionLE = new SingleLiveEvent<>();
+    private CameraPositionRepo mCameraPositionRepo;
+    private LiveData<Boolean> isNotificationOnLD;
+    private RectangularBounds mMapCurrentRectangularBounds;
+    private String mCurrentAutocompleteRestaurantID;
 
 
-
-    public MainActivityViewModel(FireStoreService fireStore, SharedPreferencesRepo sharedPreferencesRepo) {
+    public MainActivityViewModel(FireStoreService fireStore, SharedPreferencesRepo sharedPreferencesRepo, CameraPositionRepo cameraPositionRepo) {
         this.fireStore = fireStore;
         this.sharedPreferencesRepo = sharedPreferencesRepo;
-
+        mCameraPositionRepo = cameraPositionRepo;
         updateUserInDb();
         wireUp();
         WorkManagerHelper.handleNotificationWork();
     }
 
     private void wireUp() {
-        LiveData<Boolean> isNotificationOnLD = sharedPreferencesRepo.getNotificationPreferencesLiveData();
+        isNotificationOnLD = sharedPreferencesRepo.getNotificationPreferencesLiveData();
         modelLD.addSource(isNotificationOnLD, this::combineSources);
     }
 
     private void combineSources(Boolean isNotificationOn) {
+
         String userPhotoUrl = FirebaseAuthService.getUserPhotoUrl();
         String userName = FirebaseAuthService.getUserName();
         String userEmail = FirebaseAuthService.getUserEmail();
@@ -65,10 +66,6 @@ public class MainActivityViewModel extends ViewModel {
         ));
     }
 
-    private String fromLocationToStringLocation(CameraPosition lastCameraPosition) {
-        return lastCameraPosition.target.latitude + "," + lastCameraPosition.target.longitude;
-    }
-
     public LiveData<MainActivityModel> getModel() {
         return modelLD;
     }
@@ -82,4 +79,39 @@ public class MainActivityViewModel extends ViewModel {
     }
 
 
+    public SingleLiveEvent<ViewAction> getActionLE() {
+        return mActionLE;
+    }
+
+    public void showAutocomplete() {
+        if (mCameraPositionRepo.getLastVisibleRegion() != null) {
+            mMapCurrentRectangularBounds = RectangularBounds.newInstance(mCameraPositionRepo.getLastVisibleRegion().latLngBounds);
+        }
+        mActionLE.setValue(ViewAction.SHOW_AUTOCOMPLETE);
+    }
+
+    public void onAutocompleteClick(Intent data) {
+        Place place = Autocomplete.getPlaceFromIntent(data);
+        List<Place.Type> types = place.getTypes();
+        if (types != null && types.contains(Place.Type.RESTAURANT)) {
+            mCurrentAutocompleteRestaurantID = place.getId();
+            mActionLE.setValue(ViewAction.SHOW_RESTAURANT_DETAILS);
+        } else {
+            mActionLE.setValue(ViewAction.SHOW_NOT_A_RESTAURANT_TOAST);
+        }
+    }
+
+    enum ViewAction {
+        SHOW_AUTOCOMPLETE,
+        SHOW_RESTAURANT_DETAILS,
+        SHOW_NOT_A_RESTAURANT_TOAST
+    }
+
+    public RectangularBounds getMapCurrentRectangularBounds() {
+        return mMapCurrentRectangularBounds;
+    }
+
+    public String getCurrentAutocompleteRestaurantID() {
+        return mCurrentAutocompleteRestaurantID;
+    }
 }

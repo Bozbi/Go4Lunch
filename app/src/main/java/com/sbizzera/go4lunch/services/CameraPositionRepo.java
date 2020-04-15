@@ -1,11 +1,13 @@
 package com.sbizzera.go4lunch.services;
 
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.VisibleRegion;
 
 public class CameraPositionRepo {
     private static CameraPositionRepo sCameraPositionRepo;
     private CameraPosition mLastCameraPosition;
     private CameraPosition mInitialCameraPosition;
+    private VisibleRegion mLastVisibleRegion;
 
 
     public static CameraPositionRepo getInstance(){
@@ -26,4 +28,11 @@ public class CameraPositionRepo {
         return mLastCameraPosition;
     }
 
+    public void setLastVisibleRegion(VisibleRegion visibleRegion){
+        mLastVisibleRegion = visibleRegion;
+    }
+
+    public VisibleRegion getLastVisibleRegion() {
+        return mLastVisibleRegion;
+    }
 }

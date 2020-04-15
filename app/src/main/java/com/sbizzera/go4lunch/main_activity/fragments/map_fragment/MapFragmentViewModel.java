@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.VisibleRegion;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
@@ -201,6 +202,10 @@ public class MapFragmentViewModel extends ViewModel {
 
     public void setLastCameraPosition(CameraPosition cameraPosition) {
         mCameraPositionRepo.setLastCameraPosition(cameraPosition);
+    }
+
+    public void setLastVisibleRegion(VisibleRegion visibleRegion) {
+        mCameraPositionRepo.setLastVisibleRegion(visibleRegion);
     }
 
     public enum ViewAction {

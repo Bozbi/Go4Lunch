@@ -53,7 +53,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             );
         }
         if (modelClass.isAssignableFrom(MainActivityViewModel.class)) {
-            return (T) new MainActivityViewModel(new FireStoreService(),new SharedPreferencesRepo());
+            return (T) new MainActivityViewModel(new FireStoreService(),new SharedPreferencesRepo(),CameraPositionRepo.getInstance());
         }
         if (modelClass.isAssignableFrom(WorkmatesFragmentViewModel.class)){
             return (T)new WorkmatesFragmentViewModel(new FireStoreService());

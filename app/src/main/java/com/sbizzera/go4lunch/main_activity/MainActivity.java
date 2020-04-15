@@ -24,6 +24,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
@@ -41,7 +42,6 @@ import com.sbizzera.go4lunch.services.FirebaseAuthService;
 import com.sbizzera.go4lunch.services.ViewModelFactory;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener, OnItemBoundWithRestaurantClickListener {
 
@@ -56,7 +56,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Toolbar mToolbar;
     private Switch notificationSwitch;
     private TextView switchText;
-    MainActivityViewModel viewModel;
+    private Menu mMenu;
+    MainActivityViewModel mViewModel;
 
 
     @Override
@@ -78,8 +79,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         wireUpNotificationSwitch();
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
 
-        viewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MainActivityViewModel.class);
-        viewModel.getModel().observe(this, this::updateUI);
+        mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MainActivityViewModel.class);
+        mViewModel.getModel().observe(this, this::updateUI);
+        mViewModel.getActionLE().observe(this, action -> {
+            switch (action) {
+                case SHOW_AUTOCOMPLETE: {
+                    if (mViewModel.getMapCurrentRectangularBounds() != null) {
+                        launchAutocomplete(mViewModel.getMapCurrentRectangularBounds());
+                    }
+                    break;
+                }
+                case SHOW_RESTAURANT_DETAILS: {
+                    if (mViewModel.getCurrentAutocompleteRestaurantID() != null) {
+                        launchRestaurantDetail(mViewModel.getCurrentAutocompleteRestaurantID());
+                    }
+                    break;
+                }
+                case SHOW_NOT_A_RESTAURANT_TOAST: {
+                    Toast.makeText(this, "This is not a restaurant", Toast.LENGTH_LONG).show();
+                    break;
+                }
+            }
+
+        });
 
         //Setting Custom ToolBar As ActionBar
         setSupportActionBar(mToolbar);
@@ -111,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void wireUpNotificationSwitch() {
-        notificationSwitch.setOnClickListener(v -> viewModel.updateSharedPrefs(!((Switch) v).isChecked()));
+        notificationSwitch.setOnClickListener(v -> mViewModel.updateSharedPrefs(!((Switch) v).isChecked()));
     }
 
 
@@ -137,7 +159,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //If Drawer is open, we want to close it on backButton pressed not exiting app
     @Override
     public void onBackPressed() {
-        //TODO add a byebye message
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
@@ -155,12 +176,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.bottom_nav_map_item:
                 loadFragment(MapFragment.newInstance());
+                mMenu.getItem(0).setVisible(true);
+
                 break;
             case R.id.bottom_nav_list_item:
                 loadFragment(ListFragment.newInstance());
+                mMenu.getItem(0).setVisible(true);
+
                 break;
             case R.id.bottom_nav_workmates_item:
                 loadFragment(WorkmatesFragment.newInstance());
+                mMenu.getItem(0).setVisible(false);
+
                 break;
             case R.id.drawer_your_lunch:
                 YourLunchDialogFragment dialog = YourLunchDialogFragment.newInstance();
@@ -173,17 +200,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.app_bar, menu);
+        mMenu = menu;
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.TYPES))
-                .setHint("Restaurants")
-                .setCountry("FR")
-                .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                .build(this);
-        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+        switch (item.getItemId()) {
+            case R.id.search_bar:
+                mViewModel.showAutocomplete();
+                break;
+
+        }
         return true;
     }
 
@@ -226,16 +254,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onAttachFragment(@NonNull Fragment fragment) {
         if (fragment instanceof MapFragment) {
             ((MapFragment) fragment).setListener(this);
+
         }
         if (fragment instanceof ListFragment) {
             ((ListFragment) fragment).setListener(this);
+
         }
         if (fragment instanceof WorkmatesFragment) {
             ((WorkmatesFragment) fragment).setListener(this);
+
         }
         if (fragment instanceof YourLunchDialogFragment) {
             ((YourLunchDialogFragment) fragment).setListener(this);
         }
+    }
+
+    private void launchAutocomplete(RectangularBounds bounds) {
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.TYPES))
+                .setHint("find restaurants in area")
+                .setCountry("FR")
+                .setLocationBias(bounds)
+                .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                .build(this);
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
     }
 
     @Override
@@ -244,15 +285,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-                    Place place = Autocomplete.getPlaceFromIntent(data);
-                    List<Place.Type> types = place.getTypes();
-                    if (types != null && types.contains(Place.Type.RESTAURANT)) {
-                        Intent intent = new Intent(this, RestaurantActivity.class);
-                        intent.putExtra(INTENT_EXTRA_CODE, place.getId());
-                        startActivity(intent);
-                    }else {
-                        Toast.makeText(this, "This place is not known to be a restaurant" , Toast.LENGTH_LONG).show();
-                    }
+                    mViewModel.onAutocompleteClick(data);
                 }
             }
         }
