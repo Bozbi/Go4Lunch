@@ -29,7 +29,9 @@ import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.services.ViewModelFactory;
 import com.sbizzera.go4lunch.utils.Commons;
 
-public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
+import timber.log.Timber;
+
+public class MapFragment extends SupportMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener, GoogleMap.OnMapLoadedCallback {
 
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 123;
 
@@ -59,7 +61,6 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getMapAsync(this);
-
         mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MapFragmentViewModel.class);
         mViewModel.getUIModel().observe(this, this::updateUi);
         mViewModel.getAction().observe(this, action -> {
@@ -78,13 +79,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 showPermissionAppropriateRequest();
             }
         });
-        mViewModel.getLocationLE().observe(this, location -> {
-            if (location != null) {
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), Commons.DEFAULT_ZOOM));
-                map.setMyLocationEnabled(true);
-                map.getUiSettings().setMyLocationButtonEnabled(true);
-            }
-        });
+
     }
 
     private void showPermissionAppropriateRequest() {
@@ -110,11 +105,6 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     }
 
     private void updateUi(MapFragmentModel model) {
-        map.setOnCameraIdleListener(() -> {
-            LatLng cameraLatLng = map.getCameraPosition().target;
-            LatLngBounds cameraBounds = map.getProjection().getVisibleRegion().latLngBounds;
-            mViewModel.shouldNewAreaFetchBeVisible(cameraLatLng, cameraBounds);
-        });
         if (model.getMapMarkersList() != null) {
             for (CustomMapMarker marker : model.getMapMarkersList()) {
                 Marker newMarker = map.addMarker(new MarkerOptions()
@@ -130,18 +120,41 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 return true;
             });
         }
+        if(model.getInitialCameraPosition()!=null){
+            map.moveCamera(CameraUpdateFactory.newCameraPosition(model.getInitialCameraPosition()));
+        }
     }
 
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-
+        mViewModel.mapIsReady(true);
+        map.setOnMapLoadedCallback(this);
+        Timber.d("Map is ready");
     }
 
+    @Override
+    public void onMapLoaded() {
+        map.setOnCameraIdleListener(this);
+    }
 
     public void setListener(OnItemBoundWithRestaurantClickListener listener) {
         mListener = listener;
     }
 
+    @Override
+    public void onCameraIdle() {
+        Timber.d("camera moved");
+        mViewModel.setLastCameraPosition(map.getCameraPosition());
+        LatLng cameraLatLng = map.getCameraPosition().target;
+        LatLngBounds cameraBounds = map.getProjection().getVisibleRegion().latLngBounds;
+        mViewModel.shouldNewAreaFetchBeVisible(cameraLatLng, cameraBounds);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mViewModel.mapIsReady(false);
+    }
 }

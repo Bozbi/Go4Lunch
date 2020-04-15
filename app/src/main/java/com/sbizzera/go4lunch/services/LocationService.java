@@ -16,23 +16,17 @@ import timber.log.Timber;
 public class LocationService {
 
     private MutableLiveData<Location> locationLD = new MutableLiveData<>();
-    private SingleLiveEvent<Location> locationLE = new SingleLiveEvent<>();
 
     public LocationService(Context context) {
         Timber.d("creating a LocationService");
         LocationServices.getFusedLocationProviderClient(context).getLastLocation().addOnSuccessListener(location -> {
             Timber.d("last known location : %s", Go4LunchUtils.locationToString(location));
             locationLD.postValue(location);
-            locationLE.postValue(location);
         });
     }
 
     public LiveData<Location> getLocationLD() {
         return locationLD;
-    }
-
-    public SingleLiveEvent<Location> getLocationLE() {
-        return locationLE;
     }
 
 }

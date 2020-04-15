@@ -9,11 +9,13 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
+import com.sbizzera.go4lunch.services.CameraPositionRepo;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
 import com.sbizzera.go4lunch.services.LocationService;
@@ -23,6 +25,8 @@ import com.sbizzera.go4lunch.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 public class MapFragmentViewModel extends ViewModel {
 
@@ -35,22 +39,24 @@ public class MapFragmentViewModel extends ViewModel {
     private LiveData<List<NearbyPlace>> nearbyRestaurantsLiveData;
     private LiveData<List<FireStoreRestaurant>> fireStoreRestaurantsLiveData;
     private SingleLiveEvent<ViewAction> actionLE = new SingleLiveEvent<>();
-    private SingleLiveEvent<Location> locationFoundLE ;
     private int nearbySearchRadius = 1000;
+    private CameraPositionRepo mCameraPositionRepo;
+    private Boolean mMapIsReady = false;
 
 
-    public MapFragmentViewModel(LocationService locator, GooglePlacesService googlePlacesService, FireStoreService fireStoreService,PermissionService permissionService) {
+    public MapFragmentViewModel(LocationService locator, GooglePlacesService googlePlacesService, FireStoreService fireStoreService, PermissionService permissionService, CameraPositionRepo cameraPositionRepo) {
         mLocator = locator;
         mGooglePlacesService = googlePlacesService;
         mFireStoreService = fireStoreService;
         mPermissionService = permissionService;
-        locationFoundLE = mLocator.getLocationLE();
+        mCameraPositionRepo = cameraPositionRepo;
         permissionChecking();
         wireUpMediator();
+        Timber.d("Creating a viewModel");
     }
 
     private void permissionChecking() {
-        if(!mPermissionService.hasPermissionBeenChecked()&&!mPermissionService.isLocationPermissionGranted()){
+        if (!mPermissionService.hasPermissionBeenChecked() && !mPermissionService.isLocationPermissionGranted()) {
             actionLE.postValue(ViewAction.ASK_LOCATION_PERMISSION);
         }
     }
@@ -63,31 +69,47 @@ public class MapFragmentViewModel extends ViewModel {
         return actionLE;
     }
 
-    public LiveData<Location> getLocationLE() {
-        return locationFoundLE;
-    }
 
     public void wireUpMediator() {
-
         userLocationLD = mLocator.getLocationLD();
         nearbyRestaurantsLiveData = Transformations.switchMap(userLocationLD, location -> mGooglePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(location), nearbySearchRadius));
-        fireStoreRestaurantsLiveData =  mFireStoreService.getAllKnownRestaurants();
+        fireStoreRestaurantsLiveData = mFireStoreService.getAllKnownRestaurants();
 
         mUiModelLiveData.addSource(nearbyRestaurantsLiveData, nearbyRestaurants -> {
-            combineSources(nearbyRestaurants, fireStoreRestaurantsLiveData.getValue());
+            combineSources(nearbyRestaurants, fireStoreRestaurantsLiveData.getValue(), userLocationLD.getValue());
         });
 
         mUiModelLiveData.addSource(fireStoreRestaurantsLiveData, fireStoreRestaurants -> {
-            combineSources(nearbyRestaurantsLiveData.getValue(), fireStoreRestaurants);
+            combineSources(nearbyRestaurantsLiveData.getValue(), fireStoreRestaurants, userLocationLD.getValue());
         });
+
+        mUiModelLiveData.addSource(userLocationLD, userLocation -> {
+            combineSources(nearbyRestaurantsLiveData.getValue(), fireStoreRestaurantsLiveData.getValue(), userLocation);
+        });
+
 
     }
 
-    private void combineSources(List<NearbyPlace> restaurantsList, List<FireStoreRestaurant> fireStoreRestaurants) {
-        if (userLocationLD != null) {
-            List<CustomMapMarker> listMapMarkers = createMarkers(restaurantsList, fireStoreRestaurants);
-            mUiModelLiveData.setValue(new MapFragmentModel(listMapMarkers));
+    private void combineSources(List<NearbyPlace> restaurantsList, List<FireStoreRestaurant> fireStoreRestaurants, Location userLocation) {
+        if (mMapIsReady) {
+            CameraPosition lastCameraPositionKnown = null;
+            if (userLocation != null) {
+                lastCameraPositionKnown = fromLocationToCameraPosition(userLocation);
+            }
+            if (mCameraPositionRepo.getLastCameraPosition() != null) {
+                lastCameraPositionKnown = mCameraPositionRepo.getLastCameraPosition();
+            }
+            if (userLocationLD != null) {
+                List<CustomMapMarker> listMapMarkers = createMarkers(restaurantsList, fireStoreRestaurants);
+                mUiModelLiveData.setValue(new MapFragmentModel(listMapMarkers, lastCameraPositionKnown));
+            }
         }
+    }
+
+    private CameraPosition fromLocationToCameraPosition(Location location) {
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraPosition cameraPosition = new CameraPosition(latLng, 15, 0, 0);
+        return cameraPosition;
     }
 
     private List<CustomMapMarker> createMarkers(List<NearbyPlace> restaurantsList, List<FireStoreRestaurant> fireStoreRestaurants) {
@@ -171,10 +193,14 @@ public class MapFragmentViewModel extends ViewModel {
         LiveData<List<NearbyPlace>> nearbyPlacesLD = mGooglePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(locationToFetch), radiusToFetch);
 
         mUiModelLiveData.addSource(nearbyPlacesLD, nearbyPlaces -> {
-            combineSources(nearbyPlaces, fireStoreRestaurantsLiveData.getValue());
+            combineSources(nearbyPlaces, fireStoreRestaurantsLiveData.getValue(), null);
         });
 
         actionLE.setValue(ViewAction.FETCH_NEW_AREA_INVISIBLE);
+    }
+
+    public void setLastCameraPosition(CameraPosition cameraPosition) {
+        mCameraPositionRepo.setLastCameraPosition(cameraPosition);
     }
 
     public enum ViewAction {
@@ -183,4 +209,13 @@ public class MapFragmentViewModel extends ViewModel {
         ASK_LOCATION_PERMISSION
     }
 
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        Timber.d("cleared");
+    }
+
+    public void mapIsReady(Boolean bol) {
+        mMapIsReady = bol;
+    }
 }

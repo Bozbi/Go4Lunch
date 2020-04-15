@@ -42,7 +42,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
                    new LocationService(App.getApplication()),
                     GooglePlacesService.getInstance(),
                     new FireStoreService(),
-                    PermissionService.getInstance()
+                    PermissionService.getInstance(),
+                    CameraPositionRepo.getInstance()
             );
         }
         if (modelClass.isAssignableFrom(RestaurantViewModel.class)) {
