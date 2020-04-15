@@ -39,7 +39,7 @@ public class MapFragmentViewModel extends ViewModel {
     private LiveData<List<NearbyPlace>> nearbyRestaurantsLiveData;
     private LiveData<List<FireStoreRestaurant>> fireStoreRestaurantsLiveData;
     private SingleLiveEvent<ViewAction> actionLE = new SingleLiveEvent<>();
-    private int nearbySearchRadius = 1000;
+    private int nearbySearchRadius = 500;
     private CameraPositionRepo mCameraPositionRepo;
     private Boolean mMapIsReady = false;
 

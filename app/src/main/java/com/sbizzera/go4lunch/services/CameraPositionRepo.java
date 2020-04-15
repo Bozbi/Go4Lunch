@@ -5,6 +5,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 public class CameraPositionRepo {
     private static CameraPositionRepo sCameraPositionRepo;
     private CameraPosition mLastCameraPosition;
+    private CameraPosition mInitialCameraPosition;
 
 
     public static CameraPositionRepo getInstance(){
@@ -16,6 +17,9 @@ public class CameraPositionRepo {
 
     public void setLastCameraPosition(CameraPosition lastCameraPosition){
         mLastCameraPosition=lastCameraPosition;
+        if (mInitialCameraPosition==null){
+            mInitialCameraPosition = lastCameraPosition;
+        }
     }
 
     public CameraPosition getLastCameraPosition(){

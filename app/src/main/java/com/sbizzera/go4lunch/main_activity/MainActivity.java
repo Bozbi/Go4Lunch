@@ -1,23 +1,19 @@
 package com.sbizzera.go4lunch.main_activity;
 
-import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -27,11 +23,15 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.dispatch_activity.DispatchActivity;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.main_activity.fragments.list_fragment.ListFragment;
 import com.sbizzera.go4lunch.main_activity.fragments.map_fragment.MapFragment;
 import com.sbizzera.go4lunch.main_activity.fragments.workmates_fragment.WorkmatesFragment;
@@ -40,7 +40,8 @@ import com.sbizzera.go4lunch.restaurant_activity.RestaurantActivity;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 import com.sbizzera.go4lunch.services.ViewModelFactory;
 
-import timber.log.Timber;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener, OnItemBoundWithRestaurantClickListener {
 
@@ -56,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Switch notificationSwitch;
     private TextView switchText;
     MainActivityViewModel viewModel;
-
 
 
     @Override
@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-
     private void updateUI(MainActivityModel model) {
         Glide.with(this).load(model.getUserPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(mUserPhoto);
         mUserName.setText(model.getUserName());
@@ -112,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void wireUpNotificationSwitch() {
-        notificationSwitch.setOnClickListener(v -> viewModel.updateSharedPrefs(!((Switch)v).isChecked()));
+        notificationSwitch.setOnClickListener(v -> viewModel.updateSharedPrefs(!((Switch) v).isChecked()));
     }
 
 
@@ -127,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void loadFragment(Fragment fragmentToLoad) {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragmentToLoad).commit();
     }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,16 +176,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-//        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, Arrays.asList(Place.Field.NAME))
-//                .setHint("Restaurants")
-//                .setCountry("FR")
-//                .setTypeFilter(TypeFilter.ESTABLISHMENT)
-//                .build(this);
-//        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-//        return true;
-//    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.TYPES))
+                .setHint("Restaurants")
+                .setCountry("FR")
+                .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                .build(this);
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+        return true;
+    }
 
     @Override
     public void onItemBoundWithRestaurantClick(String id) {
@@ -237,6 +235,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (fragment instanceof YourLunchDialogFragment) {
             ((YourLunchDialogFragment) fragment).setListener(this);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    Place place = Autocomplete.getPlaceFromIntent(data);
+                    List<Place.Type> types = place.getTypes();
+                    if (types != null && types.contains(Place.Type.RESTAURANT)) {
+                        Intent intent = new Intent(this, RestaurantActivity.class);
+                        intent.putExtra(INTENT_EXTRA_CODE, place.getId());
+                        startActivity(intent);
+                    }else {
+                        Toast.makeText(this, "This place is not known to be a restaurant" , Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.sbizzera.go4lunch.main_activity;
 
+import com.google.android.gms.maps.model.CameraPosition;
+
 public class MainActivityModel {
 
     private String userPhotoUrl;
@@ -50,5 +52,6 @@ public class MainActivityModel {
         return switchText;
 
     }
+
 
 }

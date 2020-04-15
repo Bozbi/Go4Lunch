@@ -10,11 +10,13 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.firebase.auth.FirebaseUser;
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.main_activity.fragments.NoPermissionFragment;
 import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.notification.WorkManagerHelper;
+import com.sbizzera.go4lunch.services.CameraPositionRepo;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 import com.sbizzera.go4lunch.services.LocationService;
@@ -28,9 +30,11 @@ public class MainActivityViewModel extends ViewModel {
     private MediatorLiveData<MainActivityModel> modelLD = new MediatorLiveData<>();
 
 
+
     public MainActivityViewModel(FireStoreService fireStore, SharedPreferencesRepo sharedPreferencesRepo) {
         this.fireStore = fireStore;
         this.sharedPreferencesRepo = sharedPreferencesRepo;
+
         updateUserInDb();
         wireUp();
         WorkManagerHelper.handleNotificationWork();
@@ -61,6 +65,10 @@ public class MainActivityViewModel extends ViewModel {
         ));
     }
 
+    private String fromLocationToStringLocation(CameraPosition lastCameraPosition) {
+        return lastCameraPosition.target.latitude + "," + lastCameraPosition.target.longitude;
+    }
+
     public LiveData<MainActivityModel> getModel() {
         return modelLD;
     }
@@ -72,7 +80,6 @@ public class MainActivityViewModel extends ViewModel {
     private void updateUserInDb() {
         fireStore.updateUserInDb();
     }
-
 
 
 }

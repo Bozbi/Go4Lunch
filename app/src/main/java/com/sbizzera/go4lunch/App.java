@@ -2,6 +2,7 @@ package com.sbizzera.go4lunch;
 
 import android.app.Application;
 
+import com.google.android.libraries.places.api.Places;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 
@@ -30,15 +31,16 @@ public class App extends Application {
             }
         });
 
-       WorkManagerHelper.createNotificationChannels();
+        WorkManagerHelper.createNotificationChannels();
+
+        Places.initialize(this,getString(R.string.google_places_API_key));
+
     }
 
     //Returning Application for later user of Context.
     public static Application getApplication() {
         return sApplication;
     }
-
-
 
 
 }
