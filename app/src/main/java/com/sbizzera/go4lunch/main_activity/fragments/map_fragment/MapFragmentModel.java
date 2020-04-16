@@ -1,22 +1,19 @@
 package com.sbizzera.go4lunch.main_activity.fragments.map_fragment;
 
-import android.location.Location;
-
 import com.google.android.gms.maps.model.CameraPosition;
-import com.sbizzera.go4lunch.main_activity.fragments.map_fragment.CustomMapMarker;
-import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MapFragmentModel {
 
     private List<CustomMapMarker> mapMarkersList ;
     private CameraPosition initialCameraPosition;
+    private boolean isSearchButtonVisible;
 
-    public MapFragmentModel(List<CustomMapMarker> mapMarkersList,CameraPosition initialCameraPosition) {
+    public MapFragmentModel(List<CustomMapMarker> mapMarkersList, CameraPosition initialCameraPosition, boolean isSearchButtonVisible) {
         this.mapMarkersList = mapMarkersList;
         this.initialCameraPosition = initialCameraPosition;
+        this.isSearchButtonVisible = isSearchButtonVisible;
     }
 
     public List<CustomMapMarker> getMapMarkersList() {
@@ -25,5 +22,10 @@ public class MapFragmentModel {
 
     public CameraPosition getInitialCameraPosition() {
         return initialCameraPosition;
+    }
+
+    // TODO BORIS
+    public boolean isSearchButtonVisible() {
+        return isSearchButtonVisible;
     }
 }

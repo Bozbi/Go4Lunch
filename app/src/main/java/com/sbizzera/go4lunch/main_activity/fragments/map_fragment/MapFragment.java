@@ -129,6 +129,13 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        mViewModel.onResume();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         mViewModel.mapIsReady(false);

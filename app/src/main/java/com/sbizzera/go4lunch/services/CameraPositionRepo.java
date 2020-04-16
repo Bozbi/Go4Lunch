@@ -5,8 +5,13 @@ import com.google.android.gms.maps.model.VisibleRegion;
 
 public class CameraPositionRepo {
     private static CameraPositionRepo sCameraPositionRepo;
+
+    // TODO BORIS LIVE DATA
     private CameraPosition mLastCameraPosition;
+    // TODO BORIS LIVE DATA
     private CameraPosition mInitialCameraPosition;
+
+
     private VisibleRegion mLastVisibleRegion;
 
 
