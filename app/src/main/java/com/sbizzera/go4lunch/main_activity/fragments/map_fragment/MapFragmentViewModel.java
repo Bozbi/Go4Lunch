@@ -51,15 +51,9 @@ public class MapFragmentViewModel extends ViewModel {
         mFireStoreService = fireStoreService;
         mPermissionService = permissionService;
         mCameraPositionRepo = cameraPositionRepo;
-        permissionChecking();
+
         wireUpMediator();
         Timber.d("Creating a viewModel");
-    }
-
-    private void permissionChecking() {
-        if (!mPermissionService.hasPermissionBeenChecked() && !mPermissionService.isLocationPermissionGranted()) {
-            actionLE.postValue(ViewAction.ASK_LOCATION_PERMISSION);
-        }
     }
 
     public LiveData<MapFragmentModel> getUIModel() {
@@ -209,8 +203,7 @@ public class MapFragmentViewModel extends ViewModel {
 
     public enum ViewAction {
         FETCH_NEW_AREA_VISIBLE,
-        FETCH_NEW_AREA_INVISIBLE,
-        ASK_LOCATION_PERMISSION
+        FETCH_NEW_AREA_INVISIBLE
     }
 
     @Override

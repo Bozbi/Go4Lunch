@@ -34,8 +34,6 @@ import timber.log.Timber;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener, GoogleMap.OnMapLoadedCallback {
 
-    private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 123;
-
     private GoogleMap map;
     private OnItemBoundWithRestaurantClickListener mListener;
     private MapFragmentViewModel mViewModel;
@@ -76,34 +74,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 fetchNewAreaBtn.setClickable(false);
                 fetchNewAreaBtn.setVisibility(View.INVISIBLE);
             }
-            if (action == MapFragmentViewModel.ViewAction.ASK_LOCATION_PERMISSION){
-                showPermissionAppropriateRequest();
-            }
         });
 
-    }
-
-    private void showPermissionAppropriateRequest() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(requireContext(),R.style.AppTheme));
-
-            builder.setTitle("Permission is Mandatory");
-            builder.setMessage("We need permission to give you the best experience navigating the map");
-            builder.setNegativeButton("BACK", (x, y) -> {
-            });
-            builder.setPositiveButton("Go to permissions", (x, y) -> {
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                Uri uri = Uri.fromParts("package", requireActivity().getPackageName(), null);
-                intent.setData(uri);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            });
-            builder.show();
-        } else {
-            requestPermissions(
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                    REQUEST_LOCATION_PERMISSION_REQUEST_CODE);
-        }
     }
 
     private void updateUi(MapFragmentModel model) {

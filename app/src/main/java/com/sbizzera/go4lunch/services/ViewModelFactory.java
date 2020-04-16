@@ -33,7 +33,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         return sFactory;
     }
 
-
+    @SuppressWarnings("unchecked")
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
@@ -53,7 +53,12 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             );
         }
         if (modelClass.isAssignableFrom(MainActivityViewModel.class)) {
-            return (T) new MainActivityViewModel(new FireStoreService(),new SharedPreferencesRepo(),CameraPositionRepo.getInstance());
+            return (T) new MainActivityViewModel(
+                new FireStoreService(),
+                new SharedPreferencesRepo(),
+                CameraPositionRepo.getInstance(),
+                PermissionService.getInstance()
+            );
         }
         if (modelClass.isAssignableFrom(WorkmatesFragmentViewModel.class)){
             return (T)new WorkmatesFragmentViewModel(new FireStoreService());

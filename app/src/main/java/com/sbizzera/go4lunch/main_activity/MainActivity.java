@@ -1,7 +1,11 @@
 package com.sbizzera.go4lunch.main_activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -12,8 +16,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -47,6 +54,7 @@ import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener, OnItemBoundWithRestaurantClickListener {
 
+    private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 123;
     private static final int AUTOCOMPLETE_REQUEST_CODE = 234;
     public static final String INTENT_EXTRA_CODE = "INTENT_EXTRA_CODE";
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 123;
@@ -84,12 +92,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MainActivityViewModel.class);
         mViewModel.getModel().observe(this, this::updateUI);
+        mViewModel.getViewActionSearch().observe(this, this::launchAutocomplete);
         mViewModel.getActionLE().observe(this, action -> {
             switch (action) {
-                case SHOW_AUTOCOMPLETE: {
-                    if (mViewModel.getMapCurrentRectangularBounds() != null) {
-                        launchAutocomplete(mViewModel.getMapCurrentRectangularBounds());
-                    }
+                case ASK_LOCATION_PERMISSION: {
+                    showPermissionAppropriateRequest();
                     break;
                 }
                 case SHOW_RESTAURANT_DETAILS: {
@@ -227,6 +234,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = new Intent(this, RestaurantActivity.class);
         intent.putExtra(INTENT_EXTRA_CODE, id);
         startActivity(intent);
+    }
+
+    private void showPermissionAppropriateRequest() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this,R.style.AppTheme));
+
+            builder.setTitle("Permission is Mandatory");
+            builder.setMessage("We need permission to give you the best experience navigating the map");
+            builder.setNegativeButton("BACK", (x, y) -> {
+            });
+            builder.setPositiveButton("Go to permissions", (x, y) -> {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", this.getPackageName(), null);
+                intent.setData(uri);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            });
+            builder.show();
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                REQUEST_LOCATION_PERMISSION_REQUEST_CODE
+            );
+        }
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
