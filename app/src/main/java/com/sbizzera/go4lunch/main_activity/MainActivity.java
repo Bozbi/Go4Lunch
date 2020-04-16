@@ -43,6 +43,8 @@ import com.sbizzera.go4lunch.services.ViewModelFactory;
 
 import java.util.Arrays;
 
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener, OnItemBoundWithRestaurantClickListener {
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 234;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Timber.d("oncreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_restaurants);
 

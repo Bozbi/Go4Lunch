@@ -88,7 +88,6 @@ public class MapFragmentViewModel extends ViewModel {
             combineSources(nearbyRestaurantsLiveData.getValue(), fireStoreRestaurantsLiveData.getValue(), userLocation);
         });
 
-
     }
 
     private void combineSources(List<NearbyPlace> restaurantsList, List<FireStoreRestaurant> fireStoreRestaurants, Location userLocation) {
