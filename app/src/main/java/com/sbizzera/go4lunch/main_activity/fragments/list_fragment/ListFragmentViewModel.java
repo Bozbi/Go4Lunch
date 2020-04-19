@@ -17,7 +17,7 @@ import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
-import com.sbizzera.go4lunch.services.LocationService;
+import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
 import com.sbizzera.go4lunch.utils.Commons;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
@@ -33,7 +33,7 @@ import timber.log.Timber;
 public class ListFragmentViewModel extends ViewModel {
 
 
-    private LocationService locator;
+    private CurrentGPSLocationRepo locator;
     private GooglePlacesService googlePlacesService;
     private FireStoreService fireStoreService;
 
@@ -45,7 +45,7 @@ public class ListFragmentViewModel extends ViewModel {
 
     private LiveData<Location> locationLiveData;
 
-    public ListFragmentViewModel(LocationService locator, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
+    public ListFragmentViewModel(CurrentGPSLocationRepo locator, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
         this.locator = locator;
         this.googlePlacesService = googlePlacesService;
         this.fireStoreService = fireStoreService;
@@ -58,7 +58,7 @@ public class ListFragmentViewModel extends ViewModel {
     }
 
     private void wireUpMediator() {
-        locationLiveData = locator.getLocationLD();
+        locationLiveData = locator.getCurrentGPSLocationLD();
         LiveData<List<NearbyPlace>> nearbyRestaurantsLiveData = Transformations.switchMap(locationLiveData,
                 location -> googlePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(location),500));
         LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = fireStoreService.getAllKnownRestaurants();

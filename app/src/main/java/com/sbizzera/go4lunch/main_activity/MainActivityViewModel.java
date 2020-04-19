@@ -12,7 +12,7 @@ import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.notification.WorkManagerHelper;
-import com.sbizzera.go4lunch.services.CameraPositionRepo;
+import com.sbizzera.go4lunch.services.VisibleRegionRepo;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 import com.sbizzera.go4lunch.services.PermissionService;
@@ -30,7 +30,7 @@ public class MainActivityViewModel extends ViewModel {
 
     private SingleLiveEvent<RectangularBounds> mViewActionSearch = new SingleLiveEvent<>();
 
-    private CameraPositionRepo mCameraPositionRepo;
+    private VisibleRegionRepo mVisibleRegionRepo;
     private LiveData<Boolean> isNotificationOnLD;
     private RectangularBounds mMapCurrentRectangularBounds;
     private String mCurrentAutocompleteRestaurantID;
@@ -39,12 +39,12 @@ public class MainActivityViewModel extends ViewModel {
     public MainActivityViewModel(
         FireStoreService fireStore,
         SharedPreferencesRepo sharedPreferencesRepo,
-        CameraPositionRepo cameraPositionRepo,
+        VisibleRegionRepo visibleRegionRepo,
         PermissionService permissionService
     ) {
         this.fireStore = fireStore;
         this.sharedPreferencesRepo = sharedPreferencesRepo;
-        mCameraPositionRepo = cameraPositionRepo;
+        mVisibleRegionRepo = visibleRegionRepo;
         updateUserInDb();
         wireUp();
         WorkManagerHelper.handleNotificationWork();
@@ -106,7 +106,7 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void showAutocomplete() {
-        mViewActionSearch.setValue( RectangularBounds.newInstance(mCameraPositionRepo.getLastVisibleRegion().latLngBounds));
+        mViewActionSearch.setValue( RectangularBounds.newInstance(mVisibleRegionRepo.getLastMapVisibleRegion().getValue().latLngBounds));
     }
 
     public void onAutocompleteClick(Intent data) {

@@ -1,5 +1,7 @@
 package com.sbizzera.go4lunch.services;
 
+import android.util.ArrayMap;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -8,6 +10,7 @@ import com.sbizzera.go4lunch.model.places_nearby_models.NearbyResults;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +29,8 @@ public class GooglePlacesService {
 
     private static GooglePlacesService sGooglePlacesService;
 
-    //CACHING NEARBYSEARCH
-    private MutableLiveData<List<NearbyPlace>> mNearbyCache = new MutableLiveData<>();
-    private String mLocationCache;
-    private int mRadiusCache;
+    //CACHING FETCHEDRESTAURANTS
+    private Map<String,NearbyPlace> mNearbyPlaceMapCached = new HashMap<>();
 
     //CACHING RESTAURANTSDETAILS
     private Map<String, DetailsResponse.DetailResult> mRestaurantsDetailsMapCached = new HashMap<>();
@@ -54,25 +55,25 @@ public class GooglePlacesService {
 
     public LiveData<List<NearbyPlace>> getNearbyRestaurants(String location, int radius) {
 
-        if (location.equals(mLocationCache) && mRadiusCache == radius) {
-            return mNearbyCache;
-        }
         MutableLiveData<List<NearbyPlace>> nearbyRestaurantListLiveData = new MutableLiveData<>();
         mGooglePlacesAPI.getNearbyRestaurant(location, radius).enqueue(new Callback<NearbyResults>() {
             @EverythingIsNonNull
             @Override
             public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {
                 assert response.body() != null;
-                nearbyRestaurantListLiveData.postValue(response.body().getRestaurantList());
-                mLocationCache = location;
-                mRadiusCache = radius;
-                mNearbyCache = nearbyRestaurantListLiveData;
+                for (NearbyPlace restaurant : response.body().getRestaurantList()) {
+                    if(mNearbyPlaceMapCached.get(restaurant.getId())==null){
+                        mNearbyPlaceMapCached.put(restaurant.getId(),restaurant);
+                    }
+
+                }
+                List<NearbyPlace> listToReturn = new ArrayList<>(mNearbyPlaceMapCached.values());
+                nearbyRestaurantListLiveData.postValue(listToReturn);
             }
 
             @EverythingIsNonNull
             @Override
             public void onFailure(Call<NearbyResults> call, Throwable t) {
-                nearbyRestaurantListLiveData.postValue(null);
             }
         });
 
@@ -82,7 +83,6 @@ public class GooglePlacesService {
 
     public DetailsResponse.DetailResult getRestaurantDetailsByIdAsync(String id) {
         if (mRestaurantsDetailsMapCached.get(id) != null) {
-            Timber.d("Restaurant in cache");
             return mRestaurantsDetailsMapCached.get(id);
         }
         DetailsResponse.DetailResult placeDetail = null;
@@ -90,7 +90,6 @@ public class GooglePlacesService {
             Response<DetailsResponse> response = mGooglePlacesAPI.getRestaurantDetailsById(id).execute();
             if (response.body() != null && response.body().getDetailResult() != null) {
                 placeDetail = response.body().getDetailResult();
-                Timber.d("restaurant fetched");
                 mRestaurantsDetailsMapCached.put(id, placeDetail);
             }
         } catch (IOException e) {
@@ -102,7 +101,6 @@ public class GooglePlacesService {
 
     public LiveData<DetailsResponse.DetailResult> getRestaurantDetailsById(String id) {
         if (mRestaurantsDetailsMapCached.get(id) != null) {
-            Timber.d("Restaurant in cache");
             return new MutableLiveData<>(mRestaurantsDetailsMapCached.get(id));
         }
         MutableLiveData<DetailsResponse.DetailResult> restaurantDetailsLiveData = new MutableLiveData<>();
@@ -113,13 +111,10 @@ public class GooglePlacesService {
                 if (response.body() != null) {
                     restaurantDetailsLiveData.postValue(response.body().getDetailResult());
                     mRestaurantsDetailsMapCached.put(id, response.body().getDetailResult());
-                    Timber.d("restaurant fetched");
-
                 } else {
                     restaurantDetailsLiveData.postValue(null);
                 }
             }
-
             @Override
             @EverythingIsNonNull
             public void onFailure(Call<DetailsResponse> call, Throwable t) {

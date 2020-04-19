@@ -2,6 +2,7 @@ package com.sbizzera.go4lunch.main_activity.fragments.map_fragment;
 
 
 import android.location.Location;
+import android.util.Pair;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -9,19 +10,17 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
-import com.sbizzera.go4lunch.services.CameraPositionRepo;
+import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
-import com.sbizzera.go4lunch.services.LocationService;
 import com.sbizzera.go4lunch.services.PermissionService;
-import com.sbizzera.go4lunch.utils.Go4LunchUtils;
+import com.sbizzera.go4lunch.services.VisibleRegionRepo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,96 +31,149 @@ import timber.log.Timber;
 
 public class MapFragmentViewModel extends ViewModel {
 
-    private LocationService mLocator;
-    private PermissionService mPermissionService;
+    private CurrentGPSLocationRepo mCurrentGPSLocationRepo;
     private GooglePlacesService mGooglePlacesService;
     private FireStoreService mFireStoreService;
+    private PermissionService mPermissionService;
+    private VisibleRegionRepo mVisibleRegionRepo;
 
+    private MutableLiveData<Boolean> mIsMapLoadedLD = new MutableLiveData<>(false);
     private MediatorLiveData<MapFragmentModel> mUiModelLiveData = new MediatorLiveData<>();
-
-    // TODO MEDIATOR : EITHER CAMERA OR IF NO CAMERA SET : USE USERLOCATION
-    private MediatorLiveData<List<NearbyPlace>> nearbyRestaurantsLiveData;
-
-    private LiveData<Location> userLocationLD;
-    private LiveData<List<FireStoreRestaurant>> fireStoreRestaurantsLiveData;
-    private LiveData<VisibleRegion> userSearchAreaLiveData = new MutableLiveData<>();
-
-    private int nearbySearchRadius = 500;
-    private CameraPositionRepo mCameraPositionRepo;
-    private Boolean mMapIsReady = false;
+    private LiveData<Location> mCurrentGPSLocationLD;
+    private LiveData<List<FireStoreRestaurant>> fireStoreRestaurantsLD;
+    private boolean mCameraHasBeenInitializedToLastPosition = false;
+    private MediatorLiveData<Pair<String, Integer>> mNearbyParamsMLD = new MediatorLiveData<>();
+    private LiveData<VisibleRegion> mLastRestaurantFetchVisibleRegionLD;
 
 
-    public MapFragmentViewModel(LocationService locator, GooglePlacesService googlePlacesService, FireStoreService fireStoreService, PermissionService permissionService, CameraPositionRepo cameraPositionRepo) {
-        mLocator = locator;
+    //TODO find in doc max nearby search radius (it is 50 000 m)
+
+
+    public MapFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService, VisibleRegionRepo visibleRegionRepo, PermissionService permissionService) {
+        mCurrentGPSLocationRepo = currentGPSLocationRepo;
         mGooglePlacesService = googlePlacesService;
         mFireStoreService = fireStoreService;
+        mVisibleRegionRepo = visibleRegionRepo;
         mPermissionService = permissionService;
-        mCameraPositionRepo = cameraPositionRepo;
-
-        wireUpMediator();
-        Timber.d("Creating a viewModel");
-    }
-
-    public LiveData<MapFragmentModel> getUIModel() {
-        return mUiModelLiveData;
+        wireUpUIMediator();
+        wireUpNearbyParams();
     }
 
 
-    public void wireUpMediator() {
-
-        //nearbyRestaurantsLiveData = Transformations.switchMap(userLocationLD, location -> mGooglePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(location), nearbySearchRadius));
-
-        // TODO BORIS LINK TO NEARBY RESTAUS MEDIATOR
-        userLocationLD = mLocator.getLocationLD();
-        fireStoreRestaurantsLiveData = mFireStoreService.getAllKnownRestaurants();
-
-        mUiModelLiveData.addSource(nearbyRestaurantsLiveData, nearbyRestaurants -> {
-            combineSources(nearbyRestaurants, fireStoreRestaurantsLiveData.getValue(), userLocationLD.getValue(), userSearchAreaLiveData.getValue());
+    private void wireUpUIMediator() {
+        mCurrentGPSLocationLD = mCurrentGPSLocationRepo.getCurrentGPSLocationLD();
+        fireStoreRestaurantsLD = mFireStoreService.getAllKnownRestaurants();
+        LiveData<VisibleRegion> lastMapVisibleRegionLD = mVisibleRegionRepo.getLastMapVisibleRegion();
+        LiveData<List<NearbyPlace>> listNearbyRestaurantsLD = Transformations.switchMap(mNearbyParamsMLD, (pair) -> {
+            return mGooglePlacesService.getNearbyRestaurants(pair.first, pair.second);
         });
 
-        mUiModelLiveData.addSource(fireStoreRestaurantsLiveData, fireStoreRestaurants -> {
-            combineSources(nearbyRestaurantsLiveData.getValue(), fireStoreRestaurants, userLocationLD.getValue(), userSearchAreaLiveData.getValue());
+        mLastRestaurantFetchVisibleRegionLD = mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion();
+
+        mUiModelLiveData.addSource(mIsMapLoadedLD, isMapReady -> {
+            combineSources(isMapReady, lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
         });
 
-        mUiModelLiveData.addSource(userLocationLD, userLocation -> {
-            combineSources(nearbyRestaurantsLiveData.getValue(), fireStoreRestaurantsLiveData.getValue(), userLocation, userSearchAreaLiveData.getValue());
+        mUiModelLiveData.addSource(lastMapVisibleRegionLD, lastVisibleRegion -> {
+            combineSources(mIsMapLoadedLD.getValue(), lastVisibleRegion, mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
         });
 
-        mUiModelLiveData.addSource(userSearchAreaLiveData, region -> {
-            combineSources(nearbyRestaurantsLiveData.getValue(), fireStoreRestaurantsLiveData.getValue(), userLocationLD.getValue(), region);
+        mUiModelLiveData.addSource(mCurrentGPSLocationLD, currentGPSLocation -> {
+            combineSources(mIsMapLoadedLD.getValue(), lastMapVisibleRegionLD.getValue(), currentGPSLocation, fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
+        });
+
+        mUiModelLiveData.addSource(listNearbyRestaurantsLD, listNearbyRestaurants -> {
+            combineSources(mIsMapLoadedLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurants, mLastRestaurantFetchVisibleRegionLD.getValue());
+        });
+        mUiModelLiveData.addSource(fireStoreRestaurantsLD, fireStoreRestaurants -> {
+            combineSources(mIsMapLoadedLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurants, listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
+        });
+
+        mUiModelLiveData.addSource(mLastRestaurantFetchVisibleRegionLD, lastRestaurantFetchVisibleRegion -> {
+            combineSources(mIsMapLoadedLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), lastRestaurantFetchVisibleRegion);
         });
     }
 
-    private void combineSources(
-        @Nullable List<NearbyPlace> restaurantsList,
-        @Nullable List<FireStoreRestaurant> fireStoreRestaurants,
-        @Nullable Location userLocation,
-        @Nullable VisibleRegion region,
-        @Nullable VisibleRegion oldRegion
-    ) {
-        if (mMapIsReady) {
+    private void wireUpNearbyParams() {
+        mNearbyParamsMLD.addSource(mCurrentGPSLocationLD, currentGPSLocation -> {
+            combineNearbyParamsSources(currentGPSLocation, mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion().getValue());
+        });
+        mNearbyParamsMLD.addSource(mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion(), lastNearbyFetchVisibleRegion -> {
+            combineNearbyParamsSources(mCurrentGPSLocationLD.getValue(), lastNearbyFetchVisibleRegion);
+        });
+    }
 
-            CameraPosition lastCameraPositionKnown = null;
-            if (mCameraPositionRepo.getLastCameraPosition() != null) {
-                lastCameraPositionKnown = mCameraPositionRepo.getLastCameraPosition();
-            } else if (userLocation != null) {
-                lastCameraPositionKnown = fromLocationToCameraPosition(userLocation);
-            }
-
-            // TODO BORIS USE REGION AND OLD REGION FOR
-            List<CustomMapMarker> listMapMarkers = createMarkers(restaurantsList, fireStoreRestaurants);
-            mUiModelLiveData.setValue(new MapFragmentModel(listMapMarkers, lastCameraPositionKnown, isSearchButtonVisible));
+    private void combineNearbyParamsSources(Location currentGPSLocation, VisibleRegion lastRestaurantFetchVisibleRegion) {
+        if (lastRestaurantFetchVisibleRegion != null) {
+            String location = fromLatLngToLocationString(lastRestaurantFetchVisibleRegion.latLngBounds.getCenter());
+            Integer radius = fromVisibleRegionToFetchRadius(lastRestaurantFetchVisibleRegion);
+            mNearbyParamsMLD.setValue(new Pair<>(location, radius));
+        } else if (currentGPSLocation != null) {
+            String location = fromLocationToLocationString(currentGPSLocation);
+            Integer radius = 500;
+            mNearbyParamsMLD.setValue(new Pair<>(location, radius));
+        } else {
+            mNearbyParamsMLD.setValue(null);
         }
     }
 
-    private CameraPosition fromLocationToCameraPosition(Location location) {
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        return new CameraPosition(latLng, 15, 0, 0);
+    private void combineSources(
+            @Nullable Boolean isMapReady,
+            @Nullable VisibleRegion lastVisibleRegion,
+            @Nullable Location currentGPSlocation,
+            @Nullable List<FireStoreRestaurant> fireStoreRestaurants,
+            @Nullable List<NearbyPlace> nearbyPlaces,
+            @Nullable VisibleRegion lastRestaurantFetchVisibleRegion
+    ) {
+        if (isMapReady!=null && isMapReady) {
+            LatLng currentGPSLatLng = null;
+            LatLngBounds lastLatLngBounds = null;
+            boolean searchButtonVisibility = false;
+            if (!mCameraHasBeenInitializedToLastPosition) {
+                if (lastVisibleRegion != null) {
+                    lastLatLngBounds = lastVisibleRegion.latLngBounds;
+                } else if (currentGPSlocation != null) {
+                    currentGPSLatLng = new LatLng(currentGPSlocation.getLatitude(), currentGPSlocation.getLongitude());
+                }
+            }
+
+            if (lastVisibleRegion != null && lastRestaurantFetchVisibleRegion != null) {
+                searchButtonVisibility = shouldNewFetchButtonBeVisible(lastVisibleRegion,lastRestaurantFetchVisibleRegion);
+            }
+            List<CustomMapMarker> listMapMarkers = createMarkers(nearbyPlaces, fireStoreRestaurants);
+            mUiModelLiveData.setValue(new MapFragmentModel(
+                    listMapMarkers,
+                    lastLatLngBounds,
+                    searchButtonVisibility,
+                    mPermissionService.isLocationPermissionGranted(),
+                    currentGPSLatLng));
+        }
     }
 
+    private boolean shouldNewFetchButtonBeVisible(VisibleRegion lastVisibleRegion, VisibleRegion lastRestaurantFetchVisibleRegion) {
+        Location lastVisibleLocation = fromLatLngToLocation(lastVisibleRegion.latLngBounds.getCenter());
+        Location lastFetchLocation = fromLatLngToLocation(lastRestaurantFetchVisibleRegion.latLngBounds.getCenter());
+        Location lastVisibleNearLeftCornerLocation = fromLatLngToLocation(lastVisibleRegion.nearLeft);
+        Location lastFetchNearLeftCornerLocation = fromLatLngToLocation(lastRestaurantFetchVisibleRegion.nearLeft);
+        Location lastVisibleNearRightCornerLocation = fromLatLngToLocation(lastVisibleRegion.nearRight);
+
+
+        if(lastVisibleNearLeftCornerLocation.distanceTo(lastVisibleNearRightCornerLocation)>5000){
+            return false;
+        }
+        if (lastFetchLocation.distanceTo(lastVisibleLocation)>200){
+            return true;
+        }
+        if(lastVisibleNearLeftCornerLocation.distanceTo(lastFetchNearLeftCornerLocation)>200){
+            return true;
+        }
+        return false;
+    }
+
+
     private List<CustomMapMarker> createMarkers(
-        @Nullable List<NearbyPlace> restaurantsList,
-        @Nullable List<FireStoreRestaurant> fireStoreRestaurants
+            @Nullable List<NearbyPlace> restaurantsList,
+            @Nullable List<FireStoreRestaurant> fireStoreRestaurants
     ) {
         List<CustomMapMarker> markersListToReturn = new ArrayList<>();
         if (restaurantsList != null) {
@@ -158,81 +210,51 @@ public class MapFragmentViewModel extends ViewModel {
     }
 
 
-    private int getRadiusShownFromBounds(LatLngBounds latLngBounds) {
-        double southEastLat = latLngBounds.southwest.latitude;
-        double southEastLng = latLngBounds.northeast.longitude;
-        Location southEast = new Location("");
-        southEast.setLatitude(southEastLat);
-        southEast.setLongitude(southEastLng);
-        double southWestLat = latLngBounds.southwest.latitude;
-        double southWestLng = latLngBounds.southwest.longitude;
-        Location southWest = new Location("");
-        southWest.setLatitude(southWestLat);
-        southWest.setLongitude(southWestLng);
-
-        return (int) (southEast.distanceTo(southWest) / 2);
-    }
-
-    public void shouldNewAreaFetchBeVisible(LatLng cameraLatLng, LatLngBounds cameraBounds) {
-        int cameraRadius = getRadiusShownFromBounds(cameraBounds);
-        int radiusDiff = Math.abs(cameraRadius - nearbySearchRadius);
-        if (radiusDiff > 400) {
-            actionLE.setValue(ViewAction.FETCH_NEW_AREA_VISIBLE);
-        }
-
-        Location cameraLocation = new Location("");
-        cameraLocation.setLatitude(cameraLatLng.latitude);
-        cameraLocation.setLongitude(cameraLatLng.longitude);
-
-
-        int distanceDiff = (int) cameraLocation.distanceTo(userLocationLD.getValue());
-        if (distanceDiff > 200) {
-            actionLE.setValue(ViewAction.FETCH_NEW_AREA_VISIBLE);
-        }
-    }
-
-
-    public void changeLocationSourceLD(LatLng cameraLocation, LatLngBounds bounds) {
-        Location locationToFetch = new Location("");
-        locationToFetch.setLatitude(cameraLocation.latitude);
-        locationToFetch.setLongitude(cameraLocation.longitude);
-        int radiusToFetch = getRadiusShownFromBounds(bounds);
-        nearbySearchRadius = radiusToFetch;
-        userLocationLD = new MutableLiveData<>(locationToFetch);
-        mUiModelLiveData.removeSource(nearbyRestaurantsLiveData);
-        LiveData<List<NearbyPlace>> nearbyPlacesLD = mGooglePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(locationToFetch), radiusToFetch);
-
-        mUiModelLiveData.addSource(nearbyPlacesLD, nearbyPlaces -> {
-            combineSources(nearbyPlaces, fireStoreRestaurantsLiveData.getValue(), null, region);
-        });
-
-        actionLE.setValue(ViewAction.FETCH_NEW_AREA_INVISIBLE);
-    }
-
-    public void setLastCameraPosition(CameraPosition cameraPosition) {
-        mCameraPositionRepo.setLastCameraPosition(cameraPosition);
-    }
-
     public void setLastVisibleRegion(VisibleRegion visibleRegion) {
-        mCameraPositionRepo.setLastVisibleRegion(visibleRegion);
+        if (!mCameraHasBeenInitializedToLastPosition) {
+            mCameraHasBeenInitializedToLastPosition = true;
+        }
+        if(mLastRestaurantFetchVisibleRegionLD.getValue()==null){
+            mVisibleRegionRepo.setLastNearbyRestaurantsFetchVisibleRegion(visibleRegion);
+        }
+        mVisibleRegionRepo.setLastMapVisibleRegion(visibleRegion);
     }
 
     public void onResume() {
-        mLocator.refresh();
+        mCurrentGPSLocationRepo.refresh();
     }
 
-    public enum ViewAction {
-        FETCH_NEW_AREA_VISIBLE,
-        FETCH_NEW_AREA_INVISIBLE
+    public void mapIsLoaded() {
+        mIsMapLoadedLD.setValue(true);
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        Timber.d("cleared");
+    public LiveData<MapFragmentModel> getUIModel() {
+        return mUiModelLiveData;
     }
 
-    public void mapIsReady(Boolean bol) {
-        mMapIsReady = bol;
+    private String fromLocationToLocationString(Location location) {
+        return location.getLatitude() + "," + location.getLongitude();
+    }
+
+    private int fromVisibleRegionToFetchRadius(VisibleRegion lastNearbySearchFetchVisibleRegion) {
+        Location nearRightLocation = fromLatLngToLocation(lastNearbySearchFetchVisibleRegion.nearRight);
+        Location nearLeftLocation = fromLatLngToLocation(lastNearbySearchFetchVisibleRegion.nearLeft);
+        //Giving room to radius to fit the all icon
+        return (int) ((nearLeftLocation.distanceTo(nearRightLocation) / 2) * 0.8);
+    }
+
+    private Location fromLatLngToLocation(LatLng latlng) {
+        Location location = new Location("");
+        location.setLatitude(latlng.latitude);
+        location.setLongitude(latlng.longitude);
+        return location;
+    }
+
+    private String fromLatLngToLocationString(LatLng center) {
+        return center.latitude + "," + center.longitude;
+    }
+
+    public void setLastFetchRestaurantVisibleRegion(VisibleRegion visibleRegion) {
+        mVisibleRegionRepo.setLastNearbyRestaurantsFetchVisibleRegion(visibleRegion);
     }
 }

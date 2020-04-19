@@ -1,11 +1,6 @@
 package com.sbizzera.go4lunch.main_activity.fragments.map_fragment;
 
-import android.Manifest;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +8,6 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -22,28 +16,21 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.services.ViewModelFactory;
-import com.sbizzera.go4lunch.utils.Commons;
-
-import timber.log.Timber;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener, GoogleMap.OnMapLoadedCallback {
 
     private GoogleMap map;
     private OnItemBoundWithRestaurantClickListener mListener;
     private MapFragmentViewModel mViewModel;
-    private Button fetchNewAreaBtn;
+    private Button mFetchNewAreaBtn;
 
     public static MapFragment newInstance() {
-        Bundle args = new Bundle();
-        MapFragment fragment = new MapFragment();
-        fragment.setArguments(args);
-        return fragment;
+        return new MapFragment();
     }
 
     @Override
@@ -52,7 +39,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         ConstraintLayout layout = (ConstraintLayout) layoutInflater.inflate(R.layout.fragment_map_fragment_overlay, viewGroup, false);
         View v = super.onCreateView(layoutInflater, viewGroup, bundle);
         layout.addView(v, 0);
-        fetchNewAreaBtn = layout.findViewById(R.id.new_restaurants_btn);
+        mFetchNewAreaBtn = layout.findViewById(R.id.new_restaurants_btn);
         return layout;
     }
 
@@ -62,20 +49,6 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         getMapAsync(this);
         mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MapFragmentViewModel.class);
         mViewModel.getUIModel().observe(this, this::updateUi);
-        mViewModel.getAction().observe(this, action -> {
-            if (action == MapFragmentViewModel.ViewAction.FETCH_NEW_AREA_VISIBLE) {
-                fetchNewAreaBtn.setClickable(true);
-                fetchNewAreaBtn.setVisibility(View.VISIBLE);
-                fetchNewAreaBtn.setOnClickListener(v -> {
-                    mViewModel.changeLocationSourceLD(map.getCameraPosition().target, map.getProjection().getVisibleRegion().latLngBounds);
-                });
-            }
-            if (action == MapFragmentViewModel.ViewAction.FETCH_NEW_AREA_INVISIBLE) {
-                fetchNewAreaBtn.setClickable(false);
-                fetchNewAreaBtn.setVisibility(View.INVISIBLE);
-            }
-        });
-
     }
 
     private void updateUi(MapFragmentModel model) {
@@ -94,24 +67,39 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 return true;
             });
         }
-        if(model.getInitialCameraPosition()!=null){
-            map.moveCamera(CameraUpdateFactory.newCameraPosition(model.getInitialCameraPosition()));
+        if (model.getCurrentGPSLatLng() != null) {
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(model.getCurrentGPSLatLng(), 15));
         }
+        if (model.getLastSeenLatLngBounds() != null) {
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(model.getLastSeenLatLngBounds(), 0));
+        }
+
+        if (model.isCenterOnLocationButtonVisible()) {
+            map.setMyLocationEnabled(true);
+            map.getUiSettings().setMyLocationButtonEnabled(true);
+        }
+        mFetchNewAreaBtn.setClickable(false);
+        mFetchNewAreaBtn.setVisibility(View.INVISIBLE);
+        if (model.isSearchButtonVisible()) {
+            mFetchNewAreaBtn.setVisibility(View.VISIBLE);
+            mFetchNewAreaBtn.setClickable(model.isSearchButtonVisible());
+        }
+        mFetchNewAreaBtn.setOnClickListener((click) -> {
+            mViewModel.setLastFetchRestaurantVisibleRegion(map.getProjection().getVisibleRegion());
+        });
     }
 
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        mViewModel.mapIsReady(true);
         map.setOnMapLoadedCallback(this);
-        Timber.d("Map is ready");
     }
 
     @Override
     public void onMapLoaded() {
+        mViewModel.mapIsLoaded();
         map.setOnCameraIdleListener(this);
-        mViewModel.setLastVisibleRegion(map.getProjection().getVisibleRegion());
     }
 
     public void setListener(OnItemBoundWithRestaurantClickListener listener) {
@@ -120,24 +108,13 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     @Override
     public void onCameraIdle() {
-        Timber.d("camera moved");
-        mViewModel.setLastCameraPosition(map.getCameraPosition());
-        LatLng cameraLatLng = map.getCameraPosition().target;
-        LatLngBounds cameraBounds = map.getProjection().getVisibleRegion().latLngBounds;
-        mViewModel.shouldNewAreaFetchBeVisible(cameraLatLng, cameraBounds);
         mViewModel.setLastVisibleRegion(map.getProjection().getVisibleRegion());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
         mViewModel.onResume();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mViewModel.mapIsReady(false);
-    }
 }

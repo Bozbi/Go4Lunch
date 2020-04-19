@@ -1,31 +1,43 @@
 package com.sbizzera.go4lunch.main_activity.fragments.map_fragment;
 
-import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.List;
 
 public class MapFragmentModel {
 
-    private List<CustomMapMarker> mapMarkersList ;
-    private CameraPosition initialCameraPosition;
+    private List<CustomMapMarker> mapMarkersList;
+    private LatLngBounds lastSeenLatLngBounds;
+    private LatLng currentGPSLatLng;
     private boolean isSearchButtonVisible;
+    private boolean isCenterOnLocationButtonVisible;
 
-    public MapFragmentModel(List<CustomMapMarker> mapMarkersList, CameraPosition initialCameraPosition, boolean isSearchButtonVisible) {
+    public MapFragmentModel(List<CustomMapMarker> mapMarkersList, LatLngBounds lastSeenLatLngBounds, boolean isSearchButtonVisible, boolean isCenterOnLocationButtonVisible, LatLng currentGPSLatLng) {
         this.mapMarkersList = mapMarkersList;
-        this.initialCameraPosition = initialCameraPosition;
+        this.lastSeenLatLngBounds = lastSeenLatLngBounds;
         this.isSearchButtonVisible = isSearchButtonVisible;
+        this.isCenterOnLocationButtonVisible = isCenterOnLocationButtonVisible;
+        this.currentGPSLatLng = currentGPSLatLng;
     }
 
     public List<CustomMapMarker> getMapMarkersList() {
         return mapMarkersList;
     }
 
-    public CameraPosition getInitialCameraPosition() {
-        return initialCameraPosition;
-    }
-
-    // TODO BORIS
     public boolean isSearchButtonVisible() {
         return isSearchButtonVisible;
+    }
+
+    public boolean isCenterOnLocationButtonVisible() {
+        return isCenterOnLocationButtonVisible;
+    }
+
+    public LatLngBounds getLastSeenLatLngBounds() {
+        return lastSeenLatLngBounds;
+    }
+
+    public LatLng getCurrentGPSLatLng() {
+        return currentGPSLatLng;
     }
 }

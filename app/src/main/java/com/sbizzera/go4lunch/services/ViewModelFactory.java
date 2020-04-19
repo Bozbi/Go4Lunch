@@ -39,11 +39,11 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(MapFragmentViewModel.class)) {
             return (T) new MapFragmentViewModel(
-                   new LocationService(App.getApplication()),
+                   CurrentGPSLocationRepo.getInstance(App.getApplication()),
                     GooglePlacesService.getInstance(),
                     new FireStoreService(),
-                    PermissionService.getInstance(),
-                    CameraPositionRepo.getInstance()
+                    VisibleRegionRepo.getInstance(),
+                    PermissionService.getInstance()
             );
         }
         if (modelClass.isAssignableFrom(RestaurantViewModel.class)) {
@@ -55,8 +55,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(MainActivityViewModel.class)) {
             return (T) new MainActivityViewModel(
                 new FireStoreService(),
-                new SharedPreferencesRepo(),
-                CameraPositionRepo.getInstance(),
+                SharedPreferencesRepo.getInstance(App.getApplication()),
+                VisibleRegionRepo.getInstance(),
                 PermissionService.getInstance()
             );
         }
@@ -65,7 +65,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         }
         if (modelClass.isAssignableFrom(ListFragmentViewModel.class)){
             return (T)new ListFragmentViewModel(
-                    new LocationService(App.getApplication()),
+                    CurrentGPSLocationRepo.getInstance(App.getApplication()),
                     GooglePlacesService.getInstance(),
                     new FireStoreService()
             );
