@@ -32,7 +32,6 @@ public class MainActivityViewModel extends ViewModel {
 
     private VisibleRegionRepo mVisibleRegionRepo;
     private LiveData<Boolean> isNotificationOnLD;
-    private RectangularBounds mMapCurrentRectangularBounds;
     private String mCurrentAutocompleteRestaurantID;
 
 

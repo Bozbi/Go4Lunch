@@ -125,5 +125,7 @@ public class GooglePlacesService {
         return restaurantDetailsLiveData;
     }
 
-
+    public List<NearbyPlace> getNearbyCache (){
+        return new ArrayList<>(mNearbyPlaceMapCached.values());
+    }
 }

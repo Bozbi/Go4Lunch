@@ -10,8 +10,6 @@ public class WorkmatesFragmentAdapterModel {
 
     private Boolean isClickable;
 
-    //TODO Is it the good annotation
-
     private int textStyle;
 
     private String restaurantId;

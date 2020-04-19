@@ -27,8 +27,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import timber.log.Timber;
-
 public class MapFragmentViewModel extends ViewModel {
 
     private CurrentGPSLocationRepo mCurrentGPSLocationRepo;
@@ -65,7 +63,11 @@ public class MapFragmentViewModel extends ViewModel {
         fireStoreRestaurantsLD = mFireStoreService.getAllKnownRestaurants();
         LiveData<VisibleRegion> lastMapVisibleRegionLD = mVisibleRegionRepo.getLastMapVisibleRegion();
         LiveData<List<NearbyPlace>> listNearbyRestaurantsLD = Transformations.switchMap(mNearbyParamsMLD, (pair) -> {
-            return mGooglePlacesService.getNearbyRestaurants(pair.first, pair.second);
+            if (pair != null) {
+                return mGooglePlacesService.getNearbyRestaurants(pair.first, pair.second);
+            }else{
+                return null;
+            }
         });
 
         mLastRestaurantFetchVisibleRegionLD = mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion();
@@ -125,7 +127,7 @@ public class MapFragmentViewModel extends ViewModel {
             @Nullable List<NearbyPlace> nearbyPlaces,
             @Nullable VisibleRegion lastRestaurantFetchVisibleRegion
     ) {
-        if (isMapReady!=null && isMapReady) {
+        if (isMapReady != null && isMapReady) {
             LatLng currentGPSLatLng = null;
             LatLngBounds lastLatLngBounds = null;
             boolean searchButtonVisibility = false;
@@ -138,7 +140,7 @@ public class MapFragmentViewModel extends ViewModel {
             }
 
             if (lastVisibleRegion != null && lastRestaurantFetchVisibleRegion != null) {
-                searchButtonVisibility = shouldNewFetchButtonBeVisible(lastVisibleRegion,lastRestaurantFetchVisibleRegion);
+                searchButtonVisibility = shouldNewFetchButtonBeVisible(lastVisibleRegion, lastRestaurantFetchVisibleRegion);
             }
             List<CustomMapMarker> listMapMarkers = createMarkers(nearbyPlaces, fireStoreRestaurants);
             mUiModelLiveData.setValue(new MapFragmentModel(
@@ -158,13 +160,13 @@ public class MapFragmentViewModel extends ViewModel {
         Location lastVisibleNearRightCornerLocation = fromLatLngToLocation(lastVisibleRegion.nearRight);
 
 
-        if(lastVisibleNearLeftCornerLocation.distanceTo(lastVisibleNearRightCornerLocation)>5000){
+        if (lastVisibleNearLeftCornerLocation.distanceTo(lastVisibleNearRightCornerLocation) > 5000) {
             return false;
         }
-        if (lastFetchLocation.distanceTo(lastVisibleLocation)>200){
+        if (lastFetchLocation.distanceTo(lastVisibleLocation) > 200) {
             return true;
         }
-        if(lastVisibleNearLeftCornerLocation.distanceTo(lastFetchNearLeftCornerLocation)>200){
+        if (lastVisibleNearLeftCornerLocation.distanceTo(lastFetchNearLeftCornerLocation) > 200) {
             return true;
         }
         return false;
@@ -214,7 +216,7 @@ public class MapFragmentViewModel extends ViewModel {
         if (!mCameraHasBeenInitializedToLastPosition) {
             mCameraHasBeenInitializedToLastPosition = true;
         }
-        if(mLastRestaurantFetchVisibleRegionLD.getValue()==null){
+        if (mLastRestaurantFetchVisibleRegionLD.getValue() == null) {
             mVisibleRegionRepo.setLastNearbyRestaurantsFetchVisibleRegion(visibleRegion);
         }
         mVisibleRegionRepo.setLastMapVisibleRegion(visibleRegion);

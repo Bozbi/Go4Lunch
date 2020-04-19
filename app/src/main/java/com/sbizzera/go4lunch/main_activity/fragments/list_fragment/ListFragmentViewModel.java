@@ -8,18 +8,16 @@ import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse;
+import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
-import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
 import com.sbizzera.go4lunch.utils.Commons;
-import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -33,55 +31,46 @@ import timber.log.Timber;
 public class ListFragmentViewModel extends ViewModel {
 
 
-    private CurrentGPSLocationRepo locator;
-    private GooglePlacesService googlePlacesService;
-    private FireStoreService fireStoreService;
+    private CurrentGPSLocationRepo mCurrentGPSLocationRepo;
+    private GooglePlacesService mGooglePlacesService;
+    private FireStoreService mFireStoreService;
 
-    private MediatorLiveData<ListFragmentModel> modelLiveData = new MediatorLiveData<>();
-
-    private MutableLiveData<Map<String, DetailsResponse.DetailResult>> detailsMapLD = new MutableLiveData<>();
+    private MediatorLiveData<ListFragmentModel> mModelMLD = new MediatorLiveData<>();
+    private MutableLiveData<Map<String, DetailsResponse.DetailResult>> mDetailsMapLD = new MutableLiveData<>();
 
     private List<String> listOfMadeRequests = new ArrayList<>();
 
-    private LiveData<Location> locationLiveData;
 
-    public ListFragmentViewModel(CurrentGPSLocationRepo locator, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
-        this.locator = locator;
-        this.googlePlacesService = googlePlacesService;
-        this.fireStoreService = fireStoreService;
-        detailsMapLD.setValue(new HashMap<>());
+    public ListFragmentViewModel(CurrentGPSLocationRepo mCurrentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
+        this.mCurrentGPSLocationRepo = mCurrentGPSLocationRepo;
+        this.mGooglePlacesService = googlePlacesService;
+        this.mFireStoreService = fireStoreService;
+        mDetailsMapLD.setValue(new HashMap<>());
         wireUpMediator();
     }
 
     public LiveData<ListFragmentModel> getModel() {
-        return modelLiveData;
+        return mModelMLD;
     }
 
     private void wireUpMediator() {
-        locationLiveData = locator.getCurrentGPSLocationLD();
-        LiveData<List<NearbyPlace>> nearbyRestaurantsLiveData = Transformations.switchMap(locationLiveData,
-                location -> googlePlacesService.getNearbyRestaurants(Go4LunchUtils.locationToString(location),500));
-        LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = fireStoreService.getAllKnownRestaurants();
+        LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = mFireStoreService.getAllKnownRestaurants();
 
-        modelLiveData.addSource(nearbyRestaurantsLiveData, nearbyPlaces -> {
-            combineSources(nearbyPlaces, knownRestaurantsLiveData.getValue(), detailsMapLD.getValue());
+        mModelMLD.addSource(knownRestaurantsLiveData, knownRestaurants -> {
+            combineSources(knownRestaurants, mDetailsMapLD.getValue());
         });
 
-        modelLiveData.addSource(knownRestaurantsLiveData, knownRestaurants -> {
-            combineSources(nearbyRestaurantsLiveData.getValue(), knownRestaurants, detailsMapLD.getValue());
-        });
-
-        modelLiveData.addSource(detailsMapLD, detailsMap -> {
-            combineSources(nearbyRestaurantsLiveData.getValue(), knownRestaurantsLiveData.getValue(), detailsMap);
+        mModelMLD.addSource(mDetailsMapLD, detailsMap -> {
+            combineSources(knownRestaurantsLiveData.getValue(), detailsMap);
         });
 
     }
 
     private void combineSources(
-            List<NearbyPlace> nearbyPlaces,
             List<FireStoreRestaurant> knownRestaurants,
             Map<String, DetailsResponse.DetailResult> detailsMap) {
 
+        List<NearbyPlace> nearbyPlaces = mGooglePlacesService.getNearbyCache();
         //Stop if no data in both sources
         if (nearbyPlaces == null && knownRestaurants == null) {
             return;
@@ -106,7 +95,7 @@ public class ListFragmentViewModel extends ViewModel {
 
         //Fetch and and register event in ListOfMadeRequests
         for (String id : listOfIds) {
-            new DetailResultAsyncTask(id, new WeakReference<>(this), googlePlacesService).execute();
+            new DetailResultAsyncTask(id, new WeakReference<>(this), mGooglePlacesService).execute();
             listOfMadeRequests.add(id);
         }
 
@@ -116,33 +105,74 @@ public class ListFragmentViewModel extends ViewModel {
 
         if (knownRestaurants != null)
             for (FireStoreRestaurant restaurant : knownRestaurants) {
-                int distance = getDistanceFromLatAndLng(restaurant.getLat(), restaurant.getLng());
-                if (distance >= 0 && distance < 3000) {
-                    fireStoreRestaurantsIdList.add(restaurant.getRestaurantId());
+                fireStoreRestaurantsIdList.add(restaurant.getRestaurantId());
+                String address = null;
+                String openHoursText = null;
+                int openHoursColors = R.color.primaryTextColor;
+                String distanceStr = null;
+                int metersTextVisibility = View.INVISIBLE;
+                String todayLunchCount = String.valueOf(restaurant.getTodaysLunches());
+                int star1Visibility = getStar1Visibility(restaurant);
+                int star2Visibility = getStar2Visibility(restaurant);
+                int star3Visibility = getStar3Visibility(restaurant);
+                String photoUrl = null;
+                DetailsResponse.DetailResult restaurantDetail = detailsMap.get(restaurant.getRestaurantId());
+                if (restaurantDetail != null) {
+                    address = getAdresseFromDetailResult(restaurantDetail);
+                    openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
+                    openHoursColors = getOpenHoursTextColorFromDetailResult(restaurantDetail);
+                    distanceStr = getDistanceFromDetailResult(restaurantDetail);
+                    metersTextVisibility = getMetersTextVisibilityFromDistanceStr(distanceStr);
+                    photoUrl = getPhotoUrlFromDerailResult(restaurantDetail);
+                }
+                ListFragmentAdapterModel restaurantToReturn = new ListFragmentAdapterModel(
+                        restaurant.getName(),
+                        restaurant.getRestaurantId(),
+                        address,
+                        openHoursText,
+                        openHoursColors,
+                        distanceStr,
+                        metersTextVisibility,
+                        todayLunchCount,
+                        star1Visibility,
+                        star2Visibility,
+                        star3Visibility,
+                        photoUrl
+                );
+                listOfRestaurantToReturn.add(restaurantToReturn);
+
+            }
+
+        if (nearbyPlaces != null) {
+            for (NearbyPlace restaurant : nearbyPlaces) {
+                if (!fireStoreRestaurantsIdList.contains(restaurant.getId())) {
                     String address = null;
                     String openHoursText = null;
                     int openHoursColors = R.color.primaryTextColor;
                     String distanceStr = null;
-                    String todayLunchCount = String.valueOf(restaurant.getTodaysLunches());
-                    int star1Visibility = getStar1Visibility(restaurant);
-                    int star2Visibility = getStar2Visibility(restaurant);
-                    int star3Visibility = getStar3Visibility(restaurant);
+                    int metersTextVisibility = View.INVISIBLE;
+                    String todayLunchCount = "0";
+                    int star1Visibility = View.INVISIBLE;
+                    int star2Visibility = View.INVISIBLE;
+                    int star3Visibility = View.INVISIBLE;
                     String photoUrl = null;
-                    DetailsResponse.DetailResult restaurantDetail = detailsMap.get(restaurant.getRestaurantId());
+                    DetailsResponse.DetailResult restaurantDetail = detailsMap.get(restaurant.getId());
                     if (restaurantDetail != null) {
                         address = getAdresseFromDetailResult(restaurantDetail);
                         openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
                         openHoursColors = getOpenHoursTextColorFromDetailResult(restaurantDetail);
                         distanceStr = getDistanceFromDetailResult(restaurantDetail);
+                        metersTextVisibility = getMetersTextVisibilityFromDistanceStr(distanceStr);
                         photoUrl = getPhotoUrlFromDerailResult(restaurantDetail);
                     }
                     ListFragmentAdapterModel restaurantToReturn = new ListFragmentAdapterModel(
                             restaurant.getName(),
-                            restaurant.getRestaurantId(),
+                            restaurant.getId(),
                             address,
                             openHoursText,
                             openHoursColors,
                             distanceStr,
+                            metersTextVisibility,
                             todayLunchCount,
                             star1Visibility,
                             star2Visibility,
@@ -152,62 +182,17 @@ public class ListFragmentViewModel extends ViewModel {
                     listOfRestaurantToReturn.add(restaurantToReturn);
                 }
             }
-
-        if (nearbyPlaces != null) {
-            for (NearbyPlace restaurant : nearbyPlaces) {
-                if (!fireStoreRestaurantsIdList.contains(restaurant.getId())) {
-                    int distance = getDistanceFromLatAndLng(restaurant.getLat(), restaurant.getLng());
-                    if (distance >= 0 && distance < 3000) {
-                        String address = null;
-                        String openHoursText = null;
-                        int openHoursColors = R.color.primaryTextColor;
-                        String distanceStr = null;
-                        String todayLunchCount = "0";
-                        int star1Visibility = View.INVISIBLE;
-                        int star2Visibility = View.INVISIBLE;
-                        int star3Visibility = View.INVISIBLE;
-                        String photoUrl = null;
-                        DetailsResponse.DetailResult restaurantDetail = detailsMap.get(restaurant.getId());
-                        if (restaurantDetail != null) {
-                            address = getAdresseFromDetailResult(restaurantDetail);
-                            openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
-                            openHoursColors = getOpenHoursTextColorFromDetailResult(restaurantDetail);
-                            distanceStr = getDistanceFromDetailResult(restaurantDetail);
-                            photoUrl = getPhotoUrlFromDerailResult(restaurantDetail);
-                        }
-                        ListFragmentAdapterModel restaurantToReturn = new ListFragmentAdapterModel(
-                                restaurant.getName(),
-                                restaurant.getId(),
-                                address,
-                                openHoursText,
-                                openHoursColors,
-                                distanceStr,
-                                todayLunchCount,
-                                star1Visibility,
-                                star2Visibility,
-                                star3Visibility,
-                                photoUrl
-                        );
-                        listOfRestaurantToReturn.add(restaurantToReturn);
-                    }
-                }
-            }
         }
         Collections.sort(listOfRestaurantToReturn, new DistanceComparator());
 
-        modelLiveData.setValue(new ListFragmentModel(listOfRestaurantToReturn));
+        mModelMLD.setValue(new ListFragmentModel(listOfRestaurantToReturn));
     }
 
-    private int getDistanceFromLatAndLng(Double lat, Double lng) {
-        Location userLocation = locationLiveData.getValue();
-        Location restaurantLocation = new Location("");
-        restaurantLocation.setLatitude(lat);
-        restaurantLocation.setLongitude(lng);
-        if (userLocation != null) {
-            int distance = (int) userLocation.distanceTo(restaurantLocation);
-            return (int) userLocation.distanceTo(restaurantLocation);
+    private int getMetersTextVisibilityFromDistanceStr(String distanceStr) {
+        if (distanceStr == null) {
+            return View.INVISIBLE;
         }
-        return -1;
+        return View.VISIBLE;
     }
 
     private String getPhotoUrlFromDerailResult(DetailsResponse.DetailResult restaurantDetail) {
@@ -270,15 +255,16 @@ public class ListFragmentViewModel extends ViewModel {
     }
 
     private String getDistanceFromDetailResult(DetailsResponse.DetailResult restaurantDetail) {
-        Location userLocation = locationLiveData.getValue();
-        Double restaurantLat = restaurantDetail.getGeometry().getLocation().getLat();
-        Double restaurantLng = restaurantDetail.getGeometry().getLocation().getLng();
-        Location restaurantLocation = new Location("");
-        restaurantLocation.setLatitude(restaurantLat);
-        restaurantLocation.setLongitude(restaurantLng);
-        if (userLocation != null) {
-            int distance = (int) userLocation.distanceTo(restaurantLocation);
-            return String.valueOf(distance);
+        Location currentGPSLocation = mCurrentGPSLocationRepo.getCurrentGPSLocationLD().getValue();
+        if (currentGPSLocation != null) {
+            Double restaurantLat = restaurantDetail.getGeometry().getLocation().getLat() ;
+            Double restaurantLng = restaurantDetail.getGeometry().getLocation().getLng() ;
+            Location restaurantLocation = new Location("");
+            restaurantLocation.setLatitude(restaurantLat);
+            restaurantLocation.setLongitude(restaurantLng);
+            double distanceInKm = currentGPSLocation.distanceTo(restaurantLocation)/1000;
+            double distanceRounded = Math.round(distanceInKm*10)/10.0;
+            return String.valueOf(distanceRounded);
         }
         return null;
     }
@@ -315,7 +301,6 @@ public class ListFragmentViewModel extends ViewModel {
         private String restaurantId;
         private WeakReference<ListFragmentViewModel> viewModelRef;
         private GooglePlacesService googlePlacesService;
-        private static int count;
 
         DetailResultAsyncTask(String restaurantId, WeakReference<ListFragmentViewModel> viewModelRef, GooglePlacesService googlePlacesService) {
             super();
@@ -332,16 +317,16 @@ public class ListFragmentViewModel extends ViewModel {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            count++;
-            Timber.d("Request #%s", count);
         }
 
         @Override
         protected void onPostExecute(DetailsResponse.DetailResult detailResult) {
             if (viewModelRef.get() != null) {
-                Map<String, DetailsResponse.DetailResult> map = viewModelRef.get().detailsMapLD.getValue();
-                map.put(restaurantId, detailResult);
-                viewModelRef.get().detailsMapLD.setValue(map);
+                Map<String, DetailsResponse.DetailResult> map = viewModelRef.get().mDetailsMapLD.getValue();
+                if (map != null) {
+                    map.put(restaurantId, detailResult);
+                }
+                viewModelRef.get().mDetailsMapLD.setValue(map);
             }
         }
     }

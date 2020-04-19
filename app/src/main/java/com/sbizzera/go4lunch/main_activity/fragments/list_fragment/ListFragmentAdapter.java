@@ -23,7 +23,6 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
     private OnItemBoundWithRestaurantClickListener mListener;
 
 
-
     public ListFragmentAdapter(OnItemBoundWithRestaurantClickListener listener) {
         mListener = listener;
     }
@@ -43,6 +42,7 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
         holder.openingHours.setText(restaurant.getOpenHoursText());
         holder.openingHours.setTextColor(holder.openingHours.getResources().getColor(restaurant.getOpenHoursTextColor()));
         holder.distance.setText(restaurant.getDistance());
+        holder.m_Text.setVisibility(restaurant.getMetersTextVisibility());
         holder.workmateFreq.setText(restaurant.getWorkmatesLunchesCount());
         holder.star1Img.setVisibility(restaurant.getStar1Visibility());
         holder.star2Img.setVisibility(restaurant.getStar2Visibility());
@@ -75,6 +75,7 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
         TextView address;
         TextView openingHours;
         TextView distance;
+        TextView m_Text;
         TextView workmateFreq;
         ImageView img;
         ImageView star1Img;
@@ -87,6 +88,7 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
             address = itemView.findViewById(R.id.restaurant_address_txt);
             openingHours = itemView.findViewById(R.id.restaurant_opening_status_txt);
             distance = itemView.findViewById(R.id.restaurant_distance_txt);
+            m_Text = itemView.findViewById(R.id.m_txt);
             workmateFreq = itemView.findViewById(R.id.restaurant_workmates_frequentation);
             img = itemView.findViewById(R.id.restaurant_img);
             star1Img = itemView.findViewById(R.id.restaurant_star_1_img);
