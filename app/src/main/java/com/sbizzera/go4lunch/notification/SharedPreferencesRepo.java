@@ -40,7 +40,7 @@ public class SharedPreferencesRepo {
     }
 
     private void updateLiveData() {
-        notificationPreferencesLD.setValue(App.getApplication().getSharedPreferences(FirebaseAuthService.getUser().getUid(), Context.MODE_PRIVATE).getBoolean(NOTIFICATION_STATUS, true));
+        notificationPreferencesLD.setValue(mApplication.getSharedPreferences(FirebaseAuthService.getUser().getUid(), Context.MODE_PRIVATE).getBoolean(NOTIFICATION_STATUS, true));
     }
 
 

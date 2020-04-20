@@ -23,10 +23,7 @@ public class ListFragment extends Fragment {
     private OnItemBoundWithRestaurantClickListener mListener;
 
    public static ListFragment newInstance() {
-        Bundle args = new Bundle();
-        ListFragment fragment = new ListFragment();
-        fragment.setArguments(args);
-        return fragment;
+        return new ListFragment();
     }
 
 

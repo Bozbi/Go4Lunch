@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import timber.log.Timber;
-
 public class ListFragmentViewModel extends ViewModel {
 
 
@@ -39,6 +37,7 @@ public class ListFragmentViewModel extends ViewModel {
     private MutableLiveData<Map<String, DetailsResponse.DetailResult>> mDetailsMapLD = new MutableLiveData<>();
 
     private List<String> listOfMadeRequests = new ArrayList<>();
+    private LiveData<Location> mCurrentGPSLocationLD;
 
 
     public ListFragmentViewModel(CurrentGPSLocationRepo mCurrentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
@@ -46,6 +45,7 @@ public class ListFragmentViewModel extends ViewModel {
         this.mGooglePlacesService = googlePlacesService;
         this.mFireStoreService = fireStoreService;
         mDetailsMapLD.setValue(new HashMap<>());
+        mCurrentGPSLocationLD = mCurrentGPSLocationRepo.getCurrentGPSLocationLD();
         wireUpMediator();
     }
 
@@ -54,6 +54,7 @@ public class ListFragmentViewModel extends ViewModel {
     }
 
     private void wireUpMediator() {
+
         LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = mFireStoreService.getAllKnownRestaurants();
 
         mModelMLD.addSource(knownRestaurantsLiveData, knownRestaurants -> {
@@ -109,7 +110,7 @@ public class ListFragmentViewModel extends ViewModel {
                 String address = null;
                 String openHoursText = null;
                 int openHoursColors = R.color.primaryTextColor;
-                String distanceStr = null;
+                Double distanceDouble = null;
                 int metersTextVisibility = View.INVISIBLE;
                 String todayLunchCount = String.valueOf(restaurant.getTodaysLunches());
                 int star1Visibility = getStar1Visibility(restaurant);
@@ -121,8 +122,8 @@ public class ListFragmentViewModel extends ViewModel {
                     address = getAdresseFromDetailResult(restaurantDetail);
                     openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
                     openHoursColors = getOpenHoursTextColorFromDetailResult(restaurantDetail);
-                    distanceStr = getDistanceFromDetailResult(restaurantDetail);
-                    metersTextVisibility = getMetersTextVisibilityFromDistanceStr(distanceStr);
+                    distanceDouble = getDistanceFromDetailResult(restaurantDetail);
+                    metersTextVisibility = getMetersTextVisibilityFromDistanceStr(distanceDouble);
                     photoUrl = getPhotoUrlFromDerailResult(restaurantDetail);
                 }
                 ListFragmentAdapterModel restaurantToReturn = new ListFragmentAdapterModel(
@@ -131,7 +132,7 @@ public class ListFragmentViewModel extends ViewModel {
                         address,
                         openHoursText,
                         openHoursColors,
-                        distanceStr,
+                        distanceDouble,
                         metersTextVisibility,
                         todayLunchCount,
                         star1Visibility,
@@ -149,7 +150,7 @@ public class ListFragmentViewModel extends ViewModel {
                     String address = null;
                     String openHoursText = null;
                     int openHoursColors = R.color.primaryTextColor;
-                    String distanceStr = null;
+                    Double distanceDouble = null;
                     int metersTextVisibility = View.INVISIBLE;
                     String todayLunchCount = "0";
                     int star1Visibility = View.INVISIBLE;
@@ -161,8 +162,8 @@ public class ListFragmentViewModel extends ViewModel {
                         address = getAdresseFromDetailResult(restaurantDetail);
                         openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
                         openHoursColors = getOpenHoursTextColorFromDetailResult(restaurantDetail);
-                        distanceStr = getDistanceFromDetailResult(restaurantDetail);
-                        metersTextVisibility = getMetersTextVisibilityFromDistanceStr(distanceStr);
+                        distanceDouble = getDistanceFromDetailResult(restaurantDetail);
+                        metersTextVisibility = getMetersTextVisibilityFromDistanceStr(distanceDouble);
                         photoUrl = getPhotoUrlFromDerailResult(restaurantDetail);
                     }
                     ListFragmentAdapterModel restaurantToReturn = new ListFragmentAdapterModel(
@@ -171,7 +172,7 @@ public class ListFragmentViewModel extends ViewModel {
                             address,
                             openHoursText,
                             openHoursColors,
-                            distanceStr,
+                            distanceDouble,
                             metersTextVisibility,
                             todayLunchCount,
                             star1Visibility,
@@ -184,12 +185,11 @@ public class ListFragmentViewModel extends ViewModel {
             }
         }
         Collections.sort(listOfRestaurantToReturn, new DistanceComparator());
-
         mModelMLD.setValue(new ListFragmentModel(listOfRestaurantToReturn));
     }
 
-    private int getMetersTextVisibilityFromDistanceStr(String distanceStr) {
-        if (distanceStr == null) {
+    private int getMetersTextVisibilityFromDistanceStr(Double distance) {
+        if (distance == null) {
             return View.INVISIBLE;
         }
         return View.VISIBLE;
@@ -207,6 +207,7 @@ public class ListFragmentViewModel extends ViewModel {
                     .appendPath("photo")
                     .appendQueryParameter("maxwidth", "200")
                     .appendQueryParameter("photoreference", photoRef)
+                    //TODO where to put this key
                     .appendQueryParameter("key", Commons.PLACES_API_KEY)
                     .toString();
         }
@@ -254,17 +255,16 @@ public class ListFragmentViewModel extends ViewModel {
 
     }
 
-    private String getDistanceFromDetailResult(DetailsResponse.DetailResult restaurantDetail) {
-        Location currentGPSLocation = mCurrentGPSLocationRepo.getCurrentGPSLocationLD().getValue();
+    private Double getDistanceFromDetailResult(DetailsResponse.DetailResult restaurantDetail) {
+        Location currentGPSLocation = mCurrentGPSLocationLD.getValue();
         if (currentGPSLocation != null) {
-            Double restaurantLat = restaurantDetail.getGeometry().getLocation().getLat() ;
-            Double restaurantLng = restaurantDetail.getGeometry().getLocation().getLng() ;
+            Double restaurantLat = restaurantDetail.getGeometry().getLocation().getLat();
+            Double restaurantLng = restaurantDetail.getGeometry().getLocation().getLng();
             Location restaurantLocation = new Location("");
             restaurantLocation.setLatitude(restaurantLat);
             restaurantLocation.setLongitude(restaurantLng);
-            double distanceInKm = currentGPSLocation.distanceTo(restaurantLocation)/1000;
-            double distanceRounded = Math.round(distanceInKm*10)/10.0;
-            return String.valueOf(distanceRounded);
+            double distanceInKm = currentGPSLocation.distanceTo(restaurantLocation) / 1000;
+            return Math.round(distanceInKm * 10) / 10.0;
         }
         return null;
     }

@@ -12,7 +12,7 @@ public class ListFragmentAdapterModel {
     private String openHoursText;
     @ColorRes
     private int openHoursTextColor;
-    private String distance;
+    private Double distance;
     private String workmatesLunchesCount;
     @IntegerRes
     private int star1Visibility;
@@ -22,7 +22,7 @@ public class ListFragmentAdapterModel {
     private int star3Visibility;
     private String photoUrl;
 
-    public ListFragmentAdapterModel(String restaurantName, String restaurantId, String restaurantAddress, String openHoursText, int openHoursTextColor, String distance, int metersTextVisibility, String workmatesLunchesCount, int star1Visibility, int star2Visibility, int star3Visibility, String photoUrl) {
+    public ListFragmentAdapterModel(String restaurantName, String restaurantId, String restaurantAddress, String openHoursText, int openHoursTextColor, Double distance, int metersTextVisibility, String workmatesLunchesCount, int star1Visibility, int star2Visibility, int star3Visibility, String photoUrl) {
         this.restaurantName = restaurantName;
         this.restaurantId = restaurantId;
         this.restaurantAddress = restaurantAddress;
@@ -57,7 +57,7 @@ public class ListFragmentAdapterModel {
         return openHoursTextColor;
     }
 
-    public String getDistance() {
+    public Double getDistance() {
         return distance;
     }
 

@@ -2,64 +2,68 @@ package com.sbizzera.go4lunch.main_activity.your_lunch_dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.view.ContextThemeWrapper;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
-import com.sbizzera.go4lunch.services.ViewModelFactory;
 
-public class YourLunchDialogFragment extends DialogFragment implements View.OnClickListener {
+public class YourLunchDialogFragment extends DialogFragment{
 
-    private TextView yourLunchTxt;
+    private static final String EXTRA_MODEL = "EXTRA_MODEL";
     private LinearLayout dialogContainer;
     private OnItemBoundWithRestaurantClickListener listener;
 
-    public static YourLunchDialogFragment newInstance() {
-
-        Bundle args = new Bundle();
-
+    public static YourLunchDialogFragment newInstance(YourLunchModel yourLunchModel) {
+        Bundle bundle = new Bundle(1);
+        bundle.putSerializable(EXTRA_MODEL, yourLunchModel);
         YourLunchDialogFragment fragment = new YourLunchDialogFragment();
-        fragment.setArguments(args);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
-    @Nullable
+    @NonNull
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.your_lunch_dialog_fragment,container,false);
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        View view = requireActivity().getLayoutInflater().inflate(R.layout.your_lunch_dialog_fragment, null);
+        TextView dialogTxt = view.findViewById(R.id.dialog_txt);
+        YourLunchModel model = (YourLunchModel) getArguments().getSerializable(EXTRA_MODEL);
+        dialogTxt.setText(model.getDialogtext());
 
-        yourLunchTxt = view.findViewById(R.id.dialog_txt);
-        dialogContainer = view.findViewById(R.id.yourLunchContainer);
-        dialogContainer.setOnClickListener(this);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(requireActivity(), R.style.AppTheme))
+                .setTitle("Your Lunch")
+                .setIcon(R.drawable.ic_notification_icon_orange)
+                .setView(view)
+                .setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dismiss();
+                    }
+                });
+
+        if (model.isPositiveAvailable()){
+            builder.setPositiveButton("Check Your Lunch", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    listener.onItemBoundWithRestaurantClick(model.getRestaurantId());
+                }
+            });
+        }
 
 
-        YourLunchDialogViewModel viewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(YourLunchDialogViewModel.class);
-        viewModel.getModel().observe(this, this::updateUI);
-
-        return view;
+        return builder.create();
     }
 
-    private void updateUI(YourLunchDialogModel model) {
-        dialogContainer.setTag(model.getRestaurantId());
-        dialogContainer.setClickable(model.getClickable());
-        yourLunchTxt.setText(model.getYourLunchText());
-    }
 
-    @Override
-    public void onClick(View v) {
-        listener.onItemBoundWithRestaurantClick(v.getTag().toString());
-    }
 
     public void setListener(OnItemBoundWithRestaurantClickListener listener) {
         this.listener = listener;

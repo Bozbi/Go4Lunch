@@ -41,7 +41,9 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
         holder.address.setText(restaurant.getRestaurantAddress());
         holder.openingHours.setText(restaurant.getOpenHoursText());
         holder.openingHours.setTextColor(holder.openingHours.getResources().getColor(restaurant.getOpenHoursTextColor()));
-        holder.distance.setText(restaurant.getDistance());
+        if (restaurant.getDistance() != null) {
+            holder.distance.setText(restaurant.getDistance().toString());
+        }
         holder.m_Text.setVisibility(restaurant.getMetersTextVisibility());
         holder.workmateFreq.setText(restaurant.getWorkmatesLunchesCount());
         holder.star1Img.setVisibility(restaurant.getStar1Visibility());

@@ -17,7 +17,7 @@ import com.sbizzera.go4lunch.main_activity.MainActivity;
 import java.util.List;
 import java.util.Objects;
 
-class NotificationHelper {
+public class NotificationHelper {
 
     //TODO Work on notification Text
     //TODO Inject App.context in constructor

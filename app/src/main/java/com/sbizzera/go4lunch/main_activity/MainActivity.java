@@ -20,7 +20,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -49,8 +48,6 @@ import com.sbizzera.go4lunch.services.FirebaseAuthService;
 import com.sbizzera.go4lunch.services.ViewModelFactory;
 
 import java.util.Arrays;
-
-import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener, OnItemBoundWithRestaurantClickListener {
 
@@ -108,7 +105,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Toast.makeText(this, "This is not a restaurant", Toast.LENGTH_LONG).show();
                     break;
                 }
+
             }
+
+        });
+        mViewModel.getViewActionYourLunch().observe(this,yourLunchModel -> {
+                YourLunchDialogFragment dialog = YourLunchDialogFragment.newInstance(yourLunchModel);
+                dialog.show(getSupportFragmentManager(), "TAG");
 
         });
 
@@ -199,8 +202,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 break;
             case R.id.drawer_your_lunch:
-                YourLunchDialogFragment dialog = YourLunchDialogFragment.newInstance();
-                dialog.show(getSupportFragmentManager(), "TAG");
+                mViewModel.getYourLunchDialog();
                 break;
         }
         return true;
@@ -237,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void showPermissionAppropriateRequest() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this,R.style.AppTheme));
+            AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AppTheme));
 
             builder.setTitle("Permission is Mandatory");
             builder.setMessage("We need permission to give you the best experience navigating the map");
@@ -253,9 +255,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             builder.show();
         } else {
             ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                REQUEST_LOCATION_PERMISSION_REQUEST_CODE
+                    this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION_REQUEST_CODE
             );
         }
     }

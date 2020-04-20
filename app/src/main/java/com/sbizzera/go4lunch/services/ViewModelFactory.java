@@ -10,7 +10,6 @@ import com.sbizzera.go4lunch.main_activity.MainActivityViewModel;
 import com.sbizzera.go4lunch.main_activity.fragments.list_fragment.ListFragmentViewModel;
 import com.sbizzera.go4lunch.main_activity.fragments.map_fragment.MapFragmentViewModel;
 import com.sbizzera.go4lunch.main_activity.fragments.workmates_fragment.WorkmatesFragmentViewModel;
-import com.sbizzera.go4lunch.main_activity.your_lunch_dialog.YourLunchDialogViewModel;
 import com.sbizzera.go4lunch.restaurant_activity.RestaurantViewModel;
 import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
 
@@ -69,9 +68,6 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
                     GooglePlacesService.getInstance(),
                     new FireStoreService()
             );
-        }
-        if (modelClass.isAssignableFrom(YourLunchDialogViewModel.class)){
-            return (T)new YourLunchDialogViewModel(new FireStoreService());
         }
         throw new IllegalArgumentException("Unknown ViewModel class");
     }

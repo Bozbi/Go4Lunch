@@ -182,16 +182,20 @@ public class FireStoreService {
     public LiveData<List<FireStoreUser>> getTodayListOfUsers(String id) {
         MutableLiveData<List<FireStoreUser>> listUsersLiveData = new MutableLiveData<>();
         List<FireStoreUser> usersToSend = new ArrayList<>();
-        dates.document(LocalDate.now().toString()).collection("lunches").whereEqualTo("restaurantId", id).addSnapshotListener((queryDocumentSnapshots, e) -> {
-            if (queryDocumentSnapshots != null) {
-                usersToSend.clear();
-                for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                    FireStoreUser userToAdd = document.toObject(FireStoreUser.class);
-                    usersToSend.add(userToAdd);
+        if (id != null) {
+            dates.document(LocalDate.now().toString()).collection("lunches").whereEqualTo("restaurantId", id).addSnapshotListener((queryDocumentSnapshots, e) -> {
+                if (queryDocumentSnapshots != null) {
+                    usersToSend.clear();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        FireStoreUser userToAdd = document.toObject(FireStoreUser.class);
+                        usersToSend.add(userToAdd);
+                    }
+                    listUsersLiveData.postValue(usersToSend);
+                } else {
+                    listUsersLiveData.postValue(null);
                 }
-                listUsersLiveData.postValue(usersToSend);
-            }
-        });
+            });
+        }
         return listUsersLiveData;
     }
 
@@ -227,7 +231,7 @@ public class FireStoreService {
     public LiveData<List<FireStoreRestaurant>> getAllKnownRestaurants() {
         MutableLiveData<List<FireStoreRestaurant>> allKnownRestaurantsLiveData = new MutableLiveData<>();
         List<FireStoreRestaurant> allRestaurantsToReturn = new ArrayList<>();
-        restaurants.whereGreaterThan("lunchCount",0).get().addOnSuccessListener(allRestaurants -> {
+        restaurants.whereGreaterThan("lunchCount", 0).get().addOnSuccessListener(allRestaurants -> {
             for (DocumentSnapshot restaurant : allRestaurants) {
                 FireStoreRestaurant restaurantToAdd = restaurant.toObject(FireStoreRestaurant.class);
                 allRestaurantsToReturn.add(restaurantToAdd);
@@ -240,11 +244,20 @@ public class FireStoreService {
 
     public LiveData<FireStoreLunch> getUserLunch() {
         MutableLiveData<FireStoreLunch> todayUserLunchLD = new MutableLiveData<>();
-        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().addOnSuccessListener(lunch -> {
-            if (lunch.getData() != null) {
-                todayUserLunchLD.postValue(lunch.toObject(FireStoreLunch.class));
-            } else todayUserLunchLD.postValue(null);
+        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).addSnapshotListener((documentSnapshot, e) -> {
+            if (documentSnapshot != null && documentSnapshot.toObject(FireStoreLunch.class) != null) {
+                Timber.d("change");
+                todayUserLunchLD.postValue(documentSnapshot.toObject(FireStoreLunch.class));
+            } else {
+                Timber.d("null");
+                todayUserLunchLD.postValue(null);
+            }
         });
+//        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().addOnSuccessListener(lunch -> {
+//            if (lunch.getData() != null) {
+//                todayUserLunchLD.postValue(lunch.toObject(FireStoreLunch.class));
+//            } else todayUserLunchLD.postValue(null);
+//        });
         return todayUserLunchLD;
     }
 }
