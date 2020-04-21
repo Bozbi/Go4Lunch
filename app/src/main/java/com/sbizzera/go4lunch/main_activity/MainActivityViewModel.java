@@ -34,7 +34,6 @@ public class MainActivityViewModel extends ViewModel {
     private SingleLiveEvent<ViewAction> mActionLE = new SingleLiveEvent<>();
     private SingleLiveEvent<RectangularBounds> mViewActionSearch = new SingleLiveEvent<>();
     private SingleLiveEvent<YourLunchModel> mViewActionYourLunch = new SingleLiveEvent<>();
-    private MediatorLiveData<String> dummyMediator;
 
     private VisibleRegionRepo mVisibleRegionRepo;
     private String mCurrentAutocompleteRestaurantID;
@@ -83,11 +82,6 @@ public class MainActivityViewModel extends ViewModel {
         modelLD.addSource(joiningWorkmatesLD, joiningWorkmates -> {
         });
     }
-
-    public MediatorLiveData<String> getDummyMediator() {
-        return dummyMediator;
-    }
-
 
     private void combineSources(Boolean isNotificationOn) {
 
@@ -223,7 +217,7 @@ public class MainActivityViewModel extends ViewModel {
         ASK_LOCATION_PERMISSION
     }
 
-    // TODO BORIS Same
+    // TODO BORIS Utiliser un SingleLiveEvent ici plutôt
     public String getCurrentAutocompleteRestaurantID() {
         return mCurrentAutocompleteRestaurantID;
     }
