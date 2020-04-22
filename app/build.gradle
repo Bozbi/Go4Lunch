@@ -2,6 +2,20 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/home/bozbi/bobo/dev/android_studio/go4lunch/keystore.jks')
+            storePassword 'go4lunch'
+            keyAlias = 'key'
+            keyPassword 'go4lunch'
+        }
+        release {
+            storeFile file('/home/bozbi/bobo/dev/android_studio/go4lunch/keystore.jks')
+            storePassword 'go4lunch'
+            keyAlias = 'key'
+            keyPassword 'go4lunch'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig {
