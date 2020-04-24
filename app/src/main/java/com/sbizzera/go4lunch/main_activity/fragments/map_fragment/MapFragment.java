@@ -94,11 +94,11 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setOnMapLoadedCallback(this);
+        mViewModel.mapIsReady();
     }
 
     @Override
     public void onMapLoaded() {
-        mViewModel.mapIsLoaded();
         map.setOnCameraIdleListener(this);
     }
 

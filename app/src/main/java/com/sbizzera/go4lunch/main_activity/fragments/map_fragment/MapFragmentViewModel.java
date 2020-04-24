@@ -226,7 +226,7 @@ public class MapFragmentViewModel extends ViewModel {
         mCurrentGPSLocationRepo.refresh();
     }
 
-    public void mapIsLoaded() {
+    public void mapIsReady() {
         mIsMapLoadedLD.setValue(true);
     }
 
