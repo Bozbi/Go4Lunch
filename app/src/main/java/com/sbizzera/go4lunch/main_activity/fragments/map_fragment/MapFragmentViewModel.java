@@ -229,9 +229,8 @@ public class MapFragmentViewModel extends ViewModel {
     public void mapIsReady() {
         mIsMapLoadedLD.setValue(true);
     }
-
-    public LiveData<MapFragmentModel> getUIModel() {
-        return mUiModelLiveData;
+    public void setLastFetchRestaurantVisibleRegion(VisibleRegion visibleRegion) {
+        mVisibleRegionRepo.setLastNearbyRestaurantsFetchVisibleRegion(visibleRegion);
     }
 
     private String fromLocationToLocationString(Location location) {
@@ -256,7 +255,8 @@ public class MapFragmentViewModel extends ViewModel {
         return center.latitude + "," + center.longitude;
     }
 
-    public void setLastFetchRestaurantVisibleRegion(VisibleRegion visibleRegion) {
-        mVisibleRegionRepo.setLastNearbyRestaurantsFetchVisibleRegion(visibleRegion);
+
+    public LiveData<MapFragmentModel> getUIModel() {
+        return mUiModelLiveData;
     }
 }

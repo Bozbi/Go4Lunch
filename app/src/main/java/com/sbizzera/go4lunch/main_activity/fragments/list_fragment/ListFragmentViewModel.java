@@ -29,7 +29,7 @@ import java.util.Map;
 public class ListFragmentViewModel extends ViewModel {
 
 
-    private CurrentGPSLocationRepo mCurrentGPSLocationRepo;
+
     private GooglePlacesService mGooglePlacesService;
     private FireStoreService mFireStoreService;
 
@@ -40,12 +40,11 @@ public class ListFragmentViewModel extends ViewModel {
     private LiveData<Location> mCurrentGPSLocationLD;
 
 
-    public ListFragmentViewModel(CurrentGPSLocationRepo mCurrentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
-        this.mCurrentGPSLocationRepo = mCurrentGPSLocationRepo;
+    public ListFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
         this.mGooglePlacesService = googlePlacesService;
         this.mFireStoreService = fireStoreService;
         mDetailsMapLD.setValue(new HashMap<>());
-        mCurrentGPSLocationLD = mCurrentGPSLocationRepo.getCurrentGPSLocationLD();
+        mCurrentGPSLocationLD = currentGPSLocationRepo.getCurrentGPSLocationLD();
         wireUpMediator();
     }
 
@@ -107,68 +106,22 @@ public class ListFragmentViewModel extends ViewModel {
         if (knownRestaurants != null)
             for (FireStoreRestaurant restaurant : knownRestaurants) {
                 fireStoreRestaurantsIdList.add(restaurant.getRestaurantId());
-                String address = null;
-                String openHoursText = null;
-                int openHoursColors = R.color.primaryTextColor;
-                Double distanceDouble = null;
-                int metersTextVisibility = View.INVISIBLE;
-                String todayLunchCount = String.valueOf(restaurant.getTodaysLunches());
-                int star1Visibility = getStar1Visibility(restaurant);
-                int star2Visibility = getStar2Visibility(restaurant);
-                int star3Visibility = getStar3Visibility(restaurant);
-                String photoUrl = null;
+                ListFragmentAdapterModel restaurantToReturn = null;
                 DetailsResponse.DetailResult restaurantDetail = detailsMap.get(restaurant.getRestaurantId());
                 if (restaurantDetail != null) {
-                    address = getAdresseFromDetailResult(restaurantDetail);
-                    openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
-                    openHoursColors = getOpenHoursTextColorFromDetailResult(restaurantDetail);
-                    distanceDouble = getDistanceFromDetailResult(restaurantDetail);
-                    metersTextVisibility = getMetersTextVisibilityFromDistanceStr(distanceDouble);
-                    photoUrl = getPhotoUrlFromDerailResult(restaurantDetail);
-                }
-                ListFragmentAdapterModel restaurantToReturn = new ListFragmentAdapterModel(
-                        restaurant.getName(),
-                        restaurant.getRestaurantId(),
-                        address,
-                        openHoursText,
-                        openHoursColors,
-                        distanceDouble,
-                        metersTextVisibility,
-                        todayLunchCount,
-                        star1Visibility,
-                        star2Visibility,
-                        star3Visibility,
-                        photoUrl
-                );
-                listOfRestaurantToReturn.add(restaurantToReturn);
-
-            }
-
-        if (nearbyPlaces != null) {
-            for (NearbyPlace restaurant : nearbyPlaces) {
-                if (!fireStoreRestaurantsIdList.contains(restaurant.getId())) {
-                    String address = null;
-                    String openHoursText = null;
-                    int openHoursColors = R.color.primaryTextColor;
-                    Double distanceDouble = null;
-                    int metersTextVisibility = View.INVISIBLE;
-                    String todayLunchCount = "0";
-                    int star1Visibility = View.INVISIBLE;
-                    int star2Visibility = View.INVISIBLE;
-                    int star3Visibility = View.INVISIBLE;
-                    String photoUrl = null;
-                    DetailsResponse.DetailResult restaurantDetail = detailsMap.get(restaurant.getId());
-                    if (restaurantDetail != null) {
-                        address = getAdresseFromDetailResult(restaurantDetail);
-                        openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
-                        openHoursColors = getOpenHoursTextColorFromDetailResult(restaurantDetail);
-                        distanceDouble = getDistanceFromDetailResult(restaurantDetail);
-                        metersTextVisibility = getMetersTextVisibilityFromDistanceStr(distanceDouble);
-                        photoUrl = getPhotoUrlFromDerailResult(restaurantDetail);
-                    }
-                    ListFragmentAdapterModel restaurantToReturn = new ListFragmentAdapterModel(
+                    String todayLunchCount = String.valueOf(restaurant.getTodaysLunches());
+                    int star1Visibility = getStar1Visibility(restaurant);
+                    int star2Visibility = getStar2Visibility(restaurant);
+                    int star3Visibility = getStar3Visibility(restaurant);
+                    String address = getAdresseFromDetailResult(restaurantDetail);
+                    String openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
+                    int openHoursColors = getOpenHoursTextColorFromDetailResult(restaurantDetail);
+                    Double distanceDouble = getDistanceFromDetailResult(restaurantDetail);
+                    int metersTextVisibility = getMetersTextVisibilityFromDistanceStr(distanceDouble);
+                    String photoUrl = getPhotoUrlFromDerailResult(restaurantDetail);
+                    restaurantToReturn = new ListFragmentAdapterModel(
                             restaurant.getName(),
-                            restaurant.getId(),
+                            restaurant.getRestaurantId(),
                             address,
                             openHoursText,
                             openHoursColors,
@@ -180,7 +133,46 @@ public class ListFragmentViewModel extends ViewModel {
                             star3Visibility,
                             photoUrl
                     );
+                }
+                if (restaurantToReturn != null) {
                     listOfRestaurantToReturn.add(restaurantToReturn);
+                }
+            }
+
+        if (nearbyPlaces != null) {
+            for (NearbyPlace restaurant : nearbyPlaces) {
+                if (!fireStoreRestaurantsIdList.contains(restaurant.getId())) {
+                    ListFragmentAdapterModel restaurantToReturn = null;
+                    DetailsResponse.DetailResult restaurantDetail = detailsMap.get(restaurant.getId());
+                    if (restaurantDetail != null) {
+                        String address = getAdresseFromDetailResult(restaurantDetail);
+                        String openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
+                        int openHoursColors = getOpenHoursTextColorFromDetailResult(restaurantDetail);
+                        Double distanceDouble = getDistanceFromDetailResult(restaurantDetail);
+                        int metersTextVisibility = getMetersTextVisibilityFromDistanceStr(distanceDouble);
+                        String todayLunchCount = "0";
+                        int star1Visibility = View.INVISIBLE;
+                        int star2Visibility = View.INVISIBLE;
+                        int star3Visibility = View.INVISIBLE;
+                        String photoUrl = getPhotoUrlFromDerailResult(restaurantDetail);
+                        restaurantToReturn = new ListFragmentAdapterModel(
+                                restaurant.getName(),
+                                restaurant.getId(),
+                                address,
+                                openHoursText,
+                                openHoursColors,
+                                distanceDouble,
+                                metersTextVisibility,
+                                todayLunchCount,
+                                star1Visibility,
+                                star2Visibility,
+                                star3Visibility,
+                                photoUrl
+                        );
+                    }
+                    if (restaurantToReturn != null) {
+                        listOfRestaurantToReturn.add(restaurantToReturn);
+                    }
                 }
             }
         }
