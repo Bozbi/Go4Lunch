@@ -34,12 +34,10 @@ public class MainActivityViewModel extends ViewModel {
     private SingleLiveEvent<ViewAction> mActionLE = new SingleLiveEvent<>();
     private SingleLiveEvent<RectangularBounds> mViewActionSearch = new SingleLiveEvent<>();
     private SingleLiveEvent<YourLunchModel> mViewActionYourLunch = new SingleLiveEvent<>();
-    private MediatorLiveData<String> dummyMediator;
+    private SingleLiveEvent<String> mViewActionLaunchRestaurantDetailsLE = new SingleLiveEvent<>();
 
     private VisibleRegionRepo mVisibleRegionRepo;
-    private String mCurrentAutocompleteRestaurantID;
     private LiveData<FireStoreLunch> userTodayLunchLD;
-
     private LiveData<List<FireStoreUser>> joiningWorkmatesLD;
 
 
@@ -78,14 +76,11 @@ public class MainActivityViewModel extends ViewModel {
             return mFireStoreService.getTodayListOfUsers(userTodayLunch.getRestaurantId());
         });
 
+        //addding to model soruce so livedata warms up
         modelLD.addSource(userTodayLunchLD, userTodayLunch -> {
         });
         modelLD.addSource(joiningWorkmatesLD, joiningWorkmates -> {
         });
-    }
-
-    public MediatorLiveData<String> getDummyMediator() {
-        return dummyMediator;
     }
 
 
@@ -131,15 +126,16 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void showAutocomplete() {
-        mViewActionSearch.setValue(RectangularBounds.newInstance(mVisibleRegionRepo.getLastMapVisibleRegion().getValue().latLngBounds));
+        if(mVisibleRegionRepo.getLastMapVisibleRegion().getValue()!=null){
+            mViewActionSearch.setValue(RectangularBounds.newInstance(mVisibleRegionRepo.getLastMapVisibleRegion().getValue().latLngBounds));
+        }
     }
 
     public void onAutocompleteClick(Intent data) {
         Place place = Autocomplete.getPlaceFromIntent(data);
         List<Place.Type> types = place.getTypes();
         if (types != null && types.contains(Place.Type.RESTAURANT)) {
-            mCurrentAutocompleteRestaurantID = place.getId();
-            mActionLE.setValue(ViewAction.SHOW_RESTAURANT_DETAILS);
+            mViewActionLaunchRestaurantDetailsLE.setValue(place.getId());
         } else {
             mActionLE.setValue(ViewAction.SHOW_NOT_A_RESTAURANT_TOAST);
         }
@@ -218,17 +214,16 @@ public class MainActivityViewModel extends ViewModel {
 
 
     enum ViewAction {
-        SHOW_RESTAURANT_DETAILS,
         SHOW_NOT_A_RESTAURANT_TOAST,
         ASK_LOCATION_PERMISSION
     }
 
-    // TODO BORIS Same
-    public String getCurrentAutocompleteRestaurantID() {
-        return mCurrentAutocompleteRestaurantID;
-    }
 
     public SingleLiveEvent<YourLunchModel> getViewActionYourLunch() {
         return mViewActionYourLunch;
+    }
+
+    public SingleLiveEvent<String> getmViewActionLaunchRestaurantDetailsLE() {
+        return mViewActionLaunchRestaurantDetailsLE;
     }
 }

@@ -95,12 +95,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     showPermissionAppropriateRequest();
                     break;
                 }
-                case SHOW_RESTAURANT_DETAILS: {
-                    if (mViewModel.getCurrentAutocompleteRestaurantID() != null) {
-                        launchRestaurantDetail(mViewModel.getCurrentAutocompleteRestaurantID());
-                    }
-                    break;
-                }
                 case SHOW_NOT_A_RESTAURANT_TOAST: {
                     Toast.makeText(this, "This is not a restaurant", Toast.LENGTH_LONG).show();
                     break;
@@ -113,6 +107,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 YourLunchDialogFragment dialog = YourLunchDialogFragment.newInstance(yourLunchModel);
                 dialog.show(getSupportFragmentManager(), "TAG");
 
+        });
+        mViewModel.getmViewActionLaunchRestaurantDetailsLE().observe(this,restaurantId->{
+            if(restaurantId!=null){
+                launchRestaurantDetail(restaurantId);
+            }
         });
 
         //Setting Custom ToolBar As ActionBar
