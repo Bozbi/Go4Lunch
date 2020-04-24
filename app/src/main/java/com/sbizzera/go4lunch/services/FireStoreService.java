@@ -69,8 +69,7 @@ public class FireStoreService {
                         restaurant.getPlaceId(),
                         restaurant.getName(),
                         restaurant.getGeometry().getLocation().getLat(),
-                        restaurant.getGeometry().getLocation().getLng(),
-                        0
+                        restaurant.getGeometry().getLocation().getLng()
                 );
                 List<String> likesIds = new ArrayList<>();
                 likesIds.add(currentUserId);
@@ -100,8 +99,7 @@ public class FireStoreService {
                         restaurant.getPlaceId(),
                         restaurant.getName(),
                         restaurant.getGeometry().getLocation().getLat(),
-                        restaurant.getGeometry().getLocation().getLng(),
-                        0
+                        restaurant.getGeometry().getLocation().getLng()
                 );
                 restaurants.document(restaurant.getPlaceId()).set(restaurantToAdd).addOnSuccessListener((newRestaurant) -> {
                     updateLunch(restaurant, lunchToAdd);
@@ -233,7 +231,9 @@ public class FireStoreService {
         List<FireStoreRestaurant> allRestaurantsToReturn = new ArrayList<>();
         restaurants.whereGreaterThan("lunchCount", 0).get().addOnSuccessListener(allRestaurants -> {
             for (DocumentSnapshot restaurant : allRestaurants) {
+                Timber.d("Restaurant %s,lunchCount %s",restaurant.get("name"),restaurant.get("lunchCount"));
                 FireStoreRestaurant restaurantToAdd = restaurant.toObject(FireStoreRestaurant.class);
+                Timber.d("Restaurant %s,lunchCount %s",restaurantToAdd.getName(),restaurantToAdd.getLunchCount());
                 allRestaurantsToReturn.add(restaurantToAdd);
             }
             allKnownRestaurantsLiveData.postValue(allRestaurantsToReturn);
@@ -253,11 +253,6 @@ public class FireStoreService {
                 todayUserLunchLD.postValue(null);
             }
         });
-//        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().addOnSuccessListener(lunch -> {
-//            if (lunch.getData() != null) {
-//                todayUserLunchLD.postValue(lunch.toObject(FireStoreLunch.class));
-//            } else todayUserLunchLD.postValue(null);
-//        });
         return todayUserLunchLD;
     }
 }

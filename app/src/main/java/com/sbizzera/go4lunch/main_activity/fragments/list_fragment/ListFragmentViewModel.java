@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import timber.log.Timber;
+
 public class ListFragmentViewModel extends ViewModel {
 
 
@@ -104,12 +106,14 @@ public class ListFragmentViewModel extends ViewModel {
         List<String> fireStoreRestaurantsIdList = new ArrayList<>();
 
         if (knownRestaurants != null)
+
             for (FireStoreRestaurant restaurant : knownRestaurants) {
+//                Timber.d("Restaurant %s,lunchCount %s",restaurant.getName(),restaurant.getTotalLunchCount());
                 fireStoreRestaurantsIdList.add(restaurant.getRestaurantId());
                 ListFragmentAdapterModel restaurantToReturn = null;
                 DetailsResponse.DetailResult restaurantDetail = detailsMap.get(restaurant.getRestaurantId());
                 if (restaurantDetail != null) {
-                    String todayLunchCount = String.valueOf(restaurant.getTodaysLunches());
+                    String todayLunchCount = String.valueOf(restaurant.getLunchCount());
                     int star1Visibility = getStar1Visibility(restaurant);
                     int star2Visibility = getStar2Visibility(restaurant);
                     int star3Visibility = getStar3Visibility(restaurant);

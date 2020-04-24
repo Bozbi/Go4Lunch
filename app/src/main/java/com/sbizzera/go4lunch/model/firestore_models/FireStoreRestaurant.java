@@ -16,22 +16,16 @@ public class FireStoreRestaurant {
 
     private List<String> likesIds;
 
-    private int todaysLunches;
-
     private int lunchCount;
-
-
 
     public FireStoreRestaurant() {
     }
 
-    public FireStoreRestaurant(String restaurantId, String name, Double lat, Double lng, int lunchCount) {
+    public FireStoreRestaurant(String restaurantId, String name, Double lat, Double lng) {
         this.restaurantId = restaurantId;
         this.name = name;
         this.lat = lat;
         this.lng = lng;
-        this.lunchCount = lunchCount;
-
     }
 
     public String getRestaurantId() {
@@ -74,15 +68,6 @@ public class FireStoreRestaurant {
         this.likesIds = likesIds;
     }
 
-    public int getTodaysLunches() {
-        return todaysLunches;
-    }
-
-    public void setTodaysLunches(int todaysLunches) {
-        this.todaysLunches = todaysLunches;
-
-    }
-
     public int getLunchCount() {
         return lunchCount;
     }
@@ -91,9 +76,4 @@ public class FireStoreRestaurant {
         this.lunchCount = lunchCount;
     }
 
-    @NonNull
-    @Override
-    public String toString() {
-        return "Name: "+ name + " Numbers of Lunches Today: " + todaysLunches + " ID: " + restaurantId ;
-    }
 }
