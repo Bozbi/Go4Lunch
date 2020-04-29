@@ -25,6 +25,8 @@ import com.sbizzera.go4lunch.utils.SingleLiveEvent;
 
 import java.util.List;
 
+import timber.log.Timber;
+
 public class MainActivityViewModel extends ViewModel {
 
     private FireStoreService mFireStoreService;

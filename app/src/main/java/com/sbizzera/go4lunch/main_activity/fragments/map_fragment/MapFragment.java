@@ -46,9 +46,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getMapAsync(this);
         mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MapFragmentViewModel.class);
         mViewModel.getUIModel().observe(this, this::updateUi);
+        getMapAsync(this);
     }
 
     private void updateUi(MapFragmentModel model) {

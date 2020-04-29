@@ -49,6 +49,8 @@ import com.sbizzera.go4lunch.services.ViewModelFactory;
 
 import java.util.Arrays;
 
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener, OnItemBoundWithRestaurantClickListener {
 
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 123;
@@ -103,13 +105,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
         });
-        mViewModel.getViewActionYourLunch().observe(this,yourLunchModel -> {
-                YourLunchDialogFragment dialog = YourLunchDialogFragment.newInstance(yourLunchModel);
-                dialog.show(getSupportFragmentManager(), "TAG");
+        mViewModel.getViewActionYourLunch().observe(this, yourLunchModel -> {
+            YourLunchDialogFragment dialog = YourLunchDialogFragment.newInstance(yourLunchModel);
+            dialog.show(getSupportFragmentManager(), "TAG");
 
         });
-        mViewModel.getmViewActionLaunchRestaurantDetailsLE().observe(this,restaurantId->{
-            if(restaurantId!=null){
+        mViewModel.getmViewActionLaunchRestaurantDetailsLE().observe(this, restaurantId -> {
+            if (restaurantId != null) {
                 launchRestaurantDetail(restaurantId);
             }
         });
@@ -128,7 +130,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Session Log Out Back to mainEmpty
         navigationView.setNavigationItemSelectedListener(this);
 
-        loadFragment(MapFragment.newInstance());
+        if (savedInstanceState == null) {
+            loadFragment(MapFragment.newInstance());
+        }
 
 
     }
@@ -305,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void launchAutocomplete(RectangularBounds bounds) {
+        Timber.d("test");
         Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.TYPES))
                 .setHint("find restaurants in area")
                 .setCountry("FR")
