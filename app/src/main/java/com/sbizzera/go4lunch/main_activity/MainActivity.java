@@ -176,8 +176,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
         }
     }
 
@@ -309,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void launchAutocomplete(RectangularBounds bounds) {
-        Timber.d("test");
         Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.TYPES))
                 .setHint("find restaurants in area")
                 .setCountry("FR")

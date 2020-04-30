@@ -17,6 +17,7 @@ import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse;
 import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
+import com.sbizzera.go4lunch.services.SortTypeChosenRepo;
 import com.sbizzera.go4lunch.utils.Commons;
 
 import java.lang.ref.WeakReference;
@@ -34,6 +35,7 @@ public class ListFragmentViewModel extends ViewModel {
 
     private GooglePlacesService mGooglePlacesService;
     private FireStoreService mFireStoreService;
+    private SortTypeChosenRepo mSortTypeChosenRepo;
 
     private MediatorLiveData<ListFragmentModel> mModelMLD = new MediatorLiveData<>();
     private MutableLiveData<Map<String, DetailsResponse.DetailResult>> mDetailsMapLD = new MutableLiveData<>();
@@ -42,9 +44,10 @@ public class ListFragmentViewModel extends ViewModel {
     private LiveData<Location> mCurrentGPSLocationLD;
 
 
-    public ListFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService) {
+    public ListFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService, SortTypeChosenRepo sortTypeChosenRepo) {
         this.mGooglePlacesService = googlePlacesService;
         this.mFireStoreService = fireStoreService;
+        mSortTypeChosenRepo = sortTypeChosenRepo;
         mDetailsMapLD.setValue(new HashMap<>());
         mCurrentGPSLocationLD = currentGPSLocationRepo.getCurrentGPSLocationLD();
         wireUpMediator();
@@ -57,20 +60,26 @@ public class ListFragmentViewModel extends ViewModel {
     private void wireUpMediator() {
 
         LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = mFireStoreService.getAllKnownRestaurants();
+        LiveData<Integer> sortTypeChosenLD = mSortTypeChosenRepo.getSelectedChipID();
+
 
         mModelMLD.addSource(knownRestaurantsLiveData, knownRestaurants -> {
-            combineSources(knownRestaurants, mDetailsMapLD.getValue());
+            combineSources(knownRestaurants, mDetailsMapLD.getValue(),sortTypeChosenLD.getValue() );
         });
 
         mModelMLD.addSource(mDetailsMapLD, detailsMap -> {
-            combineSources(knownRestaurantsLiveData.getValue(), detailsMap);
+            combineSources(knownRestaurantsLiveData.getValue(), detailsMap,sortTypeChosenLD.getValue());
+        });
+
+        mModelMLD.addSource(sortTypeChosenLD,sortTypeChosen->{
+            combineSources(knownRestaurantsLiveData.getValue(),mDetailsMapLD.getValue(),sortTypeChosen);
         });
 
     }
 
     private void combineSources(
             List<FireStoreRestaurant> knownRestaurants,
-            Map<String, DetailsResponse.DetailResult> detailsMap) {
+            Map<String, DetailsResponse.DetailResult> detailsMap, Integer sortTypeChose) {
 
         List<NearbyPlace> nearbyPlaces = mGooglePlacesService.getNearbyCache();
         //Stop if no data in both sources
@@ -117,6 +126,7 @@ public class ListFragmentViewModel extends ViewModel {
                     int star1Visibility = getStar1Visibility(restaurant);
                     int star2Visibility = getStar2Visibility(restaurant);
                     int star3Visibility = getStar3Visibility(restaurant);
+                    int likeCount = getLikesCount(restaurant);
                     String address = getAdresseFromDetailResult(restaurantDetail);
                     String openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
                     int openHoursColors = getOpenHoursTextColorFromDetailResult(restaurantDetail);
@@ -135,6 +145,7 @@ public class ListFragmentViewModel extends ViewModel {
                             star1Visibility,
                             star2Visibility,
                             star3Visibility,
+                            likeCount,
                             photoUrl
                     );
                 }
@@ -171,6 +182,7 @@ public class ListFragmentViewModel extends ViewModel {
                                 star1Visibility,
                                 star2Visibility,
                                 star3Visibility,
+                                0,
                                 photoUrl
                         );
                     }
@@ -180,8 +192,38 @@ public class ListFragmentViewModel extends ViewModel {
                 }
             }
         }
-        Collections.sort(listOfRestaurantToReturn, new DistanceComparator());
-        mModelMLD.setValue(new ListFragmentModel(listOfRestaurantToReturn));
+        switch (sortTypeChose){
+//            case R.id.distance_chip:{
+//                Collections.sort(listOfRestaurantToReturn,new DistanceComparator());
+//                break;
+//            }
+            case R.id.likes_chip:{
+                Collections.sort(listOfRestaurantToReturn,new LikesComparator());
+                break;
+            }
+            case R.id.frequentation_chip:{
+                Collections.sort(listOfRestaurantToReturn,new LunchCountComparator());
+                break;
+            }
+            case R.id.name_chip:{
+                Collections.sort(listOfRestaurantToReturn,new RestaurantNameComparator());
+                break;
+            }
+            default:{
+                Collections.sort(listOfRestaurantToReturn,new DistanceComparator());
+                break;
+            }
+        }
+        Timber.d("sortTypeChosenID : %s",sortTypeChose);
+        mModelMLD.setValue(new ListFragmentModel(listOfRestaurantToReturn,sortTypeChose));
+    }
+
+    private int getLikesCount(FireStoreRestaurant restaurant) {
+        if (restaurant.getLikesIds()==null){
+            return 0;
+        }else{
+            return restaurant.getLikesIds().size();
+        }
     }
 
     private int getMetersTextVisibilityFromDistanceStr(Double distance) {
@@ -290,6 +332,10 @@ public class ListFragmentViewModel extends ViewModel {
             }
         }
         return View.INVISIBLE;
+    }
+
+    public void setSelectedChipID(int checkedId) {
+        mSortTypeChosenRepo.setSelectedChipID(checkedId);
     }
 
 

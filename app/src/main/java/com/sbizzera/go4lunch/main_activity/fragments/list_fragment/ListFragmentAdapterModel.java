@@ -20,9 +20,10 @@ public class ListFragmentAdapterModel {
     private int star2Visibility;
     @IntegerRes
     private int star3Visibility;
+    private Integer likesCount;
     private String photoUrl;
 
-    public ListFragmentAdapterModel(String restaurantName, String restaurantId, String restaurantAddress, String openHoursText, int openHoursTextColor, Double distance, int metersTextVisibility, String workmatesLunchesCount, int star1Visibility, int star2Visibility, int star3Visibility, String photoUrl) {
+    public ListFragmentAdapterModel(String restaurantName, String restaurantId, String restaurantAddress, String openHoursText, int openHoursTextColor, Double distance, int metersTextVisibility, String workmatesLunchesCount, int star1Visibility, int star2Visibility, int star3Visibility,int likesCount, String photoUrl) {
         this.restaurantName = restaurantName;
         this.restaurantId = restaurantId;
         this.restaurantAddress = restaurantAddress;
@@ -34,6 +35,7 @@ public class ListFragmentAdapterModel {
         this.star1Visibility = star1Visibility;
         this.star2Visibility = star2Visibility;
         this.star3Visibility = star3Visibility;
+        this.likesCount = likesCount;
         this.photoUrl = photoUrl;
     }
 
@@ -85,5 +87,7 @@ public class ListFragmentAdapterModel {
         return photoUrl;
     }
 
-
+    public Integer getLikesCount() {
+        return likesCount;
+    }
 }

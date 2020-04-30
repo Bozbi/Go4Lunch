@@ -21,6 +21,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
@@ -32,6 +34,8 @@ public class ListFragment extends Fragment {
 
     private ListFragmentAdapter mAdapter;
     private OnItemBoundWithRestaurantClickListener mListener;
+    private ChipGroup chipGroup;
+    private ListFragmentViewModel viewModel;
 
 
     public static ListFragment newInstance() {
@@ -46,12 +50,18 @@ public class ListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
         mAdapter = new ListFragmentAdapter(mListener);
 
-        ListFragmentViewModel viewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(ListFragmentViewModel.class);
+        viewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(ListFragmentViewModel.class);
         viewModel.getModel().observe(this, this::updateUI);
 
         RecyclerView recyclerView = view.findViewById(R.id.list_rcv);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(mAdapter);
+
+        chipGroup = view.findViewById(R.id.chip_group);
+        chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            viewModel.setSelectedChipID(checkedId);
+            recyclerView.scrollToPosition(0);
+        });
 
         return view;
 
@@ -64,6 +74,18 @@ public class ListFragment extends Fragment {
 
     public void setListener(OnItemBoundWithRestaurantClickListener listener) {
         mListener = listener;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(viewModel.getModel().getValue()!=null&&viewModel.getModel().getValue().getSortId()!=null && viewModel.getModel().getValue().getSortId()!=1){
+            Chip chipToCheck = chipGroup.findViewById(viewModel.getModel().getValue().getSortId());
+            chipToCheck.setChecked(true);
+        }else{
+            Chip chipToCheck = chipGroup.findViewById(R.id.distance_chip);
+            chipToCheck.setChecked(true);
+        }
     }
 }
 

@@ -71,7 +71,7 @@ public class RestaurantActivity extends AppCompatActivity implements View.OnClic
         websiteBlockLiLay = findViewById(R.id.website_block_lilay);
         webSiteImg = findViewById(R.id.website_img);
         websiteTxt = findViewById(R.id.website_txt);
-        backArrowImg = findViewById(R.id.back_arrow_img);
+        backArrowImg = findViewById(R.id.back_fab);
 
         //Retrieve restaurant id in intent Extra
         String restaurantId = getIntent().getStringExtra(MainActivity.INTENT_EXTRA_CODE);
@@ -118,7 +118,7 @@ public class RestaurantActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.back_arrow_img: {
+            case R.id.back_fab: {
                 finish();
                 break;
             }

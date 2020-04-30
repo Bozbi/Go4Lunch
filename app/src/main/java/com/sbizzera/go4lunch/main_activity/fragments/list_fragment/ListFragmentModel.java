@@ -4,15 +4,24 @@ import com.sbizzera.go4lunch.main_activity.fragments.list_fragment.ListFragmentA
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 public class ListFragmentModel {
     private final List<ListFragmentAdapterModel> listAdapterModel;
+    @Nullable
+    private Integer sortId;
 
-    public ListFragmentModel(List<ListFragmentAdapterModel> listAdapterModel) {
+    public ListFragmentModel(List<ListFragmentAdapterModel> listAdapterModel,int sortId) {
         this.listAdapterModel = listAdapterModel;
+        this.sortId = sortId;
     }
 
     public List<ListFragmentAdapterModel> getListAdapterModel() {
         return listAdapterModel;
     }
 
+    @Nullable
+    public Integer getSortId() {
+        return sortId;
+    }
 }

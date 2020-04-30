@@ -70,7 +70,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         if (model.getCurrentGPSLatLng() != null) {
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(model.getCurrentGPSLatLng(), 15));
         }
-        if (model.getLastSeenLatLngBounds() != null) {
+        if (model.getLastSeenLatLngBounds() != null ) {
             map.moveCamera(CameraUpdateFactory.newLatLngBounds(model.getLastSeenLatLngBounds(), 0));
         }
 
@@ -99,6 +99,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     @Override
     public void onMapLoaded() {
+        mViewModel.setLastVisibleRegion(map.getProjection().getVisibleRegion());
         map.setOnCameraIdleListener(this);
     }
 
@@ -117,4 +118,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         mViewModel.onResume();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mViewModel.mapIsDestroyed();
+    }
 }

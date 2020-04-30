@@ -66,7 +66,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T)new ListFragmentViewModel(
                     CurrentGPSLocationRepo.getInstance(App.getApplication()),
                     GooglePlacesService.getInstance(),
-                    new FireStoreService()
+                    new FireStoreService(),
+                    SortTypeChosenRepo.getInstance()
             );
         }
         throw new IllegalArgumentException("Unknown ViewModel class");

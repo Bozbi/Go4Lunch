@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/new_restaurants_btn"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
@@ -12,8 +12,8 @@
         android:inputType="text"
         android:visibility="invisible"
         android:clickable="false"
-        android:textColor="@color/text_color_dark"
-        android:textSize="12sp"
+        android:textColor="@color/colorPrimary"
+        android:textSize="15sp"
         android:paddingHorizontal="20dp"
         android:layout_marginBottom="10dp"
         app:layout_constraintBottom_toBottomOf="parent"

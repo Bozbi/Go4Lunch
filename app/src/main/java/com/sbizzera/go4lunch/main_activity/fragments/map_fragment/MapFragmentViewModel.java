@@ -35,7 +35,7 @@ public class MapFragmentViewModel extends ViewModel {
     private PermissionService mPermissionService;
     private VisibleRegionRepo mVisibleRegionRepo;
 
-    private MutableLiveData<Boolean> mIsMapLoadedLD = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> mIsMapReadyLD = new MutableLiveData<>(false);
     private MediatorLiveData<MapFragmentModel> mUiModelLiveData = new MediatorLiveData<>();
     private LiveData<Location> mCurrentGPSLocationLD;
     private LiveData<List<FireStoreRestaurant>> fireStoreRestaurantsLD;
@@ -72,27 +72,27 @@ public class MapFragmentViewModel extends ViewModel {
 
         mLastRestaurantFetchVisibleRegionLD = mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion();
 
-        mUiModelLiveData.addSource(mIsMapLoadedLD, isMapReady -> {
+        mUiModelLiveData.addSource(mIsMapReadyLD, isMapReady -> {
             combineSources(isMapReady, lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
         });
 
         mUiModelLiveData.addSource(lastMapVisibleRegionLD, lastVisibleRegion -> {
-            combineSources(mIsMapLoadedLD.getValue(), lastVisibleRegion, mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
+            combineSources(mIsMapReadyLD.getValue(), lastVisibleRegion, mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
         });
 
         mUiModelLiveData.addSource(mCurrentGPSLocationLD, currentGPSLocation -> {
-            combineSources(mIsMapLoadedLD.getValue(), lastMapVisibleRegionLD.getValue(), currentGPSLocation, fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
+            combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), currentGPSLocation, fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
         });
 
         mUiModelLiveData.addSource(listNearbyRestaurantsLD, listNearbyRestaurants -> {
-            combineSources(mIsMapLoadedLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurants, mLastRestaurantFetchVisibleRegionLD.getValue());
+            combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurants, mLastRestaurantFetchVisibleRegionLD.getValue());
         });
         mUiModelLiveData.addSource(fireStoreRestaurantsLD, fireStoreRestaurants -> {
-            combineSources(mIsMapLoadedLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurants, listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
+            combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurants, listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
         });
 
         mUiModelLiveData.addSource(mLastRestaurantFetchVisibleRegionLD, lastRestaurantFetchVisibleRegion -> {
-            combineSources(mIsMapLoadedLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), lastRestaurantFetchVisibleRegion);
+            combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), lastRestaurantFetchVisibleRegion);
         });
     }
 
@@ -149,6 +149,13 @@ public class MapFragmentViewModel extends ViewModel {
                     searchButtonVisibility,
                     mPermissionService.isLocationPermissionGranted(),
                     currentGPSLatLng));
+        }else{
+            mUiModelLiveData.setValue(new MapFragmentModel(
+                    null,
+                    null,
+                    false,
+                    false,
+                    null));
         }
     }
 
@@ -227,7 +234,7 @@ public class MapFragmentViewModel extends ViewModel {
     }
 
     public void mapIsReady() {
-        mIsMapLoadedLD.setValue(true);
+        mIsMapReadyLD.setValue(true);
     }
     public void setLastFetchRestaurantVisibleRegion(VisibleRegion visibleRegion) {
         mVisibleRegionRepo.setLastNearbyRestaurantsFetchVisibleRegion(visibleRegion);
@@ -258,5 +265,13 @@ public class MapFragmentViewModel extends ViewModel {
 
     public LiveData<MapFragmentModel> getUIModel() {
         return mUiModelLiveData;
+    }
+
+    public void mapIsDestroyed() {
+        mIsMapReadyLD.setValue(false);
+    }
+
+    public LiveData<Boolean> getIsMapReadyLD() {
+        return mIsMapReadyLD;
     }
 }
