@@ -11,18 +11,18 @@
         <item
             android:id="@+id/drawer_your_lunch"
             android:icon="@drawable/restaurant_icon_white"
-            android:title="YOUR LUNCH" />
+            android:title="@string/drawer_your_lunch" />
         <item
             android:id="@+id/drawer_settings"
             android:icon="@drawable/settings_icon_white"
             android:enabled="false"
             app:actionLayout="@layout/notification_switch"
-            android:title="NOTIFICATIONS" />
+            android:title="@string/drawer_notifications" />
 
         <item
             android:id="@+id/drawer_logout"
             android:icon="@drawable/logout_icon_white"
-            android:title="LOG OUT" />
+            android:title="@string/drawer_log_out" />
 
 
 

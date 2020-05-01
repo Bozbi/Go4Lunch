@@ -17,6 +17,7 @@ import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse;
 import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
+import com.sbizzera.go4lunch.services.ResourcesProvider;
 import com.sbizzera.go4lunch.services.SortTypeChosenRepo;
 import com.sbizzera.go4lunch.utils.Commons;
 
@@ -36,6 +37,7 @@ public class ListFragmentViewModel extends ViewModel {
     private GooglePlacesService mGooglePlacesService;
     private FireStoreService mFireStoreService;
     private SortTypeChosenRepo mSortTypeChosenRepo;
+    private ResourcesProvider mResourcesProvider;
 
     private MediatorLiveData<ListFragmentModel> mModelMLD = new MediatorLiveData<>();
     private MutableLiveData<Map<String, DetailsResponse.DetailResult>> mDetailsMapLD = new MutableLiveData<>();
@@ -44,12 +46,13 @@ public class ListFragmentViewModel extends ViewModel {
     private LiveData<Location> mCurrentGPSLocationLD;
 
 
-    public ListFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService, SortTypeChosenRepo sortTypeChosenRepo) {
+    public ListFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService, SortTypeChosenRepo sortTypeChosenRepo, ResourcesProvider resourcesProvider) {
         this.mGooglePlacesService = googlePlacesService;
         this.mFireStoreService = fireStoreService;
         mSortTypeChosenRepo = sortTypeChosenRepo;
         mDetailsMapLD.setValue(new HashMap<>());
         mCurrentGPSLocationLD = currentGPSLocationRepo.getCurrentGPSLocationLD();
+        mResourcesProvider = resourcesProvider;
         wireUpMediator();
     }
 
@@ -265,12 +268,12 @@ public class ListFragmentViewModel extends ViewModel {
     }
 
     private String getOpenHoursTextFromDetailResult(DetailsResponse.DetailResult restaurantDetail) {
-        String openHourText = "No Schedule available";
+        String openHourText = mResourcesProvider.get_No_Schedule();
         if (restaurantDetail.getOpeningHours() != null && restaurantDetail.getOpeningHours().getOpenNow() != null) {
             if (restaurantDetail.getOpeningHours().getOpenNow()) {
-                openHourText = "Open Now";
+                openHourText = mResourcesProvider.getOpenNow();
             } else {
-                openHourText = "Closed";
+                openHourText = mResourcesProvider.getClosed();
             }
         }
         return openHourText;

@@ -6,9 +6,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
 import com.sbizzera.go4lunch.services.FireStoreService;
+import com.sbizzera.go4lunch.services.ResourcesProvider;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.ArrayList;
@@ -18,13 +20,13 @@ import java.util.List;
 
 public class WorkmatesFragmentViewModel extends ViewModel {
 
-    public static final String TAG = "WorkmatesFragVM";
-
     private FireStoreService fireStoreService;
+    private ResourcesProvider mResourcesProvider;
     private MediatorLiveData<WorkmatesFragmentModel> modelLiveData = new MediatorLiveData<>();
 
-    public WorkmatesFragmentViewModel(FireStoreService fireStoreService) {
+    public WorkmatesFragmentViewModel(FireStoreService fireStoreService,ResourcesProvider resourcesProvider) {
         this.fireStoreService = fireStoreService;
+        mResourcesProvider = resourcesProvider;
         wireUpMediator();
     }
 
@@ -56,7 +58,7 @@ public class WorkmatesFragmentViewModel extends ViewModel {
                 String userFirstName = Go4LunchUtils.getUserFirstName(user.getUserName());
                 WorkmatesFragmentAdapterModel workmateModel = new WorkmatesFragmentAdapterModel(
                         user.getUserAvatarUrl(),
-                        userFirstName + " hasn't decided yet!",
+                        userFirstName + mResourcesProvider.getHasntDecided(),
                         false,
                         Typeface.ITALIC,
                         null
@@ -64,7 +66,7 @@ public class WorkmatesFragmentViewModel extends ViewModel {
                 if (allTodayLunch != null && allTodayLunch.size() > 0) {
                     for (FireStoreLunch lunch : allTodayLunch) {
                         if (user.getUserId().equals(lunch.getUserId())) {
-                            workmateModel.setChoice(userFirstName + " eats at " + lunch.getRestaurantName());
+                            workmateModel.setChoice(userFirstName + mResourcesProvider.getEatAT() + lunch.getRestaurantName());
                             workmateModel.setClickable(true);
                             workmateModel.setTextStyle(Typeface.BOLD);
                             workmateModel.setRestaurantId(lunch.getRestaurantId());

@@ -38,10 +38,10 @@ public class YourLunchDialogFragment extends DialogFragment {
 
 
         androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity())
-                .setTitle("Your Lunch")
+                .setTitle(R.string.dialog_title)
                 .setIcon(R.drawable.ic_notification_icon_orange)
                 .setView(view)
-                .setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.dialog_negative_text, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dismiss();
@@ -49,7 +49,7 @@ public class YourLunchDialogFragment extends DialogFragment {
                 });
 
         if (model.isPositiveAvailable()) {
-            builder.setPositiveButton("Check Your Lunch", new DialogInterface.OnClickListener() {
+            builder.setPositiveButton(R.string.dialog_positive_text, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     listener.onItemBoundWithRestaurantClick(model.getRestaurantId());

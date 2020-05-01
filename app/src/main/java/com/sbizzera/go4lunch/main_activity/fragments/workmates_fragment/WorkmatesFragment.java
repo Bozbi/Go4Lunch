@@ -42,6 +42,7 @@ public class WorkmatesFragment extends Fragment {
         rcv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv.setAdapter(mAdapter);
 
+        getActivity().setTitle(getString(R.string.workmate_title_bar_title));
         return view;
     }
 

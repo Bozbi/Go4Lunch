@@ -90,7 +90,7 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
             address = itemView.findViewById(R.id.restaurant_address_txt);
             openingHours = itemView.findViewById(R.id.restaurant_opening_status_txt);
             distance = itemView.findViewById(R.id.restaurant_distance_txt);
-            m_Text = itemView.findViewById(R.id.m_txt);
+            m_Text = itemView.findViewById(R.id.km_txt);
             workmateFreq = itemView.findViewById(R.id.restaurant_workmates_frequentation);
             img = itemView.findViewById(R.id.restaurant_img);
             star1Img = itemView.findViewById(R.id.restaurant_star_1_img);

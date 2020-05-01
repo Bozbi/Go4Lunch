@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -40,6 +41,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         View v = super.onCreateView(layoutInflater, viewGroup, bundle);
         layout.addView(v, 0);
         mFetchNewAreaBtn = layout.findViewById(R.id.new_restaurants_btn);
+        getActivity().setTitle(getString(R.string.map_title_bar_title));
         return layout;
     }
 
@@ -57,21 +59,29 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 Marker newMarker = map.addMarker(new MarkerOptions()
                         .position(new LatLng(marker.getLat(), marker.getLng()))
                         .title(marker.getRestaurantName())
-                        .snippet(marker.getRestaurantName())
                         .icon(BitMapCreator.bitmapDescriptorFromVector(requireActivity(), marker.getMarkerIcon()))
                 );
                 newMarker.setTag(marker.getRestaurantId());
+
             }
             map.setOnMarkerClickListener(marker -> {
-                mListener.onItemBoundWithRestaurantClick(marker.getTag().toString());
+                marker.showInfoWindow();
+                CameraUpdate location = CameraUpdateFactory.newLatLngZoom(marker.getPosition(),18);
+                map.animateCamera(location);
                 return true;
+            });
+            map.setOnInfoWindowClickListener(marker -> {
+                if (marker.getTag() != null) {
+                    mListener.onItemBoundWithRestaurantClick(marker.getTag().toString());
+                    marker.hideInfoWindow();
+                }
             });
         }
         if (model.getCurrentGPSLatLng() != null) {
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(model.getCurrentGPSLatLng(), 15));
         }
-        if (model.getLastSeenLatLngBounds() != null ) {
-            map.moveCamera(CameraUpdateFactory.newLatLngBounds(model.getLastSeenLatLngBounds(), 0));
+        if (model.getLastSeenLatLngBounds() != null) {
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(model.getLastSeenLatLngBounds().getCenter(), 15));
         }
 
         if (model.isCenterOnLocationButtonVisible()) {

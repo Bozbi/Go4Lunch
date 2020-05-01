@@ -49,8 +49,6 @@ import com.sbizzera.go4lunch.services.ViewModelFactory;
 
 import java.util.Arrays;
 
-import timber.log.Timber;
-
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener, OnItemBoundWithRestaurantClickListener {
 
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 123;
@@ -98,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case SHOW_NOT_A_RESTAURANT_TOAST: {
-                    Toast.makeText(this, "This is not a restaurant", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.not_a_restaurant, Toast.LENGTH_LONG).show();
                     break;
                 }
 
@@ -142,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Glide.with(this).load(model.getUserPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(mUserPhoto);
         mUserName.setText(model.getUserName());
         mUserEmail.setText(model.getUserEmail());
-        mToolbar.setTitle(model.getToolBarTitle());
         notificationSwitch.setChecked(!model.getNotificationOn());
         switchText.setText(model.getSwitchText());
     }
@@ -176,6 +173,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
+        }else{
+            super.onBackPressed();
         }
     }
 
@@ -242,11 +241,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AppTheme));
 
-            builder.setTitle("Permission is Mandatory");
-            builder.setMessage("We need permission to give you the best experience navigating the map");
-            builder.setNegativeButton("BACK", (x, y) -> {
+            builder.setTitle(R.string.location_permission);
+            builder.setMessage(R.string.permission_text);
+            builder.setNegativeButton(R.string.back, (x, y) -> {
             });
-            builder.setPositiveButton("Go to permissions", (x, y) -> {
+            builder.setPositiveButton(R.string.go_to_permissions, (x, y) -> {
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 Uri uri = Uri.fromParts("package", this.getPackageName(), null);
                 intent.setData(uri);
@@ -291,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onAttachFragment(@NonNull Fragment fragment) {
         if (fragment instanceof MapFragment) {
             ((MapFragment) fragment).setListener(this);
-
         }
         if (fragment instanceof ListFragment) {
             ((ListFragment) fragment).setListener(this);
@@ -308,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void launchAutocomplete(RectangularBounds bounds) {
         Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.TYPES))
-                .setHint("find restaurants in area")
+                .setHint(getString(R.string.autocomplete_hint))
                 .setCountry("FR")
                 .setLocationBias(bounds)
                 .setTypeFilter(TypeFilter.ESTABLISHMENT)

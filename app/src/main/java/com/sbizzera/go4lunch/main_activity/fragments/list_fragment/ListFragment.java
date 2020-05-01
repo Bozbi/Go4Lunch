@@ -63,6 +63,8 @@ public class ListFragment extends Fragment {
             recyclerView.scrollToPosition(0);
         });
 
+        getActivity().setTitle(getString(R.string.list_title_bar_title));
+
         return view;
 
     }

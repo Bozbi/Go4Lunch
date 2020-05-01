@@ -31,7 +31,7 @@ public class WorkManagerHelper {
     }
 
     private static void enqueueWork(){
-        //TODO ABP ThreeTen
+
         Calendar currentDate = Calendar.getInstance();
         Calendar dueDate = Calendar.getInstance();
         dueDate.set(Calendar.HOUR_OF_DAY, 12);

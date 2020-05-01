@@ -15,7 +15,6 @@ import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
-
     private static ViewModelFactory sFactory;
 
     private ViewModelFactory() {
@@ -38,7 +37,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(MapFragmentViewModel.class)) {
             return (T) new MapFragmentViewModel(
-                   CurrentGPSLocationRepo.getInstance(App.getApplication()),
+                    CurrentGPSLocationRepo.getInstance(App.getApplication()),
                     GooglePlacesService.getInstance(),
                     new FireStoreService(),
                     VisibleRegionRepo.getInstance(),
@@ -48,26 +47,32 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(RestaurantViewModel.class)) {
             return (T) new RestaurantViewModel(
                     GooglePlacesService.getInstance(),
-                    new FireStoreService()
+                    new FireStoreService(),
+                    new ResourcesProvider(App.getApplication())
             );
         }
         if (modelClass.isAssignableFrom(MainActivityViewModel.class)) {
             return (T) new MainActivityViewModel(
-                new FireStoreService(),
-                SharedPreferencesRepo.getInstance(App.getApplication()),
-                VisibleRegionRepo.getInstance(),
-                PermissionService.getInstance()
+                    new FireStoreService(),
+                    SharedPreferencesRepo.getInstance(App.getApplication()),
+                    VisibleRegionRepo.getInstance(),
+                    PermissionService.getInstance(),
+                    new ResourcesProvider(App.getApplication())
             );
         }
-        if (modelClass.isAssignableFrom(WorkmatesFragmentViewModel.class)){
-            return (T)new WorkmatesFragmentViewModel(new FireStoreService());
+        if (modelClass.isAssignableFrom(WorkmatesFragmentViewModel.class)) {
+            return (T) new WorkmatesFragmentViewModel(
+                    new FireStoreService(),
+                    new ResourcesProvider(App.getApplication())
+                    );
         }
-        if (modelClass.isAssignableFrom(ListFragmentViewModel.class)){
-            return (T)new ListFragmentViewModel(
+        if (modelClass.isAssignableFrom(ListFragmentViewModel.class)) {
+            return (T) new ListFragmentViewModel(
                     CurrentGPSLocationRepo.getInstance(App.getApplication()),
                     GooglePlacesService.getInstance(),
                     new FireStoreService(),
-                    SortTypeChosenRepo.getInstance()
+                    SortTypeChosenRepo.getInstance(),
+                    new ResourcesProvider(App.getApplication())
             );
         }
         throw new IllegalArgumentException("Unknown ViewModel class");

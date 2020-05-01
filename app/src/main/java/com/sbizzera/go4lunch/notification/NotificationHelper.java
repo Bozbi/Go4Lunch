@@ -11,6 +11,7 @@ import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
+import com.sbizzera.go4lunch.services.ResourcesProvider;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.main_activity.MainActivity;
 
@@ -18,12 +19,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class NotificationHelper {
-
-    //TODO Work on notification Text
-    //TODO Inject App.context in constructor
+    
 
     static void notifyLunchChoice(String restaurantName, List<String> joiningWorkmates) {
-        String notificationText = "Hi %User%,\nToday you're eating at %Restaurant% with %Workmates%.\nHave a good time!";
+        String notificationText = App.getApplication().getString(R.string.notification_text_lunch_and_workmates);
         notificationText = notificationText.replace("%Restaurant%", restaurantName);
         StringBuilder workmatesList = new StringBuilder();
         if (joiningWorkmates.size() > 1) {
@@ -31,7 +30,7 @@ public class NotificationHelper {
                 if (i != joiningWorkmates.size() - 1) {
                     workmatesList.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i))).append(", ");
                 } else {
-                    workmatesList.append("and ").append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i)));
+                    workmatesList.append(App.getApplication().getString(R.string.notification_and)).append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i)));
                 }
             }
         } else {
@@ -43,20 +42,20 @@ public class NotificationHelper {
     }
 
     static void notifyLunchChoice(String restaurantName) {
-        String notificationText = "Hi %User%,\nToday you're eating at %Restaurant%.\nHave a good time!";
+        String notificationText = App.getApplication().getString(R.string.notification_lunch_no_workmates);
         notificationText = notificationText.replace("%Restaurant%", restaurantName);
         createNotification(notificationText);
     }
 
     static void notifyLunchChoice() {
-        String notificationText = "Hi %User%,\nYou have'nt shared your choice today !\nDo it now so workmates can join you !";
+        String notificationText = App.getApplication().getString(R.string.notification_no_choice);
         createNotification(notificationText);
     }
 
     private static void createNotification(String notificationText) {
         PendingIntent contentIntent = PendingIntent.getActivity(App.getApplication(), 0, new Intent(App.getApplication(), MainActivity.class), 0);
 
-        String title = "Your Lunch !";
+        String title = App.getApplication().getString(R.string.notification_title);
         String userFirstName = Go4LunchUtils.getUserFirstName(FirebaseAuthService.getUserName());
         notificationText = notificationText.replace("%User%", userFirstName);
 

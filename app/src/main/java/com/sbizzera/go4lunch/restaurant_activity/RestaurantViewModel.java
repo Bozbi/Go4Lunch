@@ -17,26 +17,28 @@ import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.DetailResult;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
+import com.sbizzera.go4lunch.services.ResourcesProvider;
 import com.sbizzera.go4lunch.utils.Commons;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.opencensus.resource.Resource;
+
 
 public class RestaurantViewModel extends ViewModel {
-
-    private static final String TAG = "RestaurantDetailVM";
-
-
+    
     private GooglePlacesService mGooglePlacesService;
     private FireStoreService mFirestoreService;
+    private ResourcesProvider mResourcesProvider;
     private MediatorLiveData<RestaurantActivityModel> modelLiveData = new MediatorLiveData<>();
     private LiveData<DetailResult> placeDetailLiveData;
 
-    public RestaurantViewModel(GooglePlacesService googlePlacesService, FireStoreService firestore) {
+    public RestaurantViewModel(GooglePlacesService googlePlacesService, FireStoreService firestore, ResourcesProvider resourcesProvider) {
         mGooglePlacesService = googlePlacesService;
         mFirestoreService = firestore;
+        mResourcesProvider = resourcesProvider;
     }
 
     public LiveData<RestaurantActivityModel> getModelLiveData() {
@@ -122,7 +124,7 @@ public class RestaurantViewModel extends ViewModel {
         List<RestaurantAdapterModel> listToReturn = new ArrayList<>();
         if (todayListOfUsers != null) {
             for (FireStoreUser user : todayListOfUsers) {
-                String text = Go4LunchUtils.getUserFirstName(user.getUserName()) + " is eating here";
+                String text = Go4LunchUtils.getUserFirstName(user.getUserName()) + mResourcesProvider.getEatsHere();
                 RestaurantAdapterModel userModel = new RestaurantAdapterModel(
                         user.getUserAvatarUrl(),
                         text

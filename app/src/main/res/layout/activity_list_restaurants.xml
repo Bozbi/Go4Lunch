@@ -52,7 +52,6 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:background="@android:color/white"
-            android:elevation="10dp"
             android:theme="@style/AppTheme"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -3,19 +3,57 @@
 
     <string name="facebook_application_id" translatable="false">541820853315379</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb541820853315379</string>
-    <string name="google_sign_in_btn_txt">Se connecter avec Google</string>
-    <string name="facebook_sign_in_btn_txt">Se connecter avec Facebook</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
-    <string name="google_maps_API_key">AIzaSyCvQSB0M8Httgl8O5k9EKJx1jANcjeTG0Y</string>
-    <string name="google_places_API_key">AIzaSyCXKSSFW71Dz9gHO2AirNNY2AzU77LLvfE</string>
+    <string name="google_maps_API_key" translatable="false">AIzaSyCvQSB0M8Httgl8O5k9EKJx1jANcjeTG0Y</string>
+    <string name="google_places_API_key" translatable="false">AIzaSyCXKSSFW71Dz9gHO2AirNNY2AzU77LLvfE</string>
 
-    <string-array name="order_by">
-        <item>Ordered by distance</item>
-        <item>Ordered by likes</item>
-        <item>Ordered by lunches count</item>
-        <item>Ordered by names</item>
-    </string-array>
+    <string name="google_sign_in_btn_txt">Sign In with Google</string>
+    <string name="facebook_sign_in_btn_txt">Sign In with Facebook</string>
+    <string name="map_title_bar_title">I\'m Hungry !</string>
+    <string name="list_title_bar_title">Let\'s Eat !</string>
+    <string name="workmate_title_bar_title">My Workmates</string>
+    <string name="bottom_nav_map">Map</string>
+    <string name="bottom_nav_list">List</string>
+    <string name="bottom_nav_workmates">Workmates</string>
+    <string name="drawer_your_lunch">YOUR LUNCH</string>
+    <string name="drawer_notifications">NOTIFICATIONS</string>
+    <string name="drawer_log_out">LOG OUT</string>
+    <string name="autocomplete_hint">find restaurants in area</string>
+    <string name="dialog_positive_text">Check Your Lunch</string>
+    <string name="dialog_negative_text">Back</string>
+    <string name="dialog_title">Your Lunch</string>
+    <string name="dialog_text_no_choice">Hey %User%,\nYou have\'nt shared your choice today !\nDo it now so workmates can join you !</string>
+    <string name="dialog_text_with_choice">Hey %User%,\nToday you\'re eating at %Restaurant%%Workmates%.\nHave a good time!</string>
+    <string name="dialog_text_with"> with </string>
+    <string name="dialog_text_and"> and </string>
+    <string name="notification_text_lunch_and_workmates">Hi %User%,\nToday you\'re eating at %Restaurant% with %Workmates%.\nHave a good time!</string>
+    <string name="notification_and">\"and \"</string>
+    <string name="notification_lunch_no_workmates">Hi %User%,\nToday you\'re eating at %Restaurant%.\nHave a good time!</string>
+    <string name="notification_no_choice">Hi %User%,\nYou have\'nt shared your choice today !\nDo it now so workmates can join you !</string>
+    <string name="notification_title">Your Lunch !</string>
+    <string name="find_new_restaurants_in_this_area">Find new restaurants in this area</string>
+    <string name="order_by">Order by</string>
+    <string name="distance">Distance</string>
+    <string name="likes">Likes</string>
+    <string name="frequentation">Frequentation</string>
+    <string name="name">Name</string>
+    <string name="km">km</string>
+    <string name="no_schedule_available">No Schedule available</string>
+    <string name="open_now">Open Now</string>
+    <string name="closed">Closed</string>
+    <string name="not_a_restaurant">This is not a restaurant</string>
+    <string name="location_permission">Localisation</string>
+    <string name="permission_text">For a better experience, please authorise location permission</string>
+    <string name="back">BACK</string>
+    <string name="go_to_permissions">Go to permissions</string>
+    <string name="hasnt_decided">" hasn't decided yet!"</string>
+    <string name="eat_at">" eats at "</string>
+    <string name="eats_here">" is eating here !"</string>
+    <string name="call">CALL</string>
+    <string name="like">LIKE</string>
+    <string name="website">WEBSITE</string>
+
 </resources>

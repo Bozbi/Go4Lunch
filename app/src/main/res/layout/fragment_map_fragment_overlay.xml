@@ -8,7 +8,7 @@
         android:id="@+id/new_restaurants_btn"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
-        android:text="Find new restaurants in this area"
+        android:text="@string/find_new_restaurants_in_this_area"
         android:inputType="text"
         android:visibility="invisible"
         android:clickable="false"

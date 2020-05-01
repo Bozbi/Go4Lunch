@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
+import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.main_activity.your_lunch_dialog.YourLunchModel;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
@@ -18,7 +19,9 @@ import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
+import com.sbizzera.go4lunch.services.FirebaseUserRepo;
 import com.sbizzera.go4lunch.services.PermissionService;
+import com.sbizzera.go4lunch.services.ResourcesProvider;
 import com.sbizzera.go4lunch.services.VisibleRegionRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.SingleLiveEvent;
@@ -31,6 +34,8 @@ public class MainActivityViewModel extends ViewModel {
 
     private FireStoreService mFireStoreService;
     private SharedPreferencesRepo sharedPreferencesRepo;
+    private ResourcesProvider mResourcesProvider;
+
 
     private MediatorLiveData<MainActivityModel> modelLD = new MediatorLiveData<>();
     private SingleLiveEvent<ViewAction> mActionLE = new SingleLiveEvent<>();
@@ -47,11 +52,13 @@ public class MainActivityViewModel extends ViewModel {
             FireStoreService mFireStoreService,
             SharedPreferencesRepo sharedPreferencesRepo,
             VisibleRegionRepo visibleRegionRepo,
-            PermissionService permissionService
+            PermissionService permissionService,
+            ResourcesProvider resourcesProvider
     ) {
         this.mFireStoreService = mFireStoreService;
         this.sharedPreferencesRepo = sharedPreferencesRepo;
         mVisibleRegionRepo = visibleRegionRepo;
+        mResourcesProvider = resourcesProvider;
         updateUserInDb();
         wireUp();
         WorkManagerHelper.handleNotificationWork();
@@ -91,7 +98,6 @@ public class MainActivityViewModel extends ViewModel {
         String userPhotoUrl = FirebaseAuthService.getUserPhotoUrl();
         String userName = FirebaseAuthService.getUserName();
         String userEmail = FirebaseAuthService.getUserEmail();
-        String toolBarTitle = "I'm Hungry";
         String switchText = "OFF";
         if (isNotificationOn) {
             switchText = "ON";
@@ -101,7 +107,6 @@ public class MainActivityViewModel extends ViewModel {
                 userPhotoUrl,
                 userName,
                 userEmail,
-                toolBarTitle,
                 isNotificationOn,
                 switchText
         ));
@@ -128,7 +133,7 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void showAutocomplete() {
-        if(mVisibleRegionRepo.getLastMapVisibleRegion().getValue()!=null){
+        if (mVisibleRegionRepo.getLastMapVisibleRegion().getValue() != null) {
             mViewActionSearch.setValue(RectangularBounds.newInstance(mVisibleRegionRepo.getLastMapVisibleRegion().getValue().latLngBounds));
         }
     }
@@ -175,36 +180,37 @@ public class MainActivityViewModel extends ViewModel {
             }
         }
 
-        String dialogText;
+        String dialogText ;
         if (lunch == null || lunch.getRestaurantName() == null) {
-            dialogText = "Hey %User%,\nYou have'nt shared your choice today !\nDo it now so workmates can join you !";
+            dialogText= mResourcesProvider.getDialogTextNoChoice();
         } else {
-            dialogText = "Hey %User%,\nToday you're eating at %Restaurant%%Workmates%.\nHave a good time!";
+            dialogText =mResourcesProvider.getDialogTextWithChoice();
             dialogText = dialogText.replace("%Restaurant%", lunch.getRestaurantName());
             if (joiningWorkmates != null) {
                 if (joiningWorkmates.size() == 0) {
                     dialogText = dialogText.replace("%Workmates%", "");
                 }
                 if (joiningWorkmates.size() == 1) {
-                    String workmateText = " with " + Go4LunchUtils.getUserFirstName(joiningWorkmates.get(0).getUserName());
+                    String withStr = mResourcesProvider.getDialogTextWith();
+                    String workmateText = withStr + Go4LunchUtils.getUserFirstName(joiningWorkmates.get(0).getUserName());
                     dialogText = dialogText.replace("%Workmates%", workmateText);
                 } else {
                     StringBuilder workmatesTextBuilder = new StringBuilder();
-                    workmatesTextBuilder.append(" with ");
+                    workmatesTextBuilder.append(mResourcesProvider.getDialogTextWith());
                     for (int i = 0; i < joiningWorkmates.size(); i++) {
 
                         if (i == joiningWorkmates.size() - 1) {
-                            workmatesTextBuilder.append(" and ");
+                            workmatesTextBuilder.append(mResourcesProvider.getDialogTextAnd());
                             workmatesTextBuilder.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i).getUserName()));
 
-                        }else if(i ==joiningWorkmates.size()-2){
+                        } else if (i == joiningWorkmates.size() - 2) {
                             workmatesTextBuilder.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i).getUserName()));
                         } else {
                             workmatesTextBuilder.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i).getUserName()));
                             workmatesTextBuilder.append(", ");
                         }
                     }
-                    dialogText = dialogText.replace("%Workmates%",workmatesTextBuilder.toString());
+                    dialogText = dialogText.replace("%Workmates%", workmatesTextBuilder.toString());
                 }
             }
         }
