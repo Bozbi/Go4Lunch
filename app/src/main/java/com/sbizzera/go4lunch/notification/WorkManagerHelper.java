@@ -43,7 +43,6 @@ public class WorkManagerHelper {
         }
         long timeDiff = dueDate.getTimeInMillis() - currentDate.getTimeInMillis();
 
-        Timber.d("enqueuing work for %s", dueDate.getTime().toString());
         //TODO next line for testing purposes
         timeDiff = 10000;
 
@@ -56,7 +55,6 @@ public class WorkManagerHelper {
     }
 
     private static void clearAllWork(){
-        Timber.d("Clearing all work");
         workManager.cancelAllWorkByTag(TAG_DAILY_WORK);
     }
 

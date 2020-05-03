@@ -31,16 +31,10 @@ public class YourLunchDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        View view = requireActivity().getLayoutInflater().inflate(R.layout.your_lunch_dialog_fragment,null);
-        TextView dialogTxt = view.findViewById(R.id.dialog_txt);
-        YourLunchModel model = (YourLunchModel) getArguments().getSerializable(EXTRA_MODEL);
-        dialogTxt.setText(model.getDialogtext());
-
 
         androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity())
                 .setTitle(R.string.dialog_title)
                 .setIcon(R.drawable.ic_notification_icon_orange)
-                .setView(view)
                 .setNegativeButton(R.string.dialog_negative_text, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -48,15 +42,18 @@ public class YourLunchDialogFragment extends DialogFragment {
                     }
                 });
 
-        if (model.isPositiveAvailable()) {
-            builder.setPositiveButton(R.string.dialog_positive_text, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    listener.onItemBoundWithRestaurantClick(model.getRestaurantId());
-                }
-            });
+        if(getArguments()!=null){
+            YourLunchModel model = (YourLunchModel) getArguments().getSerializable(EXTRA_MODEL);
+            if(model !=null && model.getDialogtext()!=null && model.isPositiveAvailable()){
+                builder.setMessage(model.getDialogtext());
+                builder.setPositiveButton(R.string.dialog_positive_text, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listener.onItemBoundWithRestaurantClick(model.getRestaurantId());
+                    }
+                });
+            }
         }
-
 
         return builder.create();
     }

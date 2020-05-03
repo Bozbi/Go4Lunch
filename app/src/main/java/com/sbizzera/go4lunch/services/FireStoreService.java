@@ -23,7 +23,6 @@ import timber.log.Timber;
 
 public class FireStoreService {
 
-    private static final String TAG = "FireStoreService";
     private String currentUserId = FirebaseAuthService.getUser().getUid();
     private FirebaseUser currentUser = FirebaseAuthService.getUser();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -231,9 +230,7 @@ public class FireStoreService {
         List<FireStoreRestaurant> allRestaurantsToReturn = new ArrayList<>();
         restaurants.whereGreaterThan("lunchCount", 0).get().addOnSuccessListener(allRestaurants -> {
             for (DocumentSnapshot restaurant : allRestaurants) {
-                Timber.d("Restaurant %s,lunchCount %s",restaurant.get("name"),restaurant.get("lunchCount"));
                 FireStoreRestaurant restaurantToAdd = restaurant.toObject(FireStoreRestaurant.class);
-                Timber.d("Restaurant %s,lunchCount %s",restaurantToAdd.getName(),restaurantToAdd.getLunchCount());
                 allRestaurantsToReturn.add(restaurantToAdd);
             }
             allKnownRestaurantsLiveData.postValue(allRestaurantsToReturn);
@@ -246,10 +243,8 @@ public class FireStoreService {
         MutableLiveData<FireStoreLunch> todayUserLunchLD = new MutableLiveData<>();
         dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).addSnapshotListener((documentSnapshot, e) -> {
             if (documentSnapshot != null && documentSnapshot.toObject(FireStoreLunch.class) != null) {
-                Timber.d("change");
                 todayUserLunchLD.postValue(documentSnapshot.toObject(FireStoreLunch.class));
             } else {
-                Timber.d("null");
                 todayUserLunchLD.postValue(null);
             }
         });

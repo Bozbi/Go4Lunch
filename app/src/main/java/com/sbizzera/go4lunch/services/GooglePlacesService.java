@@ -5,6 +5,7 @@ import android.util.ArrayMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.sbizzera.go4lunch.BuildConfig;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyResults;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,7 +28,6 @@ import timber.log.Timber;
 public class GooglePlacesService {
 
     private static final String TAG = "RestaurantRepository";
-
     private static GooglePlacesService sGooglePlacesService;
 
     //CACHING FETCHEDRESTAURANTS
@@ -56,7 +57,7 @@ public class GooglePlacesService {
     public LiveData<List<NearbyPlace>> getNearbyRestaurants(String location, int radius) {
 
         MutableLiveData<List<NearbyPlace>> nearbyRestaurantListLiveData = new MutableLiveData<>();
-        mGooglePlacesAPI.getNearbyRestaurant(location, radius).enqueue(new Callback<NearbyResults>() {
+        mGooglePlacesAPI.getNearbyRestaurant(location, radius,BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<NearbyResults>() {
             @EverythingIsNonNull
             @Override
             public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {
@@ -87,7 +88,7 @@ public class GooglePlacesService {
         }
         DetailsResponse.DetailResult placeDetail = null;
         try {
-            Response<DetailsResponse> response = mGooglePlacesAPI.getRestaurantDetailsById(id).execute();
+            Response<DetailsResponse> response = mGooglePlacesAPI.getRestaurantDetailsById(id,BuildConfig.GOOGLE_API_KEY).execute();
             if (response.body() != null && response.body().getDetailResult() != null) {
                 placeDetail = response.body().getDetailResult();
                 mRestaurantsDetailsMapCached.put(id, placeDetail);
@@ -104,7 +105,7 @@ public class GooglePlacesService {
             return new MutableLiveData<>(mRestaurantsDetailsMapCached.get(id));
         }
         MutableLiveData<DetailsResponse.DetailResult> restaurantDetailsLiveData = new MutableLiveData<>();
-        mGooglePlacesAPI.getRestaurantDetailsById(id).enqueue(new Callback<DetailsResponse>() {
+        mGooglePlacesAPI.getRestaurantDetailsById(id,BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<DetailsResponse>() {
             @Override
             @EverythingIsNonNull
             public void onResponse(Call<DetailsResponse> call, Response<DetailsResponse> response) {

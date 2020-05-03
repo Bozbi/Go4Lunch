@@ -53,7 +53,7 @@ public class RestaurantActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_restaurant_detail);
+        setContentView(R.layout.activity_restaurant);
 
         restaurantImg = findViewById(R.id.restaurant_photo_img);
         fab = findViewById(R.id.restaurant_check_fab);

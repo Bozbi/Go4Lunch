@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_restaurants);
+        setContentView(R.layout.activity_main);
 
         //Declaration
         drawerLayout = findViewById(R.id.drawer_layout);
