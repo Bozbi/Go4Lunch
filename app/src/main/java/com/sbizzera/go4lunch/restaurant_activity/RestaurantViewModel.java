@@ -17,14 +17,12 @@ import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.DetailResult;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
-import com.sbizzera.go4lunch.services.ResourcesProvider;
+import com.sbizzera.go4lunch.utils.ResourcesProvider;
 import com.sbizzera.go4lunch.utils.Commons;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import io.opencensus.resource.Resource;
 
 
 public class RestaurantViewModel extends ViewModel {

@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.services;
+package com.sbizzera.go4lunch.utils;
 
 
 import androidx.annotation.NonNull;
@@ -12,6 +12,12 @@ import com.sbizzera.go4lunch.main_activity.fragments.map_fragment.MapFragmentVie
 import com.sbizzera.go4lunch.main_activity.fragments.workmates_fragment.WorkmatesFragmentViewModel;
 import com.sbizzera.go4lunch.restaurant_activity.RestaurantViewModel;
 import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
+import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
+import com.sbizzera.go4lunch.services.FireStoreService;
+import com.sbizzera.go4lunch.services.GooglePlacesService;
+import com.sbizzera.go4lunch.services.PermissionService;
+import com.sbizzera.go4lunch.services.SortTypeChosenRepo;
+import com.sbizzera.go4lunch.services.VisibleRegionRepo;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 

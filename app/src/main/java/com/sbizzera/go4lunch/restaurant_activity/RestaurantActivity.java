@@ -17,7 +17,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.main_activity.MainActivity;
-import com.sbizzera.go4lunch.services.ViewModelFactory;
+import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
 import java.util.ArrayList;
 import java.util.List;

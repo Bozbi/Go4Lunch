@@ -14,8 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.main_activity.MainActivity;
-import com.sbizzera.go4lunch.services.ViewModelFactory;
+import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
 public class WorkmatesFragment extends Fragment {
 

@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.services;
+package com.sbizzera.go4lunch.utils;
 
 import android.content.Context;
 

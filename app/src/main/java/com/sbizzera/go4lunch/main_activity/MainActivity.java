@@ -45,7 +45,7 @@ import com.sbizzera.go4lunch.main_activity.fragments.workmates_fragment.Workmate
 import com.sbizzera.go4lunch.main_activity.your_lunch_dialog.YourLunchDialogFragment;
 import com.sbizzera.go4lunch.restaurant_activity.RestaurantActivity;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
-import com.sbizzera.go4lunch.services.ViewModelFactory;
+import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
 import java.util.Arrays;
 
@@ -54,13 +54,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 123;
     private static final int AUTOCOMPLETE_REQUEST_CODE = 234;
     public static final String INTENT_EXTRA_CODE = "INTENT_EXTRA_CODE";
-    private static final int PERMISSION_LOCATION_REQUEST_CODE = 123;
     private DrawerLayout drawerLayout;
 
     private TextView mUserName;
     private TextView mUserEmail;
     private ImageView mUserPhoto;
-    private Toolbar mToolbar;
     private Switch notificationSwitch;
     private TextView switchText;
     private Menu mMenu;
@@ -79,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mUserName = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_name);
         mUserEmail = navigationView.getHeaderView(0).findViewById(R.id.drawer_user_email);
         mUserPhoto = navigationView.getHeaderView(0).findViewById(R.id.drawer_avatar);
-        mToolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_settings);
         notificationSwitch = menuItem.getActionView().findViewById(R.id.notification_switch);
         switchText = menuItem.getActionView().findViewById(R.id.notification_switch_txt);
@@ -115,10 +113,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         //Setting Custom ToolBar As ActionBar
-        setSupportActionBar(mToolbar);
+        setSupportActionBar(toolbar);
 
         //Add Toggle button
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 

@@ -16,61 +16,36 @@ import java.util.List;
 
 public class FirebaseAuthService {
 
-    private static FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+    private static FirebaseAuth sFirebaseAuth = FirebaseAuth.getInstance();
     private static AuthUI mAuthUi = AuthUI.getInstance();
-
-    public static boolean isUserLogged() {
-        return mFirebaseAuth.getCurrentUser() != null;
-    }
-
-    public static Intent getLoginIntent() {
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.GoogleBuilder().build(),
-                new AuthUI.IdpConfig.FacebookBuilder().build()
-        );
-
-        AuthMethodPickerLayout customLayout = new AuthMethodPickerLayout.Builder(R.layout.login_layout)
-                .setGoogleButtonId(R.id.google_btn)
-                .setFacebookButtonId(R.id.facebook_btn)
-                .build();
-
-        return AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setIsSmartLockEnabled(false)
-                .setAvailableProviders(providers)
-                .setTheme(R.style.LoginTheme)
-                .setAuthMethodPickerLayout(customLayout)
-                .build();
-
-    }
 
     public static Task<Void> logOut(Context context) {
         return mAuthUi.signOut(context);
     }
 
     public static FirebaseUser getUser() {
-        return mFirebaseAuth.getCurrentUser();
+        return sFirebaseAuth.getCurrentUser();
     }
 
     public static String getUserPhotoUrl() {
         String photoUrl = "";
-        if (mFirebaseAuth.getCurrentUser() != null&& mFirebaseAuth.getCurrentUser().getPhotoUrl()!=null) {
-            photoUrl =  mFirebaseAuth.getCurrentUser().getPhotoUrl().toString();
+        if (sFirebaseAuth.getCurrentUser() != null&& sFirebaseAuth.getCurrentUser().getPhotoUrl()!=null) {
+            photoUrl =  sFirebaseAuth.getCurrentUser().getPhotoUrl().toString();
         }
         return photoUrl;
     }
     public static String getUserName(){
         String userName = "";
-        if (mFirebaseAuth.getCurrentUser()!=null&&mFirebaseAuth.getCurrentUser().getDisplayName()!=null){
-            userName = mFirebaseAuth.getCurrentUser().getDisplayName();
+        if (sFirebaseAuth.getCurrentUser()!=null&& sFirebaseAuth.getCurrentUser().getDisplayName()!=null){
+            userName = sFirebaseAuth.getCurrentUser().getDisplayName();
         }
         return userName;
     }
 
     public static String getUserFirstName(){
         String userName = "";
-        if (mFirebaseAuth.getCurrentUser()!=null&&mFirebaseAuth.getCurrentUser().getDisplayName()!=null){
-            userName = mFirebaseAuth.getCurrentUser().getDisplayName();
+        if (sFirebaseAuth.getCurrentUser()!=null&& sFirebaseAuth.getCurrentUser().getDisplayName()!=null){
+            userName = sFirebaseAuth.getCurrentUser().getDisplayName();
             userName = Go4LunchUtils.getUserFirstName(userName);
         }
         return userName;
@@ -78,8 +53,8 @@ public class FirebaseAuthService {
 
     public static String getUserEmail(){
         String userEmail = "";
-        if (mFirebaseAuth.getCurrentUser()!=null&&mFirebaseAuth.getCurrentUser().getEmail()!=null){
-            userEmail = mFirebaseAuth.getCurrentUser().getEmail();
+        if (sFirebaseAuth.getCurrentUser()!=null&& sFirebaseAuth.getCurrentUser().getEmail()!=null){
+            userEmail = sFirebaseAuth.getCurrentUser().getEmail();
         }
         return userEmail;
     }

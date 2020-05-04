@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
-import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.main_activity.your_lunch_dialog.YourLunchModel;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
@@ -19,16 +18,13 @@ import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
-import com.sbizzera.go4lunch.services.FirebaseUserRepo;
 import com.sbizzera.go4lunch.services.PermissionService;
-import com.sbizzera.go4lunch.services.ResourcesProvider;
+import com.sbizzera.go4lunch.utils.ResourcesProvider;
 import com.sbizzera.go4lunch.services.VisibleRegionRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.SingleLiveEvent;
 
 import java.util.List;
-
-import timber.log.Timber;
 
 public class MainActivityViewModel extends ViewModel {
 
@@ -67,7 +63,7 @@ public class MainActivityViewModel extends ViewModel {
 
     private void checkForLocationPermissions(@NonNull PermissionService permissionService) {
         if (!permissionService.hasPermissionBeenAsked() && !permissionService.isLocationPermissionGranted()) {
-            permissionService.setPermissionBeenAsked(true);
+            permissionService.setHasPermissionBeenAsked(true);
             mActionLE.setValue(ViewAction.ASK_LOCATION_PERMISSION);
         }
     }

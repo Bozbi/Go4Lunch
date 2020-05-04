@@ -17,7 +17,7 @@ import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse;
 import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
-import com.sbizzera.go4lunch.services.ResourcesProvider;
+import com.sbizzera.go4lunch.utils.ResourcesProvider;
 import com.sbizzera.go4lunch.services.SortTypeChosenRepo;
 import com.sbizzera.go4lunch.utils.Commons;
 

@@ -40,7 +40,7 @@ public class PermissionService {
         return hasPermissionBeenAsked;
     }
     
-    public void setPermissionBeenAsked(boolean asked) {
+    public void setHasPermissionBeenAsked(boolean asked) {
         hasPermissionBeenAsked = asked;
     }
 }

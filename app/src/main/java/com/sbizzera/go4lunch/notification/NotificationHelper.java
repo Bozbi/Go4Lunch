@@ -9,14 +9,11 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
-import com.sbizzera.go4lunch.services.ResourcesProvider;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.main_activity.MainActivity;
 
 import java.util.List;
-import java.util.Objects;
 
 public class NotificationHelper {
     
