@@ -1,5 +1,7 @@
 package com.sbizzera.go4lunch.restaurant_activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -8,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,9 +25,13 @@ import com.sbizzera.go4lunch.services.ViewModelFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Objects.requireNonNull;
+
 public class RestaurantActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "RestaurantDtlActivity";
+
+    private static final String INTENT_EXTRA_CODE = "INTENT_EXTRA_CODE";
 
     private RestaurantViewModel mModel;
     private List<RestaurantAdapterModel> mWorkmateList = new ArrayList<>();
@@ -50,6 +57,15 @@ public class RestaurantActivity extends AppCompatActivity implements View.OnClic
     private RecyclerView rcv;
     private ImageView backArrowImg;
 
+    // TODO BOZBI NAVIGATE Comme le pattern newInstance() avec un fragment, tu peux utiliser le pattern navigate()
+    //  pour contrôler les paramètres d'Intent de ton Activity
+    public static Intent navigate(@NonNull Context context, @NonNull String restaurantId) {
+        Intent intent = new Intent(context, RestaurantActivity.class);
+        intent.putExtra(INTENT_EXTRA_CODE, requireNonNull(restaurantId));
+
+        return intent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +90,7 @@ public class RestaurantActivity extends AppCompatActivity implements View.OnClic
         backArrowImg = findViewById(R.id.back_fab);
 
         //Retrieve restaurant id in intent Extra
-        String restaurantId = getIntent().getStringExtra(MainActivity.INTENT_EXTRA_CODE);
+        String restaurantId = getIntent().getStringExtra(INTENT_EXTRA_CODE);
 
         mModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
         mModel.fetchRestaurantInfo(restaurantId);

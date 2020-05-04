@@ -126,6 +126,7 @@ public class GooglePlacesService {
         return restaurantDetailsLiveData;
     }
 
+    // TODO BOZBI Le cache ne doit jamais être exposé, il ne sert qu'à améliorer les performances en interne du repo
     public List<NearbyPlace> getNearbyCache (){
         return new ArrayList<>(mNearbyPlaceMapCached.values());
     }

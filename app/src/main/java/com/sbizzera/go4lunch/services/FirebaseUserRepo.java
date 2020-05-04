@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+// TODO BOZBI Unused
 public class FirebaseUserRepo {
 
     private FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();

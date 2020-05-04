@@ -31,6 +31,8 @@ public class CurrentGPSLocationRepo {
     }
 
     public void refresh() {
+        // TODO BOZBI J'aurai même injecté le FusedLocationProviderClient direct en fait plutôt que l'Application,
+        //  tu risques de galérer pour les TU là !
         LocationServices.getFusedLocationProviderClient(mApplication).getLastLocation().addOnSuccessListener(location -> {
             locationLD.postValue(location);
         });

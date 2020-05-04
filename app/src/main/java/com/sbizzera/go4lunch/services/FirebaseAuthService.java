@@ -14,15 +14,18 @@ import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import java.util.Arrays;
 import java.util.List;
 
+// TODO BOZBI Pas de static, fait en un Singleton plutôt... Plus facile à tester :)
 public class FirebaseAuthService {
 
     private static FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
     private static AuthUI mAuthUi = AuthUI.getInstance();
 
+    // TODO BOZBI Unused
     public static boolean isUserLogged() {
         return mFirebaseAuth.getCurrentUser() != null;
     }
 
+    // TODO BOZBI A nettoyer, c'est mieux dans ta dispatcher activity :p
     public static Intent getLoginIntent() {
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.GoogleBuilder().build(),

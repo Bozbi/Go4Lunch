@@ -21,9 +21,16 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.main_activity.RestaurantClickedListenable;
 import com.sbizzera.go4lunch.services.ViewModelFactory;
 
-public class MapFragment extends SupportMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener, GoogleMap.OnMapLoadedCallback {
+public class MapFragment
+    extends SupportMapFragment
+    implements
+    OnMapReadyCallback,
+    GoogleMap.OnCameraIdleListener,
+    GoogleMap.OnMapLoadedCallback,
+    RestaurantClickedListenable {
 
     private GoogleMap map;
     private OnItemBoundWithRestaurantClickListener mListener;
@@ -64,12 +71,14 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 newMarker.setTag(marker.getRestaurantId());
 
             }
+            // TODO BOZBI Attention tu mets à jour ton listener à chaque mise à jour de LiveData, ne le fait qu'une fois pendant onMapReady
             map.setOnMarkerClickListener(marker -> {
                 marker.showInfoWindow();
                 CameraUpdate location = CameraUpdateFactory.newLatLngZoom(marker.getPosition(),18);
                 map.animateCamera(location);
                 return true;
             });
+            // TODO BOZBI La même
             map.setOnInfoWindowClickListener(marker -> {
                 if (marker.getTag() != null) {
                     mListener.onItemBoundWithRestaurantClick(marker.getTag().toString());
@@ -88,12 +97,14 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             map.setMyLocationEnabled(true);
             map.getUiSettings().setMyLocationButtonEnabled(true);
         }
+        // TODO BOZBI Le visibility ne suffit pas ? Pas besoin de mettre clickable à false en plus
         mFetchNewAreaBtn.setClickable(false);
         mFetchNewAreaBtn.setVisibility(View.INVISIBLE);
         if (model.isSearchButtonVisible()) {
             mFetchNewAreaBtn.setVisibility(View.VISIBLE);
             mFetchNewAreaBtn.setClickable(model.isSearchButtonVisible());
         }
+        // TODO BOZBI Attention tu mets à jour ton listener à chaque mise à jour de LiveData, ne le fait qu'une fois pendant onMapReady
         mFetchNewAreaBtn.setOnClickListener((click) -> {
             mViewModel.setLastFetchRestaurantVisibleRegion(map.getProjection().getVisibleRegion());
         });

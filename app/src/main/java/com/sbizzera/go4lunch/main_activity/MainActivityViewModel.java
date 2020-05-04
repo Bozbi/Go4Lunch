@@ -61,6 +61,7 @@ public class MainActivityViewModel extends ViewModel {
         mResourcesProvider = resourcesProvider;
         updateUserInDb();
         wireUp();
+        // TODO BOZBI Pas de static mais plutôt singleton + injection pour tester ce comportement en TU
         WorkManagerHelper.handleNotificationWork();
         checkForLocationPermissions(permissionService);
     }
@@ -85,6 +86,8 @@ public class MainActivityViewModel extends ViewModel {
             return mFireStoreService.getTodayListOfUsers(userTodayLunch.getRestaurantId());
         });
 
+        // TODO BOZBI SINGLE LIVE EVENT + MEDIATOR Utilise un SingleLiveEvent qui extends d'un Mediator plutôt d'une LiveData
+        //  Ca te permettra d'éviter ce bricolage ici et d'être explicite sur tes "liens" entre tes livedatas
         //addding to model soruce so livedata warms up
         modelLD.addSource(userTodayLunchLD, userTodayLunch -> {
         });
@@ -149,14 +152,18 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void getYourLunchDialog() {
+        // TODO BOZBI SINGLE LIVE EVENT + MEDIATOR Ne jamais faire de .getValue() (à part lors d'un addSource ofc)
+        //  Utiliser un Mediator permet d'être dynamique
         FireStoreLunch lunch = userTodayLunchLD.getValue();
         List<FireStoreUser> joiningWorkmates = joiningWorkmatesLD.getValue();
+        // TODO BOZBI SINGLE LIVE EVENT + MEDIATOR Tu as déjà la moitié faite ici, tu avais la bonne idée, bravo !
         YourLunchModel model = combineYourLunchSources(lunch, joiningWorkmates);
         mViewActionYourLunch.setValue(model);
     }
 
     private YourLunchModel combineYourLunchSources(FireStoreLunch lunch, List<FireStoreUser> joiningWorkmates) {
         boolean shouldPositiveBtnBeAvailable = false;
+        // TODO BOZBI Accepte le null, propager une chaine vide à la place d'une valeur null ne fait que déplacer le problème
         String restaurantId = "";
         String dialogText = createDialogText(lunch, joiningWorkmates);
         if (lunch != null && lunch.getRestaurantId() != null) {
@@ -180,6 +187,9 @@ public class MainActivityViewModel extends ViewModel {
             }
         }
 
+        // TODO BOZBI STRING FORMAT Alternative : utilise Context.getString(int, Object...) pour formatter ton texte plus simplement
+        //  https://github.com/NinoDLC/MVVM_Clean_Archi_Java/blob/master/app/src/main/java/fr/delcey/mvvm_clean_archi_java/view/MainViewModel.java#L229
+        //  https://github.com/NinoDLC/MVVM_Clean_Archi_Java/blob/master/app/src/main/res/values/strings.xml#L5
         String dialogText ;
         if (lunch == null || lunch.getRestaurantName() == null) {
             dialogText= mResourcesProvider.getDialogTextNoChoice();

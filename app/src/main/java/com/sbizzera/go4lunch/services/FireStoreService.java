@@ -23,8 +23,11 @@ import timber.log.Timber;
 
 public class FireStoreService {
 
+
+    // TODO BOZBI Ne jamais stocker dans une property une valeur qui peut évoluer (temps / utilisateur / etc)
     private String currentUserId = FirebaseAuthService.getUser().getUid();
     private FirebaseUser currentUser = FirebaseAuthService.getUser();
+    // TODO BOZBI Récupère l'instance avec le getInstance() à chaque fois
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference users = db.collection("users");
     private CollectionReference restaurants = db.collection("restaurants");
@@ -83,7 +86,7 @@ public class FireStoreService {
         FireStoreLunch lunchToAdd = new FireStoreLunch(
                 currentUserId,
                 currentUser.getDisplayName(),
-                currentUser.getPhotoUrl().toString(),
+                currentUser.getPhotoUrl().toString(), // TODO BOZBI NPE Crash en attente
                 restaurant.getPlaceId(),
                 restaurant.getName()
         );
@@ -109,6 +112,9 @@ public class FireStoreService {
     }
 
     private void updateLunch(DetailResult restaurant, FireStoreLunch lunchToAdd) {
+        // TODO BOZBI "Finalise" ta valeur de LocalDate.now() au début de ta fonction et réfères-y toujours pendant ta fonction
+        //  Sinon imagine le bordel (ou les crash) si l'utilisateur like un restaurant à 23:59:59 et qu'il a une mauvaise connexion...
+        //  Ta première requête passera, alors que les requêtes suivantes échoueront 
         dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().addOnSuccessListener(lunch -> {
             if (lunch.exists()) {
                 FireStoreLunch existingLunch = lunch.toObject(FireStoreLunch.class);
@@ -143,20 +149,19 @@ public class FireStoreService {
     public LiveData<Integer> getRestaurantLikesCount(String id) {
         MutableLiveData<Integer> likesCountLiveData = new MutableLiveData<>();
         restaurants.document(id).addSnapshotListener((documentSnapshot, e) -> {
+            // TODO BOZBI Simplifié, check changes
+            int likesCount = 0;
+
             if (documentSnapshot != null) {
                 FireStoreRestaurant fetchedRestaurant = documentSnapshot.toObject(FireStoreRestaurant.class);
                 if (fetchedRestaurant != null) {
-                    int likesCount = 0;
                     if (fetchedRestaurant.getLikesIds() != null) {
                         likesCount = fetchedRestaurant.getLikesIds().size();
                     }
-                    likesCountLiveData.postValue(likesCount);
-                } else {
-                    likesCountLiveData.postValue(0);
                 }
-            } else {
-                likesCountLiveData.postValue(0);
             }
+
+            likesCountLiveData.postValue(likesCount);
         });
         return likesCountLiveData;
     }

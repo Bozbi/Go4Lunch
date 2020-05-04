@@ -5,13 +5,14 @@ apply plugin: 'com.google.gms.google-services'
 android {
     signingConfigs {
         debug {
-            storeFile file('/home/bozbi/bozbi/dev/android_studio/go4lunch/keystore.jks')
+            // TODO BOZBI Utilise un chemin relatif !
+            storeFile file('../keystore.jks')
             storePassword 'go4lunch'
             keyAlias = 'key'
             keyPassword 'go4lunch'
         }
         release {
-            storeFile file('/home/bozbi/bozbi/dev/android_studio/go4lunch/keystore.jks')
+            storeFile file('../keystore.jks')
             storePassword 'go4lunch'
             keyAlias = 'key'
             keyPassword 'go4lunch'
@@ -62,6 +63,7 @@ dependencies {
     //Facebook
     implementation 'com.facebook.android:facebook-android-sdk:5.0.0'
 
+    // TODO BOZBI Picasso ou Glide il faut choisir !
     //Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
 

@@ -167,6 +167,7 @@ public class MapFragmentViewModel extends ViewModel {
         Location lastVisibleNearRightCornerLocation = fromLatLngToLocation(lastVisibleRegion.nearRight);
 
 
+        // TODO BOZBI Extrait tes constantes et explique les (mètres, secondes, nb patates * litres de bière, etc)
         if (lastVisibleNearLeftCornerLocation.distanceTo(lastVisibleNearRightCornerLocation) > 5000) {
             return false;
         }
@@ -271,6 +272,7 @@ public class MapFragmentViewModel extends ViewModel {
         mIsMapReadyLD.setValue(false);
     }
 
+    // TODO BOZBI Coquille
     public LiveData<Boolean> getIsMapReadyLD() {
         return mIsMapReadyLD;
     }

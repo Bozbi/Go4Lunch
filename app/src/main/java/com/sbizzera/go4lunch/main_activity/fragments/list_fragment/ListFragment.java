@@ -26,11 +26,12 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.main_activity.RestaurantClickedListenable;
 import com.sbizzera.go4lunch.services.ViewModelFactory;
 
 import java.util.ArrayList;
 
-public class ListFragment extends Fragment {
+public class ListFragment extends Fragment implements RestaurantClickedListenable {
 
     private ListFragmentAdapter mAdapter;
     private OnItemBoundWithRestaurantClickListener mListener;

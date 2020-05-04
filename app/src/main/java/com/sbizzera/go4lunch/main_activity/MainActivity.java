@@ -1,6 +1,7 @@
 package com.sbizzera.go4lunch.main_activity;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -53,18 +54,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 123;
     private static final int AUTOCOMPLETE_REQUEST_CODE = 234;
-    public static final String INTENT_EXTRA_CODE = "INTENT_EXTRA_CODE";
+    //public static final String INTENT_EXTRA_CODE = "INTENT_EXTRA_CODE"; TODO BOZBI NAVIGATE Ça a bougé dans la RestaurantActivity
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 123;
     private DrawerLayout drawerLayout;
 
     private TextView mUserName;
     private TextView mUserEmail;
     private ImageView mUserPhoto;
-    private Toolbar mToolbar;
+    private Toolbar mToolbar; // TODO BOZBI Local variable
     private Switch notificationSwitch;
     private TextView switchText;
     private Menu mMenu;
-    MainActivityViewModel mViewModel;
+    MainActivityViewModel mViewModel; // TODO BOZBI private
 
 
     @Override
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_settings);
         notificationSwitch = menuItem.getActionView().findViewById(R.id.notification_switch);
         switchText = menuItem.getActionView().findViewById(R.id.notification_switch_txt);
+        // TODO BOZBI Attention à récupérer ton instance de VM avant toute action sur les vues
         wireUpNotificationSwitch();
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
 
@@ -105,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
         mViewModel.getViewActionYourLunch().observe(this, yourLunchModel -> {
             YourLunchDialogFragment dialog = YourLunchDialogFragment.newInstance(yourLunchModel);
+            // TODO BOZBI Tu peux passer null en tag si tu t'en balek de retrouver cet DialogFragment plus tard
             dialog.show(getSupportFragmentManager(), "TAG");
 
         });
@@ -188,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.bottom_nav_map_item:
                 loadFragment(MapFragment.newInstance());
+                // TODO BOZBI On préfère un "findItem" plutôt pour être explicite (et éviter des bugs quand le stagiaire modifie le menu)
                 mMenu.getItem(0).setVisible(true);
 
                 break;
@@ -232,9 +236,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void launchRestaurantDetail(String id) {
+        // TODO BOZBI NAVIGATE C'est toujours mieux de laisser l'Activity exposer ses façons de se construire :
+        startActivity(RestaurantActivity.navigate(this, id));
+        /*
         Intent intent = new Intent(this, RestaurantActivity.class);
         intent.putExtra(INTENT_EXTRA_CODE, id);
         startActivity(intent);
+        */
     }
 
     private void showPermissionAppropriateRequest() {
@@ -246,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             builder.setNegativeButton(R.string.back, (x, y) -> {
             });
             builder.setPositiveButton(R.string.go_to_permissions, (x, y) -> {
+                // TODO BOZBI Tu peux extraire cette partie de récupération de l'Intent des Settings dans un utils
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 Uri uri = Uri.fromParts("package", this.getPackageName(), null);
                 intent.setData(uri);
@@ -270,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //LOG OUT User and back to go back to main then login
     private void logOut() {
+        // TODO BOZBI Dans le ViewModel, là ta MainActivity peux leaker
         FirebaseAuthService.logOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     public void onComplete(@NonNull Task<Void> task) {
@@ -280,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
     }
 
-
+    // TODO BOZBI Empty
     @Override
     protected void onResume() {
         super.onResume();
@@ -288,19 +298,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onAttachFragment(@NonNull Fragment fragment) {
-        if (fragment instanceof MapFragment) {
-            ((MapFragment) fragment).setListener(this);
-        }
-        if (fragment instanceof ListFragment) {
-            ((ListFragment) fragment).setListener(this);
-
-        }
-        if (fragment instanceof WorkmatesFragment) {
-            ((WorkmatesFragment) fragment).setListener(this);
-
-        }
-        if (fragment instanceof YourLunchDialogFragment) {
-            ((YourLunchDialogFragment) fragment).setListener(this);
+        // TODO BOZBI LISTENABLE Tu peux utiliser une Interface ici pour éviter les class cast, améliorer les perfs et la compréhension (et puis ça fait genre d'utiliser des interfaces)
+        if (fragment instanceof RestaurantClickedListenable) {
+            ((RestaurantClickedListenable) fragment).setListener(this);
         }
     }
 

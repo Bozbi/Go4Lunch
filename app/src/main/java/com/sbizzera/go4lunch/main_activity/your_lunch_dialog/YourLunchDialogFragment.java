@@ -14,8 +14,9 @@ import androidx.fragment.app.DialogFragment;
 
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.main_activity.RestaurantClickedListenable;
 
-public class YourLunchDialogFragment extends DialogFragment {
+public class YourLunchDialogFragment extends DialogFragment implements RestaurantClickedListenable {
 
     private static final String EXTRA_MODEL = "EXTRA_MODEL";
     private OnItemBoundWithRestaurantClickListener listener;
