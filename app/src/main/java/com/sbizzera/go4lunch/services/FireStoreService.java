@@ -11,7 +11,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
-import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.DetailResult;
+import com.sbizzera.go4lunch.model.places_place_details_models.DetailResult;
+
 
 import org.threeten.bp.LocalDate;
 

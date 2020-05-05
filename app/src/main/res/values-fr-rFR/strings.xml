@@ -16,8 +16,8 @@
     <string name="dialog_positive_text">Voir votre resto</string>
     <string name="dialog_negative_text">Retour</string>
     <string name="dialog_title">Votre Resto</string>
-    <string name="dialog_text_no_choice">Hey %User%,\nTu n\'as pas partagé ton choix aujourd\'hui !\nN\'oublies pas de le faire pour que tes collègues te rejoingnent !</string>
-    <string name="dialog_text_with_choice">Hey %User%,\nAujourd\'hui tu manges au restaurant %Restaurant%%Workmates%.\nBon apétit!</string>
+    <string name="dialog_text_no_choice">Hey %s,\nTu n\'as pas partagé ton choix aujourd\'hui !\nN\'oublies pas de le faire pour que tes collègues te rejoingnent !</string>
+    <string name="dialog_text_with_choice">Hey %User%,\nAujourd\'hui tu manges au restaurant %s%s.\nBon apétit!</string>
     <string name="dialog_text_with">" avec "</string>
     <string name="dialog_text_and">" et "</string>
     <string name="notification_text_lunch_and_workmates">Hey %User%,\nAujourd\'hui tu manges au restaurant %Restaurant% avec %Workmates%.\nBon apétit!</string>
@@ -46,4 +46,5 @@
     <string name="call">APPEL</string>
     <string name="like">LIKE</string>
     <string name="website">SITE WEB</string>
+    <string name="search_for">recherchez</string>
 </resources>

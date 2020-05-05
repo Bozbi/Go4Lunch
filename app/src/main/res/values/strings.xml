@@ -37,7 +37,6 @@
     <string name="find_new_restaurants_in_this_area">Find new restaurants in this area</string>
     <string name="order_by">Order by</string>
     <string name="distance">Distance</string>
-
     <string name="likes">Likes</string>
     <string name="frequentation">Frequentation</string>
     <string name="name">Name</string>
@@ -56,5 +55,7 @@
     <string name="call">CALL</string>
     <string name="like">LIKE</string>
     <string name="website">WEBSITE</string>
+    <string name="search_for">search for</string>
+
 
 </resources>

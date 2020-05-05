@@ -1,31 +1,34 @@
 package com.sbizzera.go4lunch.main_activity.fragments.workmates_fragment;
 
+import android.content.Context;
 import android.graphics.Typeface;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
 import com.sbizzera.go4lunch.services.FireStoreService;
-import com.sbizzera.go4lunch.utils.ResourcesProvider;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class WorkmatesFragmentViewModel extends ViewModel {
 
     private FireStoreService fireStoreService;
-    private ResourcesProvider mResourcesProvider;
+    private Context mContext;
     private MediatorLiveData<WorkmatesFragmentModel> modelLiveData = new MediatorLiveData<>();
 
-    public WorkmatesFragmentViewModel(FireStoreService fireStoreService,ResourcesProvider resourcesProvider) {
+    public WorkmatesFragmentViewModel(
+            FireStoreService fireStoreService,
+            Context context
+    ) {
         this.fireStoreService = fireStoreService;
-        mResourcesProvider = resourcesProvider;
+        mContext = context;
         wireUpMediator();
     }
 
@@ -42,12 +45,12 @@ public class WorkmatesFragmentViewModel extends ViewModel {
         });
     }
 
-    private WorkmatesFragmentModel combineSources(List<FireStoreUser> allUsers, List<FireStoreLunch> allTodayLunch) {
+    private WorkmatesFragmentModel combineSources(
+            List<FireStoreUser> allUsers,
+            List<FireStoreLunch> allTodayLunch
+    ) {
         List<WorkmatesFragmentAdapterModel> workmatesModeList = fromUserAndLunchesToModel(allUsers, allTodayLunch);
-
-        return new WorkmatesFragmentModel(
-                workmatesModeList
-        );
+        return new WorkmatesFragmentModel(workmatesModeList);
     }
 
     private List<WorkmatesFragmentAdapterModel> fromUserAndLunchesToModel(List<FireStoreUser> allUsers, List<FireStoreLunch> allTodayLunch) {
@@ -57,7 +60,7 @@ public class WorkmatesFragmentViewModel extends ViewModel {
                 String userFirstName = Go4LunchUtils.getUserFirstName(user.getUserName());
                 WorkmatesFragmentAdapterModel workmateModel = new WorkmatesFragmentAdapterModel(
                         user.getUserAvatarUrl(),
-                        userFirstName + mResourcesProvider.getHasntDecided(),
+                        userFirstName + mContext.getString(R.string.hasnt_decided),
                         false,
                         Typeface.ITALIC,
                         null
@@ -65,7 +68,7 @@ public class WorkmatesFragmentViewModel extends ViewModel {
                 if (allTodayLunch != null && allTodayLunch.size() > 0) {
                     for (FireStoreLunch lunch : allTodayLunch) {
                         if (user.getUserId().equals(lunch.getUserId())) {
-                            workmateModel.setChoice(userFirstName + mResourcesProvider.getEatAT() + lunch.getRestaurantName());
+                            workmateModel.setChoice(userFirstName + mContext.getString(R.string.eat_at) + lunch.getRestaurantName());
                             workmateModel.setClickable(true);
                             workmateModel.setTextStyle(Typeface.BOLD);
                             workmateModel.setRestaurantId(lunch.getRestaurantId());
@@ -75,15 +78,13 @@ public class WorkmatesFragmentViewModel extends ViewModel {
                 workmateModelList.add(workmateModel);
             }
         }
-       Collections.sort(workmateModelList, new Comparator<WorkmatesFragmentAdapterModel>() {
-           @Override
-           public int compare(WorkmatesFragmentAdapterModel o1, WorkmatesFragmentAdapterModel o2) {
-               if (o1.getClickable()){
-                   return -1;
-               }else{
-               return 0;}
-           }
-       });
+        Collections.sort(workmateModelList, (o1, o2) -> {
+            if (o1.getClickable()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
         return workmateModelList;
     }
 

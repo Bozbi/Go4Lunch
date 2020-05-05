@@ -21,7 +21,6 @@ import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.FirebaseAuthService;
 import com.sbizzera.go4lunch.services.PermissionService;
-import com.sbizzera.go4lunch.utils.ResourcesProvider;
 import com.sbizzera.go4lunch.services.VisibleRegionRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.SingleLiveEvent;
@@ -33,7 +32,6 @@ public class MainActivityViewModel extends ViewModel {
 
     private FireStoreService mFireStoreService;
     private SharedPreferencesRepo sharedPreferencesRepo;
-    private ResourcesProvider mResourcesProvider;
     private Context mContext;
 
 
@@ -53,14 +51,12 @@ public class MainActivityViewModel extends ViewModel {
             SharedPreferencesRepo sharedPreferencesRepo,
             VisibleRegionRepo visibleRegionRepo,
             PermissionService permissionService,
-            ResourcesProvider resourcesProvider,
             WorkManagerHelper workManagerHelper,
             Context context
     ) {
         this.mFireStoreService = mFireStoreService;
         this.sharedPreferencesRepo = sharedPreferencesRepo;
         mVisibleRegionRepo = visibleRegionRepo;
-        mResourcesProvider = resourcesProvider;
         mContext= context;
         updateUserInDb();
         wireUp();

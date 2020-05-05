@@ -55,7 +55,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new RestaurantViewModel(
                     GooglePlacesService.getInstance(),
                     new FireStoreService(),
-                    new ResourcesProvider(App.getApplication())
+                    App.getApplication()
             );
         }
         if (modelClass.isAssignableFrom(MainActivityViewModel.class)) {
@@ -64,7 +64,6 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
                     SharedPreferencesRepo.getInstance(App.getApplication(),WorkManagerHelper.getInstance()),
                     VisibleRegionRepo.getInstance(),
                     PermissionService.getInstance(),
-                    new ResourcesProvider(App.getApplication()),
                     WorkManagerHelper.getInstance(),
                     App.getApplication()
             );
@@ -72,7 +71,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(WorkmatesFragmentViewModel.class)) {
             return (T) new WorkmatesFragmentViewModel(
                     new FireStoreService(),
-                    new ResourcesProvider(App.getApplication())
+                    App.getApplication()
                     );
         }
         if (modelClass.isAssignableFrom(ListFragmentViewModel.class)) {
@@ -81,7 +80,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
                     GooglePlacesService.getInstance(),
                     new FireStoreService(),
                     SortTypeChosenRepo.getInstance(),
-                    new ResourcesProvider(App.getApplication())
+                    App.getApplication()
             );
         }
         throw new IllegalArgumentException("Unknown ViewModel class");

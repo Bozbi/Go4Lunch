@@ -1,5 +1,6 @@
 package com.sbizzera.go4lunch.restaurant_activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
@@ -15,10 +16,10 @@ import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.BuildConfig;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
-import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.DetailResult;
+import com.sbizzera.go4lunch.model.places_place_details_models.AddressComponent;
+import com.sbizzera.go4lunch.model.places_place_details_models.DetailResult;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
-import com.sbizzera.go4lunch.utils.ResourcesProvider;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.ArrayList;
@@ -26,17 +27,21 @@ import java.util.List;
 
 
 public class RestaurantViewModel extends ViewModel {
-    
+
     private GooglePlacesService mGooglePlacesService;
     private FireStoreService mFirestoreService;
-    private ResourcesProvider mResourcesProvider;
+    private Context mContext;
     private MediatorLiveData<RestaurantActivityModel> modelLiveData = new MediatorLiveData<>();
     private LiveData<DetailResult> placeDetailLiveData;
 
-    public RestaurantViewModel(GooglePlacesService googlePlacesService, FireStoreService firestore, ResourcesProvider resourcesProvider) {
+    public RestaurantViewModel(
+            GooglePlacesService googlePlacesService,
+            FireStoreService firestore,
+            Context context
+    ) {
         mGooglePlacesService = googlePlacesService;
         mFirestoreService = firestore;
-        mResourcesProvider = resourcesProvider;
+        mContext = context;
     }
 
     public LiveData<RestaurantActivityModel> getModelLiveData() {
@@ -50,39 +55,58 @@ public class RestaurantViewModel extends ViewModel {
         LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestoreService.isRestaurantChosenByUserToday(id);
         LiveData<List<FireStoreUser>> todayListOfUsersLiveData = mFirestoreService.getTodayListOfUsers(id);
 
-        // TODO BOZBI N'hésite pas à sauter des lignes, le max character pour une ligne c'est entre 80 et 140 suivant les équipes
-        modelLiveData.addSource(
-            placeDetailLiveData,
-            // TODO BOZBI Ne jamais utiliser postValue à moins qu'on y soit vraiment obligé (et mettre un com ! :p)
-            place -> modelLiveData.postValue(
-                combineSources(
+
+        modelLiveData.addSource(placeDetailLiveData, place -> {
+            combineSources(
                     place,
                     isRestaurantLikedByUserLiveData.getValue(),
                     restaurantLikeCountLiveData.getValue(),
                     isRestaurantTodayUserChoiceLiveData.getValue(),
                     todayListOfUsersLiveData.getValue()
-                )
-            )
-        );
+            );
+        });
 
         modelLiveData.addSource(isRestaurantLikedByUserLiveData, isRestaurantLikedByUser -> {
-            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUser, restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue(), todayListOfUsersLiveData.getValue()));
+            combineSources(placeDetailLiveData.getValue(),
+                    isRestaurantLikedByUser,
+                    restaurantLikeCountLiveData.getValue(),
+                    isRestaurantTodayUserChoiceLiveData.getValue(),
+                    todayListOfUsersLiveData.getValue()
+            );
         });
 
         modelLiveData.addSource(restaurantLikeCountLiveData, restaurantLikeCount -> {
-            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCount, isRestaurantTodayUserChoiceLiveData.getValue(), todayListOfUsersLiveData.getValue()));
+            combineSources(
+                    placeDetailLiveData.getValue(),
+                    isRestaurantLikedByUserLiveData.getValue(),
+                    restaurantLikeCount,
+                    isRestaurantTodayUserChoiceLiveData.getValue(),
+                    todayListOfUsersLiveData.getValue()
+            );
         });
 
         modelLiveData.addSource(isRestaurantTodayUserChoiceLiveData, isRestaurantTodayUserChoice -> {
-            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoice, todayListOfUsersLiveData.getValue()));
+            combineSources(
+                    placeDetailLiveData.getValue(),
+                    isRestaurantLikedByUserLiveData.getValue(),
+                    restaurantLikeCountLiveData.getValue(),
+                    isRestaurantTodayUserChoice,
+                    todayListOfUsersLiveData.getValue()
+            );
         });
 
         modelLiveData.addSource(todayListOfUsersLiveData, todayListOfUsers -> {
-            modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue(), todayListOfUsers));
+            combineSources(
+                    placeDetailLiveData.getValue(),
+                    isRestaurantLikedByUserLiveData.getValue(),
+                    restaurantLikeCountLiveData.getValue(),
+                    isRestaurantTodayUserChoiceLiveData.getValue(),
+                    todayListOfUsers
+            );
         });
     }
 
-    private RestaurantActivityModel combineSources(DetailResult place, Boolean isRestaurantLikedByUser, Integer restaurantLikeCount, Boolean isRestaurantTodayUserChoice, List<FireStoreUser> todayListOfUsers) {
+    private void combineSources(DetailResult place, Boolean isRestaurantLikedByUser, Integer restaurantLikeCount, Boolean isRestaurantTodayUserChoice, List<FireStoreUser> todayListOfUsers) {
 
         String photoUrl = getPhotoUrlFromPhotoRef(place);
         String restaurantName = getName(place);
@@ -109,8 +133,7 @@ public class RestaurantViewModel extends ViewModel {
         int fabColor = getFabColor(isRestaurantTodayUserChoice);
         List<RestaurantAdapterModel> todaysLunchers = getLunchers(todayListOfUsers);
 
-
-        return new RestaurantActivityModel(
+        modelLiveData.setValue(new RestaurantActivityModel(
                 photoUrl,
                 fabIcon,
                 fabColor,
@@ -126,14 +149,14 @@ public class RestaurantViewModel extends ViewModel {
                 webSite,
                 webSiteBlockColor,
                 isWebSiteClickable,
-                todaysLunchers);
+                todaysLunchers));
     }
 
     private List<RestaurantAdapterModel> getLunchers(List<FireStoreUser> todayListOfUsers) {
         List<RestaurantAdapterModel> listToReturn = new ArrayList<>();
         if (todayListOfUsers != null) {
             for (FireStoreUser user : todayListOfUsers) {
-                String text = Go4LunchUtils.getUserFirstName(user.getUserName()) + mResourcesProvider.getEatsHere();
+                String text = Go4LunchUtils.getUserFirstName(user.getUserName()) + mContext.getString(R.string.eats_here);
                 RestaurantAdapterModel userModel = new RestaurantAdapterModel(
                         user.getUserAvatarUrl(),
                         text
@@ -283,7 +306,7 @@ public class RestaurantViewModel extends ViewModel {
             return null;
         }
         //if not build address
-        List<DetailResult.AddressComponent> componentList = place.getAddressComponentList();
+        List<AddressComponent> componentList = place.getAddressComponentList();
         String streetNumber = componentList.get(0).getValue();
         String streetName = componentList.get(1).getValue().substring(0, 1).toLowerCase() + componentList.get(1).getValue().substring(1);
         return streetNumber + " " + streetName;
