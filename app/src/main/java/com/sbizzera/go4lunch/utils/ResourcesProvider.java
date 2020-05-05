@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.sbizzera.go4lunch.R;
 
+// TODO BOZBI STRING FORMAT C'est classe n'est pas forcément nécessaire
 public class ResourcesProvider {
     private Context mContext;
 

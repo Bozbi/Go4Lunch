@@ -22,6 +22,9 @@ public class DetailsResponse {
         this.detailResult = detailResult;
     }
 
+    // TODO BOZBI
+    //  1/ Inner class pas static, attention !
+    //  2/ et on évite les inner class pour les DTO, ça peut être un calvaire à débugger avec l'obfuscation...
     public class DetailResult{
         @SerializedName("name")
         private String name;

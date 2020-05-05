@@ -50,9 +50,20 @@ public class RestaurantViewModel extends ViewModel {
         LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestoreService.isRestaurantChosenByUserToday(id);
         LiveData<List<FireStoreUser>> todayListOfUsersLiveData = mFirestoreService.getTodayListOfUsers(id);
 
-        modelLiveData.addSource(placeDetailLiveData, place -> {
-            modelLiveData.postValue(combineSources(place, isRestaurantLikedByUserLiveData.getValue(), restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue(), todayListOfUsersLiveData.getValue()));
-        });
+        // TODO BOZBI N'hésite pas à sauter des lignes, le max character pour une ligne c'est entre 80 et 140 suivant les équipes
+        modelLiveData.addSource(
+            placeDetailLiveData,
+            // TODO BOZBI Ne jamais utiliser postValue à moins qu'on y soit vraiment obligé (et mettre un com ! :p)
+            place -> modelLiveData.postValue(
+                combineSources(
+                    place,
+                    isRestaurantLikedByUserLiveData.getValue(),
+                    restaurantLikeCountLiveData.getValue(),
+                    isRestaurantTodayUserChoiceLiveData.getValue(),
+                    todayListOfUsersLiveData.getValue()
+                )
+            )
+        );
 
         modelLiveData.addSource(isRestaurantLikedByUserLiveData, isRestaurantLikedByUser -> {
             modelLiveData.postValue(combineSources(placeDetailLiveData.getValue(), isRestaurantLikedByUser, restaurantLikeCountLiveData.getValue(), isRestaurantTodayUserChoiceLiveData.getValue(), todayListOfUsersLiveData.getValue()));

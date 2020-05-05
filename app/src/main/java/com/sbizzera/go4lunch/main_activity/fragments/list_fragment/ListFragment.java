@@ -19,9 +19,16 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
+<<<<<<< HEAD
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
+=======
+import com.sbizzera.go4lunch.main_activity.RestaurantClickedListenable;
+import com.sbizzera.go4lunch.services.ViewModelFactory;
 
-public class ListFragment extends Fragment {
+import java.util.ArrayList;
+>>>>>>> review_nino
+
+public class ListFragment extends Fragment implements RestaurantClickedListenable {
 
     private ListFragmentAdapter mAdapter;
     private OnItemBoundWithRestaurantClickListener mListener;
