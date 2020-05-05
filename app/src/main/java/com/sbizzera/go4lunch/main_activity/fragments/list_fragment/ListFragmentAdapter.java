@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.main_activity.OnItemBoundWithRestaurantClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
         holder.openingHours.setText(restaurant.getOpenHoursText());
         holder.openingHours.setTextColor(holder.openingHours.getResources().getColor(restaurant.getOpenHoursTextColor()));
         if (restaurant.getDistance() != null) {
-            holder.distance.setText(restaurant.getDistance().toString());
+            holder.distance.setText(String.valueOf(restaurant.getDistance()));
         }
         holder.m_Text.setVisibility(restaurant.getMetersTextVisibility());
         holder.workmateFreq.setText(restaurant.getWorkmatesLunchesCount());

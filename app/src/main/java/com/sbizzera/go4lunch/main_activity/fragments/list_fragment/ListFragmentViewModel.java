@@ -10,6 +10,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.sbizzera.go4lunch.BuildConfig;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
@@ -19,7 +20,6 @@ import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
 import com.sbizzera.go4lunch.utils.ResourcesProvider;
 import com.sbizzera.go4lunch.services.SortTypeChosenRepo;
-import com.sbizzera.go4lunch.utils.Commons;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -31,7 +31,6 @@ import java.util.Map;
 import timber.log.Timber;
 
 public class ListFragmentViewModel extends ViewModel {
-
 
 
     private GooglePlacesService mGooglePlacesService;
@@ -67,22 +66,24 @@ public class ListFragmentViewModel extends ViewModel {
 
 
         mModelMLD.addSource(knownRestaurantsLiveData, knownRestaurants -> {
-            combineSources(knownRestaurants, mDetailsMapLD.getValue(),sortTypeChosenLD.getValue() );
+            combineSources(knownRestaurants, mDetailsMapLD.getValue(), sortTypeChosenLD.getValue());
         });
 
         mModelMLD.addSource(mDetailsMapLD, detailsMap -> {
-            combineSources(knownRestaurantsLiveData.getValue(), detailsMap,sortTypeChosenLD.getValue());
+            combineSources(knownRestaurantsLiveData.getValue(), detailsMap, sortTypeChosenLD.getValue());
         });
 
-        mModelMLD.addSource(sortTypeChosenLD,sortTypeChosen->{
-            combineSources(knownRestaurantsLiveData.getValue(),mDetailsMapLD.getValue(),sortTypeChosen);
+        mModelMLD.addSource(sortTypeChosenLD, sortTypeChosen -> {
+            combineSources(knownRestaurantsLiveData.getValue(), mDetailsMapLD.getValue(), sortTypeChosen);
         });
 
     }
 
     private void combineSources(
             List<FireStoreRestaurant> knownRestaurants,
-            Map<String, DetailsResponse.DetailResult> detailsMap, Integer sortTypeChose) {
+            Map<String, DetailsResponse.DetailResult> detailsMap,
+            Integer sortTypeChose
+    ) {
 
         List<NearbyPlace> nearbyPlaces = mGooglePlacesService.getNearbyCache();
         //Stop if no data in both sources
@@ -117,10 +118,10 @@ public class ListFragmentViewModel extends ViewModel {
         List<ListFragmentAdapterModel> listOfRestaurantToReturn = new ArrayList<>();
         List<String> fireStoreRestaurantsIdList = new ArrayList<>();
 
-        if (knownRestaurants != null)
+        if (knownRestaurants != null) {
 
             for (FireStoreRestaurant restaurant : knownRestaurants) {
-//                Timber.d("Restaurant %s,lunchCount %s",restaurant.getName(),restaurant.getTotalLunchCount());
+                Timber.d("checking knownRestaurant %s", restaurant.getName());
                 fireStoreRestaurantsIdList.add(restaurant.getRestaurantId());
                 ListFragmentAdapterModel restaurantToReturn = null;
                 DetailsResponse.DetailResult restaurantDetail = detailsMap.get(restaurant.getRestaurantId());
@@ -156,12 +157,14 @@ public class ListFragmentViewModel extends ViewModel {
                     listOfRestaurantToReturn.add(restaurantToReturn);
                 }
             }
+        }
 
         if (nearbyPlaces != null) {
             for (NearbyPlace restaurant : nearbyPlaces) {
                 if (!fireStoreRestaurantsIdList.contains(restaurant.getId())) {
                     ListFragmentAdapterModel restaurantToReturn = null;
                     DetailsResponse.DetailResult restaurantDetail = detailsMap.get(restaurant.getId());
+
                     if (restaurantDetail != null) {
                         String address = getAdresseFromDetailResult(restaurantDetail);
                         String openHoursText = getOpenHoursTextFromDetailResult(restaurantDetail);
@@ -195,36 +198,31 @@ public class ListFragmentViewModel extends ViewModel {
                 }
             }
         }
-        switch (sortTypeChose){
-//            case R.id.distance_chip:{
-//                Collections.sort(listOfRestaurantToReturn,new DistanceComparator());
-//                break;
-//            }
-            case R.id.likes_chip:{
-                Collections.sort(listOfRestaurantToReturn,new LikesComparator());
+        switch (sortTypeChose) {
+            case R.id.likes_chip: {
+                Collections.sort(listOfRestaurantToReturn, new LikesComparator());
                 break;
             }
-            case R.id.frequentation_chip:{
-                Collections.sort(listOfRestaurantToReturn,new LunchCountComparator());
+            case R.id.frequentation_chip: {
+                Collections.sort(listOfRestaurantToReturn, new LunchCountComparator());
                 break;
             }
-            case R.id.name_chip:{
-                Collections.sort(listOfRestaurantToReturn,new RestaurantNameComparator());
+            case R.id.name_chip: {
+                Collections.sort(listOfRestaurantToReturn, new RestaurantNameComparator());
                 break;
             }
-            default:{
-                Collections.sort(listOfRestaurantToReturn,new DistanceComparator());
+            default: {
+                Collections.sort(listOfRestaurantToReturn, new DistanceComparator());
                 break;
             }
         }
-        Timber.d("sortTypeChosenID : %s",sortTypeChose);
-        mModelMLD.setValue(new ListFragmentModel(listOfRestaurantToReturn,sortTypeChose));
+        mModelMLD.setValue(new ListFragmentModel(listOfRestaurantToReturn, sortTypeChose));
     }
 
     private int getLikesCount(FireStoreRestaurant restaurant) {
-        if (restaurant.getLikesIds()==null){
+        if (restaurant.getLikesIds() == null) {
             return 0;
-        }else{
+        } else {
             return restaurant.getLikesIds().size();
         }
     }
@@ -248,8 +246,7 @@ public class ListFragmentViewModel extends ViewModel {
                     .appendPath("photo")
                     .appendQueryParameter("maxwidth", "200")
                     .appendQueryParameter("photoreference", photoRef)
-                    //TODO where to put this key
-                    .appendQueryParameter("key", Commons.PLACES_API_KEY)
+                    .appendQueryParameter("key", BuildConfig.GOOGLE_API_KEY)
                     .toString();
         }
         return photoUrl;

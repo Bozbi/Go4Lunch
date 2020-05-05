@@ -17,15 +17,17 @@ public class SharedPreferencesRepo {
     private static final String NOTIFICATION_STATUS = "NOTIFICATION_STATUS";
     private MutableLiveData<Boolean> notificationPreferencesLD = new MutableLiveData<>();
     private Application mApplication;
+    private WorkManagerHelper mWorkManagerHelper;
 
-    private SharedPreferencesRepo(Application application) {
+    private SharedPreferencesRepo(Application application,WorkManagerHelper workManagerHelper) {
         mApplication = application;
+        mWorkManagerHelper = workManagerHelper;
         updateLiveData();
     }
 
-    public static SharedPreferencesRepo getInstance(Application application){
+    public static SharedPreferencesRepo getInstance(Application application,WorkManagerHelper workManagerHelper){
         if(sSharedPreferencesRepo ==null){
-            sSharedPreferencesRepo = new SharedPreferencesRepo(application);
+            sSharedPreferencesRepo = new SharedPreferencesRepo(application,workManagerHelper);
         }
         return sSharedPreferencesRepo;
     }
@@ -36,7 +38,7 @@ public class SharedPreferencesRepo {
         editor.putBoolean(NOTIFICATION_STATUS, bol);
         editor.apply();
         updateLiveData();
-        WorkManagerHelper.handleNotificationWork();
+        mWorkManagerHelper.handleNotificationWork();
     }
 
     private void updateLiveData() {

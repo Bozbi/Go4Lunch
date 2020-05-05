@@ -20,12 +20,7 @@ public class FirebaseAuthService {
     private static FirebaseAuth sFirebaseAuth = FirebaseAuth.getInstance();
     private static AuthUI mAuthUi = AuthUI.getInstance();
 
-<<<<<<< HEAD
-=======
-    // TODO BOZBI Unused
-    public static boolean isUserLogged() {
-        return mFirebaseAuth.getCurrentUser() != null;
-    }
+
 
     // TODO BOZBI A nettoyer, c'est mieux dans ta dispatcher activity :p
     public static Intent getLoginIntent() {
@@ -49,7 +44,6 @@ public class FirebaseAuthService {
 
     }
 
->>>>>>> review_nino
     public static Task<Void> logOut(Context context) {
         return mAuthUi.signOut(context);
     }

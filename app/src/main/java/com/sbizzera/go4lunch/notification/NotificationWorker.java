@@ -29,7 +29,8 @@ public class NotificationWorker extends ListenableWorker {
     @NonNull
     @Override
     public ListenableFuture<Result> startWork() {
-        WorkManagerHelper.handleNotificationWork();
+        WorkManagerHelper workManagerHelper = WorkManagerHelper.getInstance();
+        workManagerHelper.handleNotificationWork();
         return CallbackToFutureAdapter.getFuture(completer -> {
             if (FirebaseAuthService.getUser() != null) {
                 return FirebaseFirestore.getInstance().collection("dates")

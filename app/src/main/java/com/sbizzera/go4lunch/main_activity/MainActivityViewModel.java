@@ -1,5 +1,6 @@
 package com.sbizzera.go4lunch.main_activity;
 
+import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
+import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.main_activity.your_lunch_dialog.YourLunchModel;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
@@ -24,6 +26,7 @@ import com.sbizzera.go4lunch.services.VisibleRegionRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.SingleLiveEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivityViewModel extends ViewModel {
@@ -31,6 +34,7 @@ public class MainActivityViewModel extends ViewModel {
     private FireStoreService mFireStoreService;
     private SharedPreferencesRepo sharedPreferencesRepo;
     private ResourcesProvider mResourcesProvider;
+    private Context mContext;
 
 
     private MediatorLiveData<MainActivityModel> modelLD = new MediatorLiveData<>();
@@ -49,16 +53,18 @@ public class MainActivityViewModel extends ViewModel {
             SharedPreferencesRepo sharedPreferencesRepo,
             VisibleRegionRepo visibleRegionRepo,
             PermissionService permissionService,
-            ResourcesProvider resourcesProvider
+            ResourcesProvider resourcesProvider,
+            WorkManagerHelper workManagerHelper,
+            Context context
     ) {
         this.mFireStoreService = mFireStoreService;
         this.sharedPreferencesRepo = sharedPreferencesRepo;
         mVisibleRegionRepo = visibleRegionRepo;
         mResourcesProvider = resourcesProvider;
+        mContext= context;
         updateUserInDb();
         wireUp();
-        // TODO BOZBI Pas de static mais plutôt singleton + injection pour tester ce comportement en TU
-        WorkManagerHelper.handleNotificationWork();
+        workManagerHelper.handleNotificationWork();
         checkForLocationPermissions(permissionService);
     }
 
@@ -159,18 +165,67 @@ public class MainActivityViewModel extends ViewModel {
 
     private YourLunchModel combineYourLunchSources(FireStoreLunch lunch, List<FireStoreUser> joiningWorkmates) {
         boolean shouldPositiveBtnBeAvailable = false;
-        // TODO BOZBI Accepte le null, propager une chaine vide à la place d'une valeur null ne fait que déplacer le problème
-        String restaurantId = "";
+        String restaurantId = null;
         String dialogText = createDialogText(lunch, joiningWorkmates);
         if (lunch != null && lunch.getRestaurantId() != null) {
             shouldPositiveBtnBeAvailable = true;
             restaurantId = lunch.getRestaurantId();
         }
-
         return new YourLunchModel(dialogText, shouldPositiveBtnBeAvailable, restaurantId);
     }
 
     private String createDialogText(FireStoreLunch lunch, List<FireStoreUser> joiningWorkmates) {
+        joiningWorkmates = removeCurrentUserFromList(joiningWorkmates);
+        List<String> joiningWorkmatesStr = getFirstNames(joiningWorkmates);
+        String restaurantName =null;
+        if(lunch!=null){
+            restaurantName = lunch.getRestaurantName();
+        }
+        String joiningWorkmatesString = createJoiningWorkmatesString(joiningWorkmatesStr);
+        return getDialogText(FirebaseAuthService.getUserFirstName(),restaurantName,joiningWorkmatesString);
+    }
+
+    private String getDialogText(String userFirstName, String restaurantName, String joiningWorkmatesString) {
+        if (restaurantName==null){
+            return mContext.getString(R.string.dialog_text_no_choice,userFirstName);
+        }else if(joiningWorkmatesString==null){
+            return mContext.getString(R.string.dialog_text_with_choice,userFirstName,restaurantName,"");
+        }
+        return mContext.getString(R.string.dialog_text_with_choice,userFirstName,restaurantName,joiningWorkmatesString);
+    }
+
+
+    private List<String> getFirstNames(List<FireStoreUser> joiningWorkmates) {
+        List<String> listToReturn = new ArrayList<>();
+        if(joiningWorkmates!=null){
+            for (FireStoreUser user: joiningWorkmates) {
+                listToReturn.add(Go4LunchUtils.getUserFirstName(user.getUserName()));
+            }
+        }
+        return listToReturn;
+    }
+
+    private String createJoiningWorkmatesString(List<String> joiningWorkmatesStr) {
+        String stringToReturn = null;
+        if(joiningWorkmatesStr!=null && joiningWorkmatesStr.size()!=0){
+            stringToReturn = mContext.getString(R.string.dialog_text_with);
+            if (joiningWorkmatesStr.size()==1){
+                stringToReturn = stringToReturn + joiningWorkmatesStr.get(0);
+            }else{
+                for (int i = 0; i < joiningWorkmatesStr.size(); i++) {
+                    if(i!=joiningWorkmatesStr.size()-1){
+                        stringToReturn = stringToReturn +joiningWorkmatesStr.get(i)+", ";
+                    }else{
+                        stringToReturn = stringToReturn + mContext.getString(R.string.dialog_text_and)+ joiningWorkmatesStr.get(i);
+
+                    }
+                }
+            }
+        }
+        return stringToReturn;
+    }
+
+    private List<FireStoreUser> removeCurrentUserFromList(List<FireStoreUser> joiningWorkmates) {
         if (joiningWorkmates != null) {
             FireStoreUser userToRemove = new FireStoreUser();
             for (FireStoreUser user : joiningWorkmates) {
@@ -182,48 +237,7 @@ public class MainActivityViewModel extends ViewModel {
                 joiningWorkmates.remove(userToRemove);
             }
         }
-
-        // TODO BOZBI STRING FORMAT Alternative : utilise Context.getString(int, Object...) pour formatter ton texte plus simplement
-        //  https://github.com/NinoDLC/MVVM_Clean_Archi_Java/blob/master/app/src/main/java/fr/delcey/mvvm_clean_archi_java/view/MainViewModel.java#L229
-        //  https://github.com/NinoDLC/MVVM_Clean_Archi_Java/blob/master/app/src/main/res/values/strings.xml#L5
-        String dialogText ;
-        if (lunch == null || lunch.getRestaurantName() == null) {
-            dialogText= mResourcesProvider.getDialogTextNoChoice();
-        } else {
-            dialogText =mResourcesProvider.getDialogTextWithChoice();
-            dialogText = dialogText.replace("%Restaurant%", lunch.getRestaurantName());
-            if (joiningWorkmates != null) {
-                if (joiningWorkmates.size() == 0) {
-                    dialogText = dialogText.replace("%Workmates%", "");
-                }
-                if (joiningWorkmates.size() == 1) {
-                    String withStr = mResourcesProvider.getDialogTextWith();
-                    String workmateText = withStr + Go4LunchUtils.getUserFirstName(joiningWorkmates.get(0).getUserName());
-                    dialogText = dialogText.replace("%Workmates%", workmateText);
-                } else {
-                    StringBuilder workmatesTextBuilder = new StringBuilder();
-                    workmatesTextBuilder.append(mResourcesProvider.getDialogTextWith());
-                    for (int i = 0; i < joiningWorkmates.size(); i++) {
-
-                        if (i == joiningWorkmates.size() - 1) {
-                            workmatesTextBuilder.append(mResourcesProvider.getDialogTextAnd());
-                            workmatesTextBuilder.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i).getUserName()));
-
-                        } else if (i == joiningWorkmates.size() - 2) {
-                            workmatesTextBuilder.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i).getUserName()));
-                        } else {
-                            workmatesTextBuilder.append(Go4LunchUtils.getUserFirstName(joiningWorkmates.get(i).getUserName()));
-                            workmatesTextBuilder.append(", ");
-                        }
-                    }
-                    dialogText = dialogText.replace("%Workmates%", workmatesTextBuilder.toString());
-                }
-            }
-        }
-        dialogText = dialogText.replace("%User%", FirebaseAuthService.getUserFirstName());
-
-        return dialogText;
-
+        return joiningWorkmates;
     }
 
 

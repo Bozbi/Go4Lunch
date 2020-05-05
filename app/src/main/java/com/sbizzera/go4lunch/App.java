@@ -31,8 +31,11 @@ public class App extends Application {
             }
         });
 
-        WorkManagerHelper.createNotificationChannels();
-        Places.initialize(this,getString(R.string.google_places_API_key));
+        WorkManagerHelper workManagerHelper = WorkManagerHelper.getInstance();
+        workManagerHelper.createNotificationChannels();
+
+
+        Places.initialize(this,BuildConfig.GOOGLE_API_KEY);
 
     }
 

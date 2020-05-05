@@ -5,7 +5,6 @@ apply plugin: 'com.google.gms.google-services'
 android {
     signingConfigs {
         debug {
-            // TODO BOZBI Utilise un chemin relatif !
             storeFile file('../keystore.jks')
             storePassword 'go4lunch'
             keyAlias = 'key'
@@ -63,10 +62,6 @@ dependencies {
     //Facebook
     implementation 'com.facebook.android:facebook-android-sdk:5.0.0'
 
-    // TODO BOZBI Picasso ou Glide il faut choisir !
-    //Picasso
-    implementation 'com.squareup.picasso:picasso:2.71828'
-
     //Glide
     implementation 'com.github.bumptech.glide:glide:4.10.0'
 
@@ -89,9 +84,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata:2.2.0"
 
     //FireStore
-    implementation 'com.google.firebase:firebase-auth:19.3.0'
-    implementation 'com.google.firebase:firebase-firestore:21.4.2'
-
+    implementation 'com.google.firebase:firebase-auth:19.3.1'
+    implementation 'com.google.firebase:firebase-firestore:21.4.3'
 
     //ThreeTenABP
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.2'

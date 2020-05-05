@@ -57,12 +57,10 @@ public class RestaurantActivity extends AppCompatActivity implements View.OnClic
     private RecyclerView rcv;
     private ImageView backArrowImg;
 
-    // TODO BOZBI NAVIGATE Comme le pattern newInstance() avec un fragment, tu peux utiliser le pattern navigate()
-    //  pour contrôler les paramètres d'Intent de ton Activity
+
     public static Intent navigate(@NonNull Context context, @NonNull String restaurantId) {
         Intent intent = new Intent(context, RestaurantActivity.class);
         intent.putExtra(INTENT_EXTRA_CODE, requireNonNull(restaurantId));
-
         return intent;
     }
 

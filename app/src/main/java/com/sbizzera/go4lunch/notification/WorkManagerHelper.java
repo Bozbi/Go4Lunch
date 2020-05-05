@@ -12,15 +12,21 @@ import com.sbizzera.go4lunch.App;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
-import timber.log.Timber;
-
 public class WorkManagerHelper {
 
     private static final String TAG_DAILY_WORK = "TAG_DAILY_WORK";
     public static final String CHANNEL_USER_LUNCH_ID = "CHANNEL_USER_LUNCH";
-    private static WorkManager workManager = WorkManager.getInstance(App.getApplication());
+    private static WorkManager sWorkManager = WorkManager.getInstance(App.getApplication());
+    private static WorkManagerHelper sWorkManagerHelper ;
 
-    public static void handleNotificationWork() {
+    public static WorkManagerHelper getInstance(){
+        if(sWorkManagerHelper==null){
+            sWorkManagerHelper = new WorkManagerHelper();
+        }
+        return sWorkManagerHelper;
+    }
+
+    public void handleNotificationWork() {
         // Clear every work that has been programmed in NotificationWorker itself (avoiding doubles)
         clearAllWork();
 
@@ -30,7 +36,7 @@ public class WorkManagerHelper {
         }
     }
 
-    private static void enqueueWork(){
+    private void enqueueWork(){
 
         Calendar currentDate = Calendar.getInstance();
         Calendar dueDate = Calendar.getInstance();
@@ -43,22 +49,19 @@ public class WorkManagerHelper {
         }
         long timeDiff = dueDate.getTimeInMillis() - currentDate.getTimeInMillis();
 
-        //TODO next line for testing purposes
-        timeDiff = 10000;
-
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(NotificationWorker.class)
                 .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
                 .addTag(TAG_DAILY_WORK)
                 .build();
 
-        workManager.enqueue(workRequest);
+        sWorkManager.enqueue(workRequest);
     }
 
-    private static void clearAllWork(){
-        workManager.cancelAllWorkByTag(TAG_DAILY_WORK);
+    private void clearAllWork(){
+        sWorkManager.cancelAllWorkByTag(TAG_DAILY_WORK);
     }
 
-    public static void createNotificationChannels() {
+    public void createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channelUserLunch = new NotificationChannel(
                     CHANNEL_USER_LUNCH_ID,
@@ -68,8 +71,6 @@ public class WorkManagerHelper {
             channelUserLunch.setDescription("Notify you're lunch choice every day ");
 
             NotificationManager manager = App.getApplication().getSystemService(NotificationManager.class);
-            //TODO why this line
-            assert manager!=null;
             manager.createNotificationChannel(channelUserLunch);
         }
     }

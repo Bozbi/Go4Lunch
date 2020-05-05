@@ -25,10 +25,10 @@
     <string name="dialog_positive_text">Check Your Lunch</string>
     <string name="dialog_negative_text">Back</string>
     <string name="dialog_title">Your Lunch</string>
-    <string name="dialog_text_no_choice">Hey %User%,\nYou have\'nt shared your choice today !\nDo it now so workmates can join you !</string>
-    <string name="dialog_text_with_choice">Hey %User%,\nToday you\'re eating at %Restaurant%%Workmates%.\nHave a good time!</string>
-    <string name="dialog_text_with"> with </string>
-    <string name="dialog_text_and"> and </string>
+    <string name="dialog_text_no_choice">Hey %s,\nYou have\'nt shared your choice today !\nDo it now so workmates can join you !</string>
+    <string name="dialog_text_with_choice">Hey %s,\nToday you\'re eating at %s%s.\nHave a good time!</string>
+    <string name="dialog_text_with">" with "</string>
+    <string name="dialog_text_and">" and "</string>
     <string name="notification_text_lunch_and_workmates">Hi %User%,\nToday you\'re eating at %Restaurant% with %Workmates%.\nHave a good time!</string>
     <string name="notification_and">\"and \"</string>
     <string name="notification_lunch_no_workmates">Hi %User%,\nToday you\'re eating at %Restaurant%.\nHave a good time!</string>
@@ -37,6 +37,7 @@
     <string name="find_new_restaurants_in_this_area">Find new restaurants in this area</string>
     <string name="order_by">Order by</string>
     <string name="distance">Distance</string>
+
     <string name="likes">Likes</string>
     <string name="frequentation">Frequentation</string>
     <string name="name">Name</string>

@@ -106,6 +106,7 @@ public class GooglePlacesService {
         }
         MutableLiveData<DetailsResponse.DetailResult> restaurantDetailsLiveData = new MutableLiveData<>();
         mGooglePlacesAPI.getRestaurantDetailsById(id,BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<DetailsResponse>() {
+
             @Override
             @EverythingIsNonNull
             public void onResponse(Call<DetailsResponse> call, Response<DetailsResponse> response) {

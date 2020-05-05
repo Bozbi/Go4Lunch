@@ -20,13 +20,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
-<<<<<<< HEAD
+import com.sbizzera.go4lunch.main_activity.OnItemBoundWithRestaurantClickListener;
+
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
-=======
+
 import com.sbizzera.go4lunch.main_activity.RestaurantClickedListenable;
-import com.sbizzera.go4lunch.services.ViewModelFactory;
->>>>>>> review_nino
+
 
 public class MapFragment
     extends SupportMapFragment
@@ -75,20 +74,6 @@ public class MapFragment
                 newMarker.setTag(marker.getRestaurantId());
 
             }
-            // TODO BOZBI Attention tu mets à jour ton listener à chaque mise à jour de LiveData, ne le fait qu'une fois pendant onMapReady
-            map.setOnMarkerClickListener(marker -> {
-                marker.showInfoWindow();
-                CameraUpdate location = CameraUpdateFactory.newLatLngZoom(marker.getPosition(),18);
-                map.animateCamera(location);
-                return true;
-            });
-            // TODO BOZBI La même
-            map.setOnInfoWindowClickListener(marker -> {
-                if (marker.getTag() != null) {
-                    mListener.onItemBoundWithRestaurantClick(marker.getTag().toString());
-                    marker.hideInfoWindow();
-                }
-            });
         }
         if (model.getCurrentGPSLatLng() != null) {
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(model.getCurrentGPSLatLng(), 15));
@@ -101,17 +86,12 @@ public class MapFragment
             map.setMyLocationEnabled(true);
             map.getUiSettings().setMyLocationButtonEnabled(true);
         }
-        // TODO BOZBI Le visibility ne suffit pas ? Pas besoin de mettre clickable à false en plus
-        mFetchNewAreaBtn.setClickable(false);
+
         mFetchNewAreaBtn.setVisibility(View.INVISIBLE);
         if (model.isSearchButtonVisible()) {
             mFetchNewAreaBtn.setVisibility(View.VISIBLE);
-            mFetchNewAreaBtn.setClickable(model.isSearchButtonVisible());
         }
-        // TODO BOZBI Attention tu mets à jour ton listener à chaque mise à jour de LiveData, ne le fait qu'une fois pendant onMapReady
-        mFetchNewAreaBtn.setOnClickListener((click) -> {
-            mViewModel.setLastFetchRestaurantVisibleRegion(map.getProjection().getVisibleRegion());
-        });
+
     }
 
 
@@ -119,6 +99,21 @@ public class MapFragment
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setOnMapLoadedCallback(this);
+        map.setOnMarkerClickListener(marker -> {
+            marker.showInfoWindow();
+            CameraUpdate location = CameraUpdateFactory.newLatLngZoom(marker.getPosition(),18);
+            map.animateCamera(location);
+            return true;
+        });
+        map.setOnInfoWindowClickListener(marker -> {
+            if (marker.getTag() != null) {
+                mListener.onItemBoundWithRestaurantClick(marker.getTag().toString());
+                marker.hideInfoWindow();
+            }
+        });
+        mFetchNewAreaBtn.setOnClickListener((click) -> {
+            mViewModel.setLastFetchRestaurantVisibleRegion(map.getProjection().getVisibleRegion());
+        });
         mViewModel.mapIsReady();
     }
 

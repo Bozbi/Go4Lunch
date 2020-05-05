@@ -12,13 +12,13 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.sbizzera.go4lunch.App;
+import com.sbizzera.go4lunch.BuildConfig;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailsResponse.DetailResult;
 import com.sbizzera.go4lunch.services.FireStoreService;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
 import com.sbizzera.go4lunch.utils.ResourcesProvider;
-import com.sbizzera.go4lunch.utils.Commons;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.ArrayList;
@@ -306,7 +306,7 @@ public class RestaurantViewModel extends ViewModel {
                 .appendPath("photo")
                 .appendQueryParameter("maxwidth", "600")
                 .appendQueryParameter("photoreference", photoRef)
-                .appendQueryParameter("key", Commons.PLACES_API_KEY)
+                .appendQueryParameter("key", BuildConfig.GOOGLE_API_KEY)
                 .toString();
     }
 

@@ -10,6 +10,7 @@ import com.sbizzera.go4lunch.main_activity.MainActivityViewModel;
 import com.sbizzera.go4lunch.main_activity.fragments.list_fragment.ListFragmentViewModel;
 import com.sbizzera.go4lunch.main_activity.fragments.map_fragment.MapFragmentViewModel;
 import com.sbizzera.go4lunch.main_activity.fragments.workmates_fragment.WorkmatesFragmentViewModel;
+import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 import com.sbizzera.go4lunch.restaurant_activity.RestaurantViewModel;
 import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
@@ -60,10 +61,12 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(MainActivityViewModel.class)) {
             return (T) new MainActivityViewModel(
                     new FireStoreService(),
-                    SharedPreferencesRepo.getInstance(App.getApplication()),
+                    SharedPreferencesRepo.getInstance(App.getApplication(),WorkManagerHelper.getInstance()),
                     VisibleRegionRepo.getInstance(),
                     PermissionService.getInstance(),
-                    new ResourcesProvider(App.getApplication())
+                    new ResourcesProvider(App.getApplication()),
+                    WorkManagerHelper.getInstance(),
+                    App.getApplication()
             );
         }
         if (modelClass.isAssignableFrom(WorkmatesFragmentViewModel.class)) {

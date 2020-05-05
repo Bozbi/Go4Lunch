@@ -43,8 +43,9 @@ public class MapFragmentViewModel extends ViewModel {
     private MediatorLiveData<Pair<String, Integer>> mNearbyParamsMLD = new MediatorLiveData<>();
     private LiveData<VisibleRegion> mLastRestaurantFetchVisibleRegionLD;
 
-
-    //TODO find in doc max nearby search radius (it is 50 000 m)
+    private static final int MAX_VISIBLE_DIAMETER_TO_FETCH_NEW_RESTAURANTS = 5000;
+    public static final int MIN_DISTANCE_MOVEMENT_SINCE_LAST_FETCH_TO_FETCH = 200;
+    public static final int MIN_VISIBLE_RADIUS_MOVEMENT_TO_FETCH_AGAIN = 200;
 
 
     public MapFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService, VisibleRegionRepo visibleRegionRepo, PermissionService permissionService) {
@@ -166,15 +167,13 @@ public class MapFragmentViewModel extends ViewModel {
         Location lastFetchNearLeftCornerLocation = fromLatLngToLocation(lastRestaurantFetchVisibleRegion.nearLeft);
         Location lastVisibleNearRightCornerLocation = fromLatLngToLocation(lastVisibleRegion.nearRight);
 
-
-        // TODO BOZBI Extrait tes constantes et explique les (mètres, secondes, nb patates * litres de bière, etc)
-        if (lastVisibleNearLeftCornerLocation.distanceTo(lastVisibleNearRightCornerLocation) > 5000) {
+        if (lastVisibleNearLeftCornerLocation.distanceTo(lastVisibleNearRightCornerLocation) > MAX_VISIBLE_DIAMETER_TO_FETCH_NEW_RESTAURANTS) {
             return false;
         }
-        if (lastFetchLocation.distanceTo(lastVisibleLocation) > 200) {
+        if (lastFetchLocation.distanceTo(lastVisibleLocation) > MIN_DISTANCE_MOVEMENT_SINCE_LAST_FETCH_TO_FETCH) {
             return true;
         }
-        if (lastVisibleNearLeftCornerLocation.distanceTo(lastFetchNearLeftCornerLocation) > 200) {
+        if (lastVisibleNearLeftCornerLocation.distanceTo(lastFetchNearLeftCornerLocation) > MIN_VISIBLE_RADIUS_MOVEMENT_TO_FETCH_AGAIN) {
             return true;
         }
         return false;
@@ -272,8 +271,5 @@ public class MapFragmentViewModel extends ViewModel {
         mIsMapReadyLD.setValue(false);
     }
 
-    // TODO BOZBI Coquille
-    public LiveData<Boolean> getIsMapReadyLD() {
-        return mIsMapReadyLD;
-    }
+
 }

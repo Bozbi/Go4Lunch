@@ -191,8 +191,5 @@ public class DetailsResponse {
             }
         }
 
-
-
-
     }
 }
