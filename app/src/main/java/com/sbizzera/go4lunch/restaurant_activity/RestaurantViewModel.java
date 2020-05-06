@@ -18,7 +18,8 @@ import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
 import com.sbizzera.go4lunch.model.places_place_details_models.AddressComponent;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailResult;
-import com.sbizzera.go4lunch.services.FireStoreService;
+import com.sbizzera.go4lunch.services.AuthService;
+import com.sbizzera.go4lunch.services.FireStoreRepo;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
@@ -29,18 +30,21 @@ import java.util.List;
 public class RestaurantViewModel extends ViewModel {
 
     private GooglePlacesService mGooglePlacesService;
-    private FireStoreService mFirestoreService;
+    private FireStoreRepo mFirestoreRepo;
+    private AuthService mAuthService;
     private Context mContext;
     private MediatorLiveData<RestaurantActivityModel> modelLiveData = new MediatorLiveData<>();
     private LiveData<DetailResult> placeDetailLiveData;
 
     public RestaurantViewModel(
             GooglePlacesService googlePlacesService,
-            FireStoreService firestore,
+            FireStoreRepo firestore,
+            AuthService authService,
             Context context
     ) {
         mGooglePlacesService = googlePlacesService;
-        mFirestoreService = firestore;
+        mFirestoreRepo = firestore;
+        mAuthService = authService;
         mContext = context;
     }
 
@@ -50,10 +54,10 @@ public class RestaurantViewModel extends ViewModel {
 
     public void fetchRestaurantInfo(String id) {
         placeDetailLiveData = mGooglePlacesService.getRestaurantDetailsById(id);
-        LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestoreService.isRestaurantLikedByUser(id);
-        LiveData<Integer> restaurantLikeCountLiveData = mFirestoreService.getRestaurantLikesCount(id);
-        LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestoreService.isRestaurantChosenByUserToday(id);
-        LiveData<List<FireStoreUser>> todayListOfUsersLiveData = mFirestoreService.getTodayListOfUsers(id);
+        LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestoreRepo.isRestaurantLikedByUser(id,mAuthService.getUser().getUid());
+        LiveData<Integer> restaurantLikeCountLiveData = mFirestoreRepo.getRestaurantLikesCount(id);
+        LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestoreRepo.isRestaurantChosenByUserToday(id,mAuthService.getUser().getUid());
+        LiveData<List<FireStoreUser>> todayListOfUsersLiveData = mFirestoreRepo.getTodayListOfUsers(id);
 
 
         modelLiveData.addSource(placeDetailLiveData, place -> {
@@ -171,14 +175,14 @@ public class RestaurantViewModel extends ViewModel {
     public void handleLikeClick() {
         //check that a restaurant has been fetch
         if (placeDetailLiveData.getValue() != null) {
-            mFirestoreService.updateRestaurantLike(placeDetailLiveData.getValue());
+            mFirestoreRepo.updateRestaurantLike(placeDetailLiveData.getValue(),mAuthService.getUser().getUid());
         }
     }
 
     public void handleFabClick() {
         //check that a restaurant has been fetch
         if (placeDetailLiveData.getValue() != null) {
-            mFirestoreService.updateRestaurantChoice(placeDetailLiveData.getValue());
+            mFirestoreRepo.updateRestaurantChoice(placeDetailLiveData.getValue(),mAuthService.getUser());
         }
     }
 

@@ -18,8 +18,8 @@ import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
 import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.notification.WorkManagerHelper;
-import com.sbizzera.go4lunch.services.FireStoreService;
-import com.sbizzera.go4lunch.services.FirebaseAuthService;
+import com.sbizzera.go4lunch.services.FireStoreRepo;
+import com.sbizzera.go4lunch.services.AuthService;
 import com.sbizzera.go4lunch.services.PermissionService;
 import com.sbizzera.go4lunch.services.VisibleRegionRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
@@ -30,9 +30,10 @@ import java.util.List;
 
 public class MainActivityViewModel extends ViewModel {
 
-    private FireStoreService mFireStoreService;
-    private SharedPreferencesRepo sharedPreferencesRepo;
+    private FireStoreRepo mFireStoreRepo;
+    private SharedPreferencesRepo mSharedPreferencesRepo;
     private Context mContext;
+    private AuthService mAuthService;
 
 
     private MediatorLiveData<MainActivityModel> modelLD = new MediatorLiveData<>();
@@ -47,17 +48,20 @@ public class MainActivityViewModel extends ViewModel {
 
 
     public MainActivityViewModel(
-            FireStoreService mFireStoreService,
+            FireStoreRepo fireStoreRepo,
             SharedPreferencesRepo sharedPreferencesRepo,
             VisibleRegionRepo visibleRegionRepo,
             PermissionService permissionService,
             WorkManagerHelper workManagerHelper,
+            AuthService authService,
             Context context
     ) {
-        this.mFireStoreService = mFireStoreService;
-        this.sharedPreferencesRepo = sharedPreferencesRepo;
+        mFireStoreRepo = fireStoreRepo;
+        mSharedPreferencesRepo = sharedPreferencesRepo;
         mVisibleRegionRepo = visibleRegionRepo;
+        mAuthService = authService;
         mContext= context;
+        sharedPreferencesRepo.updateLiveData(mAuthService.getUser().getUid());
         updateUserInDb();
         wireUp();
         workManagerHelper.handleNotificationWork();
@@ -72,16 +76,16 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     private void wireUp() {
-        LiveData<Boolean> isNotificationOnLD = sharedPreferencesRepo.getNotificationPreferencesLiveData();
+        LiveData<Boolean> isNotificationOnLD = mSharedPreferencesRepo.getNotificationPreferencesLiveData();
         modelLD.addSource(isNotificationOnLD, this::combineSources);
 
         //Wire userLunch and other users
-        userTodayLunchLD = mFireStoreService.getUserLunch();
+        userTodayLunchLD = mFireStoreRepo.getUserLunch(mAuthService.getUser().getUid());
         joiningWorkmatesLD = Transformations.switchMap(userTodayLunchLD, userTodayLunch -> {
             if (userTodayLunch == null) {
-                return mFireStoreService.getTodayListOfUsers(null);
+                return mFireStoreRepo.getTodayListOfUsers(null);
             }
-            return mFireStoreService.getTodayListOfUsers(userTodayLunch.getRestaurantId());
+            return mFireStoreRepo.getTodayListOfUsers(userTodayLunch.getRestaurantId());
         });
 
         // TODO BOZBI SINGLE LIVE EVENT + MEDIATOR Utilise un SingleLiveEvent qui extends d'un Mediator plutôt d'une LiveData
@@ -96,9 +100,9 @@ public class MainActivityViewModel extends ViewModel {
 
     private void combineSources(Boolean isNotificationOn) {
 
-        String userPhotoUrl = FirebaseAuthService.getUserPhotoUrl();
-        String userName = FirebaseAuthService.getUserName();
-        String userEmail = FirebaseAuthService.getUserEmail();
+        String userPhotoUrl = mAuthService.getUserPhotoUrl();
+        String userName = mAuthService.getUserName();
+        String userEmail = mAuthService.getUserEmail();
         String switchText = "OFF";
         if (isNotificationOn) {
             switchText = "ON";
@@ -118,11 +122,11 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     void updateSharedPrefs(Boolean isChecked) {
-        sharedPreferencesRepo.saveNotificationPreferences(isChecked);
+        mSharedPreferencesRepo.saveNotificationPreferences(isChecked,mAuthService.getUser().getUid());
     }
 
     private void updateUserInDb() {
-        mFireStoreService.updateUserInDb();
+        mFireStoreRepo.updateUserInDb(mAuthService.getUser());
     }
 
     public SingleLiveEvent<RectangularBounds> getViewActionSearch() {
@@ -178,7 +182,7 @@ public class MainActivityViewModel extends ViewModel {
             restaurantName = lunch.getRestaurantName();
         }
         String joiningWorkmatesString = createJoiningWorkmatesString(joiningWorkmatesStr);
-        return getDialogText(FirebaseAuthService.getUserFirstName(),restaurantName,joiningWorkmatesString);
+        return getDialogText(mAuthService.getUserFirstName(),restaurantName,joiningWorkmatesString);
     }
 
     private String getDialogText(String userFirstName, String restaurantName, String joiningWorkmatesString) {
@@ -225,7 +229,7 @@ public class MainActivityViewModel extends ViewModel {
         if (joiningWorkmates != null) {
             FireStoreUser userToRemove = new FireStoreUser();
             for (FireStoreUser user : joiningWorkmates) {
-                if (user.getUserId().equals(FirebaseAuthService.getUser().getUid())) {
+                if (user.getUserId().equals(mAuthService.getUser().getUid())) {
                     userToRemove = user;
                 }
             }
@@ -234,6 +238,10 @@ public class MainActivityViewModel extends ViewModel {
             }
         }
         return joiningWorkmates;
+    }
+
+    public void logOutUser() {
+        mAuthService.logOut(mContext);
     }
 
 

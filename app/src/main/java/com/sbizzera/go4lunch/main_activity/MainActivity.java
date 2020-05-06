@@ -2,9 +2,7 @@ package com.sbizzera.go4lunch.main_activity;
 
 import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,7 +41,7 @@ import com.sbizzera.go4lunch.main_activity.fragments.map_fragment.MapFragment;
 import com.sbizzera.go4lunch.main_activity.fragments.workmates_fragment.WorkmatesFragment;
 import com.sbizzera.go4lunch.main_activity.your_lunch_dialog.YourLunchDialogFragment;
 import com.sbizzera.go4lunch.restaurant_activity.RestaurantActivity;
-import com.sbizzera.go4lunch.services.FirebaseAuthService;
+import com.sbizzera.go4lunch.services.AuthService;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
@@ -251,23 +249,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//        Auth
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //LOG OUT User and back to go back to main then login
     private void logOut() {
-        // TODO BOZBI Dans le ViewModel, là ta MainActivity peux leaker
-        FirebaseAuthService.logOut(this)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Intent intent = new Intent(MainActivity.this, DispatchActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
+        mViewModel.logOutUser();
     }
 
 

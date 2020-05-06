@@ -7,10 +7,12 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
+import com.firebase.ui.auth.AuthUI;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.sbizzera.go4lunch.services.FirebaseAuthService;
+import com.sbizzera.go4lunch.App;
+import com.sbizzera.go4lunch.services.AuthService;
 
 
 import org.threeten.bp.LocalDate;
@@ -29,10 +31,12 @@ public class NotificationWorker extends ListenableWorker {
     @NonNull
     @Override
     public ListenableFuture<Result> startWork() {
-        WorkManagerHelper workManagerHelper = WorkManagerHelper.getInstance();
+        //TODO work again on this part
+        WorkManagerHelper workManagerHelper = WorkManagerHelper.getInstance(App.getApplication());
         workManagerHelper.handleNotificationWork();
+        AuthService authService = AuthService.getInstance(FirebaseAuth.getInstance(), AuthUI.getInstance());
         return CallbackToFutureAdapter.getFuture(completer -> {
-            if (FirebaseAuthService.getUser() != null) {
+            if (authService.getUser() != null) {
                 return FirebaseFirestore.getInstance().collection("dates")
                         .document(LocalDate.now().toString())
                         .collection("lunches")
@@ -53,7 +57,7 @@ public class NotificationWorker extends ListenableWorker {
                                                 List<String> joiningWorkmatesNames = new ArrayList<>();
                                                 for (int i = 0; i < allLunchesForGivenRestaurant.size(); i++) {
                                                     String userNameToJoin = allLunchesForGivenRestaurant.getDocuments().get(i).get("userName").toString();
-                                                    if (!userNameToJoin.equals(FirebaseAuthService.getUser().getDisplayName())) {
+                                                    if (!userNameToJoin.equals(authService.getUser().getDisplayName())) {
                                                         joiningWorkmatesNames.add(userNameToJoin);
                                                     }
                                                 }

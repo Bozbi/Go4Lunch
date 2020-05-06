@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
-import com.sbizzera.go4lunch.services.FireStoreService;
+import com.sbizzera.go4lunch.services.FireStoreRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.ArrayList;
@@ -19,22 +19,22 @@ import java.util.List;
 
 public class WorkmatesFragmentViewModel extends ViewModel {
 
-    private FireStoreService fireStoreService;
+    private FireStoreRepo mFireStoreRepo;
     private Context mContext;
     private MediatorLiveData<WorkmatesFragmentModel> modelLiveData = new MediatorLiveData<>();
 
     public WorkmatesFragmentViewModel(
-            FireStoreService fireStoreService,
+            FireStoreRepo fireStoreRepo,
             Context context
     ) {
-        this.fireStoreService = fireStoreService;
+        this.mFireStoreRepo = fireStoreRepo;
         mContext = context;
         wireUpMediator();
     }
 
     private void wireUpMediator() {
-        LiveData<List<FireStoreUser>> allUsersLiveData = fireStoreService.getAllUsers();
-        LiveData<List<FireStoreLunch>> allTodaysLunchesLiveData = fireStoreService.getAllTodaysLunches();
+        LiveData<List<FireStoreUser>> allUsersLiveData = mFireStoreRepo.getAllUsers();
+        LiveData<List<FireStoreLunch>> allTodaysLunchesLiveData = mFireStoreRepo.getAllTodaysLunches();
 
         modelLiveData.addSource(allUsersLiveData, allUsers -> {
             modelLiveData.postValue(combineSources(allUsers, allTodaysLunchesLiveData.getValue()));

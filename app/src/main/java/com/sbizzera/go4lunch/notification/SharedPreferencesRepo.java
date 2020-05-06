@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.sbizzera.go4lunch.App;
-import com.sbizzera.go4lunch.services.FirebaseAuthService;
+import com.sbizzera.go4lunch.services.AuthService;
 
 public class SharedPreferencesRepo {
 
@@ -22,7 +22,6 @@ public class SharedPreferencesRepo {
     private SharedPreferencesRepo(Application application,WorkManagerHelper workManagerHelper) {
         mApplication = application;
         mWorkManagerHelper = workManagerHelper;
-        updateLiveData();
     }
 
     public static SharedPreferencesRepo getInstance(Application application,WorkManagerHelper workManagerHelper){
@@ -32,17 +31,17 @@ public class SharedPreferencesRepo {
         return sSharedPreferencesRepo;
     }
 
-    public void saveNotificationPreferences(Boolean bol) {
-        SharedPreferences sharedPreferences = mApplication.getSharedPreferences(FirebaseAuthService.getUser().getUid(), Context.MODE_PRIVATE);
+    public void saveNotificationPreferences(Boolean bol,String currentUserId) {
+        SharedPreferences sharedPreferences = mApplication.getSharedPreferences(currentUserId, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(NOTIFICATION_STATUS, bol);
         editor.apply();
-        updateLiveData();
+        updateLiveData(currentUserId);
         mWorkManagerHelper.handleNotificationWork();
     }
 
-    private void updateLiveData() {
-        notificationPreferencesLD.setValue(mApplication.getSharedPreferences(FirebaseAuthService.getUser().getUid(), Context.MODE_PRIVATE).getBoolean(NOTIFICATION_STATUS, true));
+    public void updateLiveData(String currentUserId) {
+        notificationPreferencesLD.setValue(mApplication.getSharedPreferences(currentUserId, Context.MODE_PRIVATE).getBoolean(NOTIFICATION_STATUS, true));
     }
 
 
@@ -50,8 +49,8 @@ public class SharedPreferencesRepo {
         return notificationPreferencesLD;
     }
 
-    public static Boolean isNotificationPrefOn() {
-        SharedPreferences sharedPreferences = App.getApplication().getSharedPreferences(FirebaseAuthService.getUser().getUid(), Context.MODE_PRIVATE);
+    public static Boolean isNotificationPrefOn(String currentUserId) {
+        SharedPreferences sharedPreferences = App.getApplication().getSharedPreferences(currentUserId, Context.MODE_PRIVATE);
         return sharedPreferences.getBoolean(NOTIFICATION_STATUS, true);
     }
 }

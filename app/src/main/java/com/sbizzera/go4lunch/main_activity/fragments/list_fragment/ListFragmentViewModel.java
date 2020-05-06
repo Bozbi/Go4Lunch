@@ -18,7 +18,7 @@ import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.model.places_place_details_models.AddressComponent;
 import com.sbizzera.go4lunch.model.places_place_details_models.DetailResult;
 import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
-import com.sbizzera.go4lunch.services.FireStoreService;
+import com.sbizzera.go4lunch.services.FireStoreRepo;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
 import com.sbizzera.go4lunch.services.SortTypeChosenRepo;
 
@@ -35,7 +35,7 @@ public class ListFragmentViewModel extends ViewModel {
 
 
     private GooglePlacesService mGooglePlacesService;
-    private FireStoreService mFireStoreService;
+    private FireStoreRepo mFireStoreRepo;
     private SortTypeChosenRepo mSortTypeChosenRepo;
     private final Context mContext;
 
@@ -49,12 +49,12 @@ public class ListFragmentViewModel extends ViewModel {
     public ListFragmentViewModel(
             CurrentGPSLocationRepo currentGPSLocationRepo,
             GooglePlacesService googlePlacesService,
-            FireStoreService fireStoreService,
+            FireStoreRepo fireStoreRepo,
             SortTypeChosenRepo sortTypeChosenRepo,
             Context context
     ){
         this.mGooglePlacesService = googlePlacesService;
-        this.mFireStoreService = fireStoreService;
+        this.mFireStoreRepo = fireStoreRepo;
         mSortTypeChosenRepo = sortTypeChosenRepo;
         mDetailsMapLD.setValue(new HashMap<>());
         mCurrentGPSLocationLD = currentGPSLocationRepo.getCurrentGPSLocationLD();
@@ -68,7 +68,7 @@ public class ListFragmentViewModel extends ViewModel {
 
     private void wireUpMediator() {
 
-        LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = mFireStoreService.getAllKnownRestaurants();
+        LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = mFireStoreRepo.getAllKnownRestaurants();
         LiveData<Integer> sortTypeChosenLD = mSortTypeChosenRepo.getSelectedChipID();
 
 

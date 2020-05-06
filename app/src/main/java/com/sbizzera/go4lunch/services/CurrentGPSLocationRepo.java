@@ -1,39 +1,35 @@
 package com.sbizzera.go4lunch.services;
 
-import android.app.Application;
+
 import android.location.Location;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.location.LocationServices;
-import com.sbizzera.go4lunch.utils.Go4LunchUtils;
+import com.google.android.gms.location.FusedLocationProviderClient;
 
-import timber.log.Timber;
 
 
 public class CurrentGPSLocationRepo {
 
     private static CurrentGPSLocationRepo sCurrentGPSLocationRepo;
 
-    private Application mApplication;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
     private MutableLiveData<Location> locationLD = new MutableLiveData<>();
 
-    private CurrentGPSLocationRepo(Application application) {
-        mApplication = application;
+    private CurrentGPSLocationRepo(FusedLocationProviderClient fusedLocationProviderClient) {
+        mFusedLocationProviderClient = fusedLocationProviderClient;
     }
 
-    public static CurrentGPSLocationRepo getInstance(Application application){
+    public static CurrentGPSLocationRepo getInstance(FusedLocationProviderClient fusedLocationProviderClient){
         if (sCurrentGPSLocationRepo ==null){
-            sCurrentGPSLocationRepo = new CurrentGPSLocationRepo(application);
+            sCurrentGPSLocationRepo = new CurrentGPSLocationRepo(fusedLocationProviderClient);
         }
         return sCurrentGPSLocationRepo;
     }
 
     public void refresh() {
-        // TODO BOZBI J'aurai même injecté le FusedLocationProviderClient direct en fait plutôt que l'Application,
-        //  tu risques de galérer pour les TU là !
-        LocationServices.getFusedLocationProviderClient(mApplication).getLastLocation().addOnSuccessListener(location -> {
+        mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
             locationLD.postValue(location);
         });
     }

@@ -1,7 +1,5 @@
 package com.sbizzera.go4lunch.services;
 
-import android.util.ArrayMap;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -17,22 +15,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.internal.EverythingIsNonNull;
-import timber.log.Timber;
 
 public class GooglePlacesService {
 
-    private static final String TAG = "RestaurantRepository";
     private static GooglePlacesService sGooglePlacesService;
 
     //CACHING FETCHEDRESTAURANTS
-    private Map<String,NearbyPlace> mNearbyPlaceMapCached = new HashMap<>();
+    private Map<String, NearbyPlace> mNearbyPlaceMapCached = new HashMap<>();
 
     //CACHING RESTAURANTSDETAILS
     private Map<String, DetailResult> mRestaurantsDetailsMapCached = new HashMap<>();
@@ -58,14 +53,14 @@ public class GooglePlacesService {
     public LiveData<List<NearbyPlace>> getNearbyRestaurants(String location, int radius) {
 
         MutableLiveData<List<NearbyPlace>> nearbyRestaurantListLiveData = new MutableLiveData<>();
-        mGooglePlacesAPI.getNearbyRestaurant(location, radius,BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<NearbyResults>() {
+        mGooglePlacesAPI.getNearbyRestaurant(location, radius, BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<NearbyResults>() {
             @EverythingIsNonNull
             @Override
             public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {
                 assert response.body() != null;
                 for (NearbyPlace restaurant : response.body().getRestaurantList()) {
-                    if(mNearbyPlaceMapCached.get(restaurant.getId())==null){
-                        mNearbyPlaceMapCached.put(restaurant.getId(),restaurant);
+                    if (mNearbyPlaceMapCached.get(restaurant.getId()) == null) {
+                        mNearbyPlaceMapCached.put(restaurant.getId(), restaurant);
                     }
 
                 }
@@ -89,7 +84,7 @@ public class GooglePlacesService {
         }
         DetailResult placeDetail = null;
         try {
-            Response<DetailsResponse> response = mGooglePlacesAPI.getRestaurantDetailsById(id,BuildConfig.GOOGLE_API_KEY).execute();
+            Response<DetailsResponse> response = mGooglePlacesAPI.getRestaurantDetailsById(id, BuildConfig.GOOGLE_API_KEY).execute();
             if (response.body() != null && response.body().getDetailResult() != null) {
                 placeDetail = response.body().getDetailResult();
                 mRestaurantsDetailsMapCached.put(id, placeDetail);
@@ -106,7 +101,7 @@ public class GooglePlacesService {
             return new MutableLiveData<>(mRestaurantsDetailsMapCached.get(id));
         }
         MutableLiveData<DetailResult> restaurantDetailsLiveData = new MutableLiveData<>();
-        mGooglePlacesAPI.getRestaurantDetailsById(id,BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<DetailsResponse>() {
+        mGooglePlacesAPI.getRestaurantDetailsById(id, BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<DetailsResponse>() {
 
             @Override
             @EverythingIsNonNull
@@ -118,6 +113,7 @@ public class GooglePlacesService {
                     restaurantDetailsLiveData.postValue(null);
                 }
             }
+
             @Override
             @EverythingIsNonNull
             public void onFailure(Call<DetailsResponse> call, Throwable t) {
@@ -129,7 +125,7 @@ public class GooglePlacesService {
     }
 
     // TODO BOZBI Le cache ne doit jamais être exposé, il ne sert qu'à améliorer les performances en interne du repo
-    public List<NearbyPlace> getNearbyCache (){
+    public List<NearbyPlace> getNearbyCache() {
         return new ArrayList<>(mNearbyPlaceMapCached.values());
     }
 }

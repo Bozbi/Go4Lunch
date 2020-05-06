@@ -2,6 +2,7 @@ package com.sbizzera.go4lunch.notification;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.os.Build;
 
 import androidx.work.OneTimeWorkRequest;
@@ -16,12 +17,16 @@ public class WorkManagerHelper {
 
     private static final String TAG_DAILY_WORK = "TAG_DAILY_WORK";
     public static final String CHANNEL_USER_LUNCH_ID = "CHANNEL_USER_LUNCH";
-    private static WorkManager sWorkManager = WorkManager.getInstance(App.getApplication());
+    private  WorkManager mWorkManager;
     private static WorkManagerHelper sWorkManagerHelper ;
 
-    public static WorkManagerHelper getInstance(){
+    private WorkManagerHelper(Context context){
+        mWorkManager = WorkManager.getInstance(context);
+    }
+
+    public static WorkManagerHelper getInstance(Context context){
         if(sWorkManagerHelper==null){
-            sWorkManagerHelper = new WorkManagerHelper();
+            sWorkManagerHelper = new WorkManagerHelper(context);
         }
         return sWorkManagerHelper;
     }
@@ -30,10 +35,7 @@ public class WorkManagerHelper {
         // Clear every work that has been programmed in NotificationWorker itself (avoiding doubles)
         clearAllWork();
 
-        //If User Wants Notification
-        if (SharedPreferencesRepo.isNotificationPrefOn()) {
-            enqueueWork();
-        }
+        enqueueWork();
     }
 
     private void enqueueWork(){
@@ -54,11 +56,11 @@ public class WorkManagerHelper {
                 .addTag(TAG_DAILY_WORK)
                 .build();
 
-        sWorkManager.enqueue(workRequest);
+        mWorkManager.enqueue(workRequest);
     }
 
     private void clearAllWork(){
-        sWorkManager.cancelAllWorkByTag(TAG_DAILY_WORK);
+        mWorkManager.cancelAllWorkByTag(TAG_DAILY_WORK);
     }
 
     public void createNotificationChannels() {

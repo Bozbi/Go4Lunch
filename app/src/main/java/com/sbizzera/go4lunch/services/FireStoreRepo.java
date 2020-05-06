@@ -19,38 +19,45 @@ import org.threeten.bp.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
+
+public class FireStoreRepo {
+
+    private static FireStoreRepo sFireStoreRepo;
+
+    private FireStoreRepo(){
+
+    }
+
+    public static FireStoreRepo getInstance(){
+        if (sFireStoreRepo==null){
+            sFireStoreRepo = new FireStoreRepo();
+        }
+        return sFireStoreRepo;
+    }
 
 
-public class FireStoreService {
 
-
-    // TODO BOZBI Ne jamais stocker dans une property une valeur qui peut évoluer (temps / utilisateur / etc)
-    private String currentUserId = FirebaseAuthService.getUser().getUid();
-    private FirebaseUser currentUser = FirebaseAuthService.getUser();
-    // TODO BOZBI Récupère l'instance avec le getInstance() à chaque fois
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference users = db.collection("users");
-    private CollectionReference restaurants = db.collection("restaurants");
-    private CollectionReference dates = db.collection("dates");
+    private CollectionReference users = FirebaseFirestore.getInstance().collection("users");
+    private CollectionReference restaurants = FirebaseFirestore.getInstance().collection("restaurants");
+    private CollectionReference dates = FirebaseFirestore.getInstance().collection("dates");
 
 
     //Insert or Update user in FiresStore
-    public void updateUserInDb() {
+    public void updateUserInDb(FirebaseUser currentUser) {
         String photoUrl = null;
         if (currentUser.getPhotoUrl() != null) {
             photoUrl = currentUser.getPhotoUrl().toString();
         }
 
-        users.document(currentUserId).set(new FireStoreUser(
-                currentUserId,
+        users.document(currentUser.getUid()).set(new FireStoreUser(
+                currentUser.getUid(),
                 currentUser.getDisplayName(),
                 photoUrl
         ));
     }
 
 
-    public void updateRestaurantLike(DetailResult restaurant) {
+    public void updateRestaurantLike(DetailResult restaurant,String currentUserId) {
         restaurants.document(restaurant.getPlaceId()).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot != null && documentSnapshot.getData() != null) {
                 //update like
@@ -83,18 +90,22 @@ public class FireStoreService {
 
     }
 
-    public void updateRestaurantChoice(DetailResult restaurant) {
+    public void updateRestaurantChoice(DetailResult restaurant,FirebaseUser currentUser) {
+        String photoURl= null;
+        if (currentUser.getPhotoUrl()!=null){
+            photoURl = currentUser.getPhotoUrl().toString();
+        }
         FireStoreLunch lunchToAdd = new FireStoreLunch(
-                currentUserId,
+                currentUser.getUid(),
                 currentUser.getDisplayName(),
-                currentUser.getPhotoUrl().toString(), // TODO BOZBI NPE Crash en attente
+                photoURl,
                 restaurant.getPlaceId(),
                 restaurant.getName()
         );
         restaurants.document(restaurant.getPlaceId()).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot != null && documentSnapshot.getData() != null) {
                 //restaurant exists in Database
-                updateLunch(restaurant, lunchToAdd);
+                updateLunch(restaurant, lunchToAdd,currentUser.getUid());
 
             } else {
                 //create restaurant add lunch and update count
@@ -105,37 +116,35 @@ public class FireStoreService {
                         restaurant.getGeometry().getLocation().getLng()
                 );
                 restaurants.document(restaurant.getPlaceId()).set(restaurantToAdd).addOnSuccessListener((newRestaurant) -> {
-                    updateLunch(restaurant, lunchToAdd);
+                    updateLunch(restaurant, lunchToAdd,currentUser.getUid());
                 });
 
             }
         });
     }
 
-    private void updateLunch(DetailResult restaurant, FireStoreLunch lunchToAdd) {
-        // TODO BOZBI "Finalise" ta valeur de LocalDate.now() au début de ta fonction et réfères-y toujours pendant ta fonction
-        //  Sinon imagine le bordel (ou les crash) si l'utilisateur like un restaurant à 23:59:59 et qu'il a une mauvaise connexion...
-        //  Ta première requête passera, alors que les requêtes suivantes échoueront 
-        dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).get().addOnSuccessListener(lunch -> {
+    private void updateLunch(DetailResult restaurant, FireStoreLunch lunchToAdd,String currentUserId) {
+        String localDateOfNowToString = LocalDate.now().toString();
+        dates.document(localDateOfNowToString).collection("lunches").document(currentUserId).get().addOnSuccessListener(lunch -> {
             if (lunch.exists()) {
                 FireStoreLunch existingLunch = lunch.toObject(FireStoreLunch.class);
                 if (existingLunch.getRestaurantId().equals(restaurant.getPlaceId())) {
-                    dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).delete();
+                    dates.document(localDateOfNowToString).collection("lunches").document(currentUserId).delete();
                     restaurants.document(existingLunch.getRestaurantId()).update("lunchCount", FieldValue.increment(-1));
                 } else {
-                    dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).update("restaurantId", restaurant.getPlaceId(), "restaurantName", restaurant.getName());
+                    dates.document(localDateOfNowToString).collection("lunches").document(currentUserId).update("restaurantId", restaurant.getPlaceId(), "restaurantName", restaurant.getName());
                     restaurants.document(existingLunch.getRestaurantId()).update("lunchCount", FieldValue.increment(-1));
                     restaurants.document(restaurant.getPlaceId()).update("lunchCount", FieldValue.increment(1));
                 }
             } else {
-                dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).set(lunchToAdd);
+                dates.document(localDateOfNowToString).collection("lunches").document(currentUserId).set(lunchToAdd);
                 restaurants.document(restaurant.getPlaceId()).update("lunchCount", FieldValue.increment(1));
             }
         });
     }
 
 
-    public LiveData<Boolean> isRestaurantLikedByUser(String id) {
+    public LiveData<Boolean> isRestaurantLikedByUser(String id,String currentUserId) {
         MutableLiveData<Boolean> isLikedLiveData = new MutableLiveData<>();
         restaurants.whereEqualTo("restaurantId", id).whereArrayContains("likesIds", currentUserId).addSnapshotListener((queryDocumentSnapshots, e) -> {
             if (queryDocumentSnapshots != null && queryDocumentSnapshots.getDocuments().size() == 0) {
@@ -150,7 +159,7 @@ public class FireStoreService {
     public LiveData<Integer> getRestaurantLikesCount(String id) {
         MutableLiveData<Integer> likesCountLiveData = new MutableLiveData<>();
         restaurants.document(id).addSnapshotListener((documentSnapshot, e) -> {
-            // TODO BOZBI Simplifié, check changes
+
             int likesCount = 0;
 
             if (documentSnapshot != null) {
@@ -167,7 +176,7 @@ public class FireStoreService {
         return likesCountLiveData;
     }
 
-    public LiveData<Boolean> isRestaurantChosenByUserToday(String id) {
+    public LiveData<Boolean> isRestaurantChosenByUserToday(String id,String currentUserId) {
         MutableLiveData<Boolean> isRestaurantChosenByUserTodayLiveData = new MutableLiveData<>();
         dates.document(LocalDate.now().toString()).collection("lunches")
                 .document(currentUserId)
@@ -245,7 +254,7 @@ public class FireStoreService {
     }
 
 
-    public LiveData<FireStoreLunch> getUserLunch() {
+    public LiveData<FireStoreLunch> getUserLunch(String currentUserId) {
         MutableLiveData<FireStoreLunch> todayUserLunchLD = new MutableLiveData<>();
         dates.document(LocalDate.now().toString()).collection("lunches").document(currentUserId).addSnapshotListener((documentSnapshot, e) -> {
             if (documentSnapshot != null && documentSnapshot.toObject(FireStoreLunch.class) != null) {

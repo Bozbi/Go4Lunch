@@ -31,7 +31,7 @@ public class App extends Application {
             }
         });
 
-        WorkManagerHelper workManagerHelper = WorkManagerHelper.getInstance();
+        WorkManagerHelper workManagerHelper = WorkManagerHelper.getInstance(this);
         workManagerHelper.createNotificationChannels();
 
 

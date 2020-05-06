@@ -17,7 +17,7 @@ import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.model.firestore_models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.model.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
-import com.sbizzera.go4lunch.services.FireStoreService;
+import com.sbizzera.go4lunch.services.FireStoreRepo;
 import com.sbizzera.go4lunch.services.GooglePlacesService;
 import com.sbizzera.go4lunch.services.PermissionService;
 import com.sbizzera.go4lunch.services.VisibleRegionRepo;
@@ -31,7 +31,7 @@ public class MapFragmentViewModel extends ViewModel {
 
     private CurrentGPSLocationRepo mCurrentGPSLocationRepo;
     private GooglePlacesService mGooglePlacesService;
-    private FireStoreService mFireStoreService;
+    private FireStoreRepo mFireStoreRepo;
     private PermissionService mPermissionService;
     private VisibleRegionRepo mVisibleRegionRepo;
 
@@ -48,10 +48,10 @@ public class MapFragmentViewModel extends ViewModel {
     public static final int MIN_VISIBLE_RADIUS_MOVEMENT_TO_FETCH_AGAIN = 200;
 
 
-    public MapFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreService fireStoreService, VisibleRegionRepo visibleRegionRepo, PermissionService permissionService) {
+    public MapFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesService googlePlacesService, FireStoreRepo fireStoreRepo, VisibleRegionRepo visibleRegionRepo, PermissionService permissionService) {
         mCurrentGPSLocationRepo = currentGPSLocationRepo;
         mGooglePlacesService = googlePlacesService;
-        mFireStoreService = fireStoreService;
+        mFireStoreRepo = fireStoreRepo;
         mVisibleRegionRepo = visibleRegionRepo;
         mPermissionService = permissionService;
         wireUpUIMediator();
@@ -61,7 +61,7 @@ public class MapFragmentViewModel extends ViewModel {
 
     private void wireUpUIMediator() {
         mCurrentGPSLocationLD = mCurrentGPSLocationRepo.getCurrentGPSLocationLD();
-        fireStoreRestaurantsLD = mFireStoreService.getAllKnownRestaurants();
+        fireStoreRestaurantsLD = mFireStoreRepo.getAllKnownRestaurants();
         LiveData<VisibleRegion> lastMapVisibleRegionLD = mVisibleRegionRepo.getLastMapVisibleRegion();
         LiveData<List<NearbyPlace>> listNearbyRestaurantsLD = Transformations.switchMap(mNearbyParamsMLD, (pair) -> {
             if (pair != null) {

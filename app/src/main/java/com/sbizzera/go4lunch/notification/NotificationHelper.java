@@ -7,9 +7,11 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.services.FirebaseAuthService;
+import com.sbizzera.go4lunch.services.AuthService;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.main_activity.MainActivity;
 
@@ -53,7 +55,7 @@ public class NotificationHelper {
         PendingIntent contentIntent = PendingIntent.getActivity(App.getApplication(), 0, new Intent(App.getApplication(), MainActivity.class), 0);
 
         String title = App.getApplication().getString(R.string.notification_title);
-        String userFirstName = Go4LunchUtils.getUserFirstName(FirebaseAuthService.getUserName());
+        String userFirstName = Go4LunchUtils.getUserFirstName(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
         notificationText = notificationText.replace("%User%", userFirstName);
 
         Notification notification = new NotificationCompat.Builder(App.getApplication(), WorkManagerHelper.CHANNEL_USER_LUNCH_ID)
