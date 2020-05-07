@@ -7,18 +7,15 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.services.AuthService;
-import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.main_activity.MainActivity;
+import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.List;
 
 public class NotificationHelper {
-    
 
     static void notifyLunchChoice(String restaurantName, List<String> joiningWorkmates) {
         String notificationText = App.getApplication().getString(R.string.notification_text_lunch_and_workmates);

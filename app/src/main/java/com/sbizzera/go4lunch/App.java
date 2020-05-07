@@ -33,6 +33,8 @@ public class App extends Application {
 
         WorkManagerHelper workManagerHelper = WorkManagerHelper.getInstance(this);
         workManagerHelper.createNotificationChannels();
+        workManagerHelper.clearAllWork();
+        workManagerHelper.enqueueWork();
 
 
         Places.initialize(this,BuildConfig.GOOGLE_API_KEY);
@@ -43,7 +45,5 @@ public class App extends Application {
     public static Application getApplication() {
         return sApplication;
     }
-
-
 }
 

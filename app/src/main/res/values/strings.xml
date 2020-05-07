@@ -56,6 +56,8 @@
     <string name="like">LIKE</string>
     <string name="website">WEBSITE</string>
     <string name="search_for">search for</string>
+    <string name="notif_channel_description">you\'ll be notified with your lunch choice every day!</string>
+    <string name="notif_title_channel_get_lunch_choice">Get Lunch Notification</string>
 
 
 </resources>

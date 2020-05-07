@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.main_activity;
+package com.sbizzera.go4lunch.main_activity.models;
 
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.VisibleRegion;

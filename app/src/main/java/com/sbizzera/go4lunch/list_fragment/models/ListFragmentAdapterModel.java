@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.list_fragment;
+package com.sbizzera.go4lunch.list_fragment.models;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.IntegerRes;

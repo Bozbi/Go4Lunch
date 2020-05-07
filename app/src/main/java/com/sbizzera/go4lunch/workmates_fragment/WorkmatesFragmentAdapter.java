@@ -11,8 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.sbizzera.go4lunch.main_activity.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.workmates_fragment.models.WorkmatesFragmentAdapterModel;
 
 import java.util.ArrayList;
 import java.util.List;

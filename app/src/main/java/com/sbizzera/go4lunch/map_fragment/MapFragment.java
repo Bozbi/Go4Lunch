@@ -20,11 +20,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.main_activity.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 
+import com.sbizzera.go4lunch.map_fragment.models.CustomMapMarker;
+import com.sbizzera.go4lunch.map_fragment.models.MapFragmentModel;
+import com.sbizzera.go4lunch.map_fragment.utils.BitMapCreator;
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
-import com.sbizzera.go4lunch.main_activity.RestaurantClickedListenable;
+import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
 
 
 public class MapFragment

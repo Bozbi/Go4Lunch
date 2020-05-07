@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.your_lunch_dialog;
+package com.sbizzera.go4lunch.your_lunch_dialog.models;
 
 class YourLunchDialogModel {
     private String yourLunchText;

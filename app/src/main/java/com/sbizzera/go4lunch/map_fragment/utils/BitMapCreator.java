@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.map_fragment;
+package com.sbizzera.go4lunch.map_fragment.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

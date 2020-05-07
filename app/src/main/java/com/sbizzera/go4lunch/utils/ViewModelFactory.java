@@ -13,10 +13,9 @@ import com.sbizzera.go4lunch.main_activity.MainActivityViewModel;
 import com.sbizzera.go4lunch.list_fragment.ListFragmentViewModel;
 import com.sbizzera.go4lunch.map_fragment.MapFragmentViewModel;
 import com.sbizzera.go4lunch.workmates_fragment.WorkmatesFragmentViewModel;
-import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 import com.sbizzera.go4lunch.restaurant_activity.RestaurantViewModel;
 import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
-import com.sbizzera.go4lunch.services.AuthService;
+import com.sbizzera.go4lunch.services.AuthHelper;
 import com.sbizzera.go4lunch.repositories.CurrentGPSLocationRepo;
 import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
@@ -59,7 +58,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new RestaurantViewModel(
                     GooglePlacesRepo.getInstance(),
                     FireStoreRepo.getInstance(),
-                    AuthService.getInstance(FirebaseAuth.getInstance(),AuthUI.getInstance()),
+                    AuthHelper.getInstance(FirebaseAuth.getInstance(),AuthUI.getInstance()),
                     App.getApplication()
             );
         }
@@ -69,8 +68,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
                     SharedPreferencesRepo.getInstance(App.getApplication()),
                     VisibleRegionRepo.getInstance(),
                     PermissionRepo.getInstance(),
-                    WorkManagerHelper.getInstance(App.getApplication()),
-                    AuthService.getInstance(FirebaseAuth.getInstance(), AuthUI.getInstance()),
+                    AuthHelper.getInstance(FirebaseAuth.getInstance(), AuthUI.getInstance()),
                     App.getApplication()
             );
         }

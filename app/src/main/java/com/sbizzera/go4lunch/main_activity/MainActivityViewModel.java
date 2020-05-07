@@ -13,13 +13,13 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.your_lunch_dialog.YourLunchModel;
+import com.sbizzera.go4lunch.main_activity.models.MainActivityModel;
+import com.sbizzera.go4lunch.your_lunch_dialog.models.YourLunchModel;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreLunch;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
 import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
-import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
-import com.sbizzera.go4lunch.services.AuthService;
+import com.sbizzera.go4lunch.services.AuthHelper;
 import com.sbizzera.go4lunch.repositories.PermissionRepo;
 import com.sbizzera.go4lunch.repositories.VisibleRegionRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
@@ -33,7 +33,7 @@ public class MainActivityViewModel extends ViewModel {
     private FireStoreRepo mFireStoreRepo;
     private SharedPreferencesRepo mSharedPreferencesRepo;
     private Context mContext;
-    private AuthService mAuthService;
+    private AuthHelper mAuthHelper;
 
 
     private MediatorLiveData<MainActivityModel> modelLD = new MediatorLiveData<>();
@@ -52,19 +52,17 @@ public class MainActivityViewModel extends ViewModel {
             SharedPreferencesRepo sharedPreferencesRepo,
             VisibleRegionRepo visibleRegionRepo,
             PermissionRepo permissionRepo,
-            WorkManagerHelper workManagerHelper,
-            AuthService authService,
+            AuthHelper authHelper,
             Context context
     ) {
         mFireStoreRepo = fireStoreRepo;
         mSharedPreferencesRepo = sharedPreferencesRepo;
         mVisibleRegionRepo = visibleRegionRepo;
-        mAuthService = authService;
+        mAuthHelper = authHelper;
         mContext= context;
-        sharedPreferencesRepo.updateLiveData(mAuthService.getUser().getUid());
+        sharedPreferencesRepo.updateLiveData(mAuthHelper.getUser().getUid());
         updateUserInDb();
         wireUp();
-        workManagerHelper.handleNotificationWork();
         checkForLocationPermissions(permissionRepo);
     }
 
@@ -80,7 +78,7 @@ public class MainActivityViewModel extends ViewModel {
         modelLD.addSource(isNotificationOnLD, this::combineSources);
 
         //Wire userLunch and other users
-        userTodayLunchLD = mFireStoreRepo.getUserLunch(mAuthService.getUser().getUid());
+        userTodayLunchLD = mFireStoreRepo.getUserLunch(mAuthHelper.getUser().getUid());
         joiningWorkmatesLD = Transformations.switchMap(userTodayLunchLD, userTodayLunch -> {
             if (userTodayLunch == null) {
                 return mFireStoreRepo.getTodayListOfUsers(null);
@@ -100,9 +98,9 @@ public class MainActivityViewModel extends ViewModel {
 
     private void combineSources(Boolean isNotificationOn) {
 
-        String userPhotoUrl = mAuthService.getUserPhotoUrl();
-        String userName = mAuthService.getUserName();
-        String userEmail = mAuthService.getUserEmail();
+        String userPhotoUrl = mAuthHelper.getUserPhotoUrl();
+        String userName = mAuthHelper.getUserName();
+        String userEmail = mAuthHelper.getUserEmail();
         String switchText = "OFF";
         if (isNotificationOn) {
             switchText = "ON";
@@ -122,11 +120,11 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     void updateSharedPrefs(Boolean isChecked) {
-        mSharedPreferencesRepo.saveNotificationPreferences(isChecked,mAuthService.getUser().getUid());
+        mSharedPreferencesRepo.saveNotificationPreferences(isChecked, mAuthHelper.getUser().getUid());
     }
 
     private void updateUserInDb() {
-        mFireStoreRepo.updateUserInDb(mAuthService.getUser());
+        mFireStoreRepo.updateUserInDb(mAuthHelper.getUser());
     }
 
     public SingleLiveEvent<RectangularBounds> getViewActionSearch() {
@@ -182,7 +180,7 @@ public class MainActivityViewModel extends ViewModel {
             restaurantName = lunch.getRestaurantName();
         }
         String joiningWorkmatesString = createJoiningWorkmatesString(joiningWorkmatesStr);
-        return getDialogText(mAuthService.getUserFirstName(),restaurantName,joiningWorkmatesString);
+        return getDialogText(mAuthHelper.getUserFirstName(),restaurantName,joiningWorkmatesString);
     }
 
     private String getDialogText(String userFirstName, String restaurantName, String joiningWorkmatesString) {
@@ -229,7 +227,7 @@ public class MainActivityViewModel extends ViewModel {
         if (joiningWorkmates != null) {
             FireStoreUser userToRemove = new FireStoreUser();
             for (FireStoreUser user : joiningWorkmates) {
-                if (user.getUserId().equals(mAuthService.getUser().getUid())) {
+                if (user.getUserId().equals(mAuthHelper.getUser().getUid())) {
                     userToRemove = user;
                 }
             }
@@ -241,7 +239,7 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void logOutUser() {
-        mAuthService.logOut(mContext).addOnCompleteListener(task->{
+        mAuthHelper.logOut(mContext).addOnCompleteListener(task->{
                 mActionLE.setValue(ViewAction.LOG_OUT);
         });
     }

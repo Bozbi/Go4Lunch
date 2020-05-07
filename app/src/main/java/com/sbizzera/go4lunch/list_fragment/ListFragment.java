@@ -18,11 +18,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.main_activity.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 
+import com.sbizzera.go4lunch.list_fragment.models.ListFragmentModel;
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
-import com.sbizzera.go4lunch.main_activity.RestaurantClickedListenable;
+import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
 
 
 public class ListFragment extends Fragment implements RestaurantClickedListenable {

@@ -1,4 +1,6 @@
-package com.sbizzera.go4lunch.list_fragment;
+package com.sbizzera.go4lunch.list_fragment.utils;
+
+import com.sbizzera.go4lunch.list_fragment.models.ListFragmentAdapterModel;
 
 import java.util.Comparator;
 

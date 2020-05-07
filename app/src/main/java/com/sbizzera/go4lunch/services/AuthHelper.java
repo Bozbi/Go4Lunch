@@ -1,36 +1,30 @@
 package com.sbizzera.go4lunch.services;
 
 import android.content.Context;
-import android.content.Intent;
 
-import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
-import java.util.Arrays;
-import java.util.List;
+public class AuthHelper {
 
-public class AuthService {
-
-    private static AuthService sAuthService;
+    private static AuthHelper sAuthHelper;
     private FirebaseAuth mFirebaseAuth;
     private AuthUI mAuthUI;
 
 
-    private AuthService(FirebaseAuth firebaseAuth, AuthUI authUI) {
+    private AuthHelper(FirebaseAuth firebaseAuth, AuthUI authUI) {
         mFirebaseAuth = firebaseAuth;
         mAuthUI = authUI;
     }
 
-    public static AuthService getInstance(FirebaseAuth firebaseAuth, AuthUI authUI) {
-        if (sAuthService == null) {
-            sAuthService = new AuthService(firebaseAuth, authUI);
+    public static AuthHelper getInstance(FirebaseAuth firebaseAuth, AuthUI authUI) {
+        if (sAuthHelper == null) {
+            sAuthHelper = new AuthHelper(firebaseAuth, authUI);
         }
-        return sAuthService;
+        return sAuthHelper;
     }
 
     public Task<Void> logOut(Context context) {

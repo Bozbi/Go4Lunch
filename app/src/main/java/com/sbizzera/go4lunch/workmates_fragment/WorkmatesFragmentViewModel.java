@@ -12,6 +12,8 @@ import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreLunch;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
 import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
+import com.sbizzera.go4lunch.workmates_fragment.models.WorkmatesFragmentAdapterModel;
+import com.sbizzera.go4lunch.workmates_fragment.models.WorkmatesFragmentModel;
 
 import java.util.ArrayList;
 import java.util.Collections;

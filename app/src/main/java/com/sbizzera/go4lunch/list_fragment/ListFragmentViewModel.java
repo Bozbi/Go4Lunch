@@ -13,6 +13,12 @@ import androidx.lifecycle.ViewModel;
 
 import com.sbizzera.go4lunch.BuildConfig;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.list_fragment.models.ListFragmentAdapterModel;
+import com.sbizzera.go4lunch.list_fragment.models.ListFragmentModel;
+import com.sbizzera.go4lunch.list_fragment.utils.DistanceComparator;
+import com.sbizzera.go4lunch.list_fragment.utils.LikesComparator;
+import com.sbizzera.go4lunch.list_fragment.utils.LunchCountComparator;
+import com.sbizzera.go4lunch.list_fragment.utils.RestaurantNameComparator;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.AddressComponent;

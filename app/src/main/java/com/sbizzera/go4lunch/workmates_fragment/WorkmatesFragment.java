@@ -12,11 +12,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sbizzera.go4lunch.main_activity.OnItemBoundWithRestaurantClickListener;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
-import com.sbizzera.go4lunch.main_activity.RestaurantClickedListenable;
+import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
+import com.sbizzera.go4lunch.workmates_fragment.models.WorkmatesFragmentModel;
 
 
 public class WorkmatesFragment extends Fragment implements RestaurantClickedListenable {

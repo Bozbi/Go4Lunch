@@ -14,6 +14,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.map_fragment.models.CustomMapMarker;
+import com.sbizzera.go4lunch.map_fragment.models.MapFragmentModel;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.repositories.CurrentGPSLocationRepo;

@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.workmates_fragment;
+package com.sbizzera.go4lunch.workmates_fragment.models;
 
 import java.util.List;
 

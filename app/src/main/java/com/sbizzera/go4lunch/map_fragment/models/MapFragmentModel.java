@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.map_fragment;
+package com.sbizzera.go4lunch.map_fragment.models;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
