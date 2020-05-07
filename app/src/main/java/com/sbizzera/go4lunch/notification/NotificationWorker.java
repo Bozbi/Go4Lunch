@@ -31,7 +31,7 @@ public class NotificationWorker extends ListenableWorker {
     @NonNull
     @Override
     public ListenableFuture<Result> startWork() {
-        //TODO work again on this part
+        //TODO work again on this part for dependency cleaning
         WorkManagerHelper workManagerHelper = WorkManagerHelper.getInstance(App.getApplication());
         workManagerHelper.handleNotificationWork();
         AuthService authService = AuthService.getInstance(FirebaseAuth.getInstance(), AuthUI.getInstance());

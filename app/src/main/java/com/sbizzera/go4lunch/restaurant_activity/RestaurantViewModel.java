@@ -15,12 +15,12 @@ import androidx.lifecycle.ViewModel;
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.BuildConfig;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
-import com.sbizzera.go4lunch.model.places_place_details_models.AddressComponent;
-import com.sbizzera.go4lunch.model.places_place_details_models.DetailResult;
+import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
+import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.AddressComponent;
+import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.DetailResult;
 import com.sbizzera.go4lunch.services.AuthService;
-import com.sbizzera.go4lunch.services.FireStoreRepo;
-import com.sbizzera.go4lunch.services.GooglePlacesService;
+import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
+import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.List;
 
 public class RestaurantViewModel extends ViewModel {
 
-    private GooglePlacesService mGooglePlacesService;
+    private GooglePlacesRepo mGooglePlacesRepo;
     private FireStoreRepo mFirestoreRepo;
     private AuthService mAuthService;
     private Context mContext;
@@ -37,12 +37,12 @@ public class RestaurantViewModel extends ViewModel {
     private LiveData<DetailResult> placeDetailLiveData;
 
     public RestaurantViewModel(
-            GooglePlacesService googlePlacesService,
+            GooglePlacesRepo googlePlacesRepo,
             FireStoreRepo firestore,
             AuthService authService,
             Context context
     ) {
-        mGooglePlacesService = googlePlacesService;
+        mGooglePlacesRepo = googlePlacesRepo;
         mFirestoreRepo = firestore;
         mAuthService = authService;
         mContext = context;
@@ -53,7 +53,7 @@ public class RestaurantViewModel extends ViewModel {
     }
 
     public void fetchRestaurantInfo(String id) {
-        placeDetailLiveData = mGooglePlacesService.getRestaurantDetailsById(id);
+        placeDetailLiveData = mGooglePlacesRepo.getRestaurantDetailsById(id);
         LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestoreRepo.isRestaurantLikedByUser(id,mAuthService.getUser().getUid());
         LiveData<Integer> restaurantLikeCountLiveData = mFirestoreRepo.getRestaurantLikesCount(id);
         LiveData<Boolean> isRestaurantTodayUserChoiceLiveData = mFirestoreRepo.isRestaurantChosenByUserToday(id,mAuthService.getUser().getUid());

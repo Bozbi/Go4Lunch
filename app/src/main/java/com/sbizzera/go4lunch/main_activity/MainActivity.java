@@ -25,8 +25,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
@@ -36,12 +34,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.dispatch_activity.DispatchActivity;
-import com.sbizzera.go4lunch.main_activity.fragments.list_fragment.ListFragment;
-import com.sbizzera.go4lunch.main_activity.fragments.map_fragment.MapFragment;
-import com.sbizzera.go4lunch.main_activity.fragments.workmates_fragment.WorkmatesFragment;
-import com.sbizzera.go4lunch.main_activity.your_lunch_dialog.YourLunchDialogFragment;
+import com.sbizzera.go4lunch.list_fragment.ListFragment;
+import com.sbizzera.go4lunch.map_fragment.MapFragment;
+import com.sbizzera.go4lunch.workmates_fragment.WorkmatesFragment;
+import com.sbizzera.go4lunch.your_lunch_dialog.YourLunchDialogFragment;
 import com.sbizzera.go4lunch.restaurant_activity.RestaurantActivity;
-import com.sbizzera.go4lunch.services.AuthService;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
@@ -51,15 +48,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 123;
     private static final int AUTOCOMPLETE_REQUEST_CODE = 234;
-    private DrawerLayout drawerLayout;
 
+    private DrawerLayout drawerLayout;
     private TextView mUserName;
     private TextView mUserEmail;
     private ImageView mUserPhoto;
     private Switch notificationSwitch;
     private TextView switchText;
     private Menu mMenu;
+
     private MainActivityViewModel mViewModel;
+
+    public static Intent navigate(DispatchActivity dispatchActivity) {
+        return new Intent(dispatchActivity,MainActivity.class);
+    }
 
 
     @Override
@@ -93,6 +95,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 case SHOW_NOT_A_RESTAURANT_TOAST: {
                     Toast.makeText(this, R.string.not_a_restaurant, Toast.LENGTH_LONG).show();
+                    break;
+                }
+                case LOG_OUT:{
+                    startActivity(DispatchActivity.navigate(this));
+                    finish();
                     break;
                 }
 
@@ -144,25 +151,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         notificationSwitch.setOnClickListener(v -> mViewModel.updateSharedPrefs(!((Switch) v).isChecked()));
     }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//        FRAGMENTS
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
     // loadFragment to container
     private void loadFragment(Fragment fragmentToLoad) {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragmentToLoad).commit();
     }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//        UI
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //If Drawer is open, we want to close it on backButton pressed not exiting app
     @Override

@@ -33,7 +33,6 @@ public class AuthService {
         return sAuthService;
     }
 
-
     public Task<Void> logOut(Context context) {
         return mAuthUI.signOut(context);
     }

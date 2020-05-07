@@ -1,0 +1,24 @@
+package com.sbizzera.go4lunch.repositories.google_places;
+
+
+import com.sbizzera.go4lunch.repositories.google_places.models.places_nearby_models.NearbyResults;
+import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.DetailsResponse;
+
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
+
+public interface GooglePlacesAPI {
+
+    @GET("maps/api/place/nearbysearch/json?type=restaurant")
+    Call<NearbyResults> getNearbyRestaurant(@Query("location") String location,
+                                            @Query("radius")int radius,
+                                            @Query("key") String key);
+
+
+    @GET("maps/api/place/details/json?fields=place_id,website,name,formatted_phone_number,photos,opening_hours,address_component,geometry")
+    Call<DetailsResponse> getRestaurantDetailsById(@Query("place_id") String id,
+                                                   @Query("key") String key
+                                                   );
+
+}

@@ -10,19 +10,19 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.main_activity.MainActivityViewModel;
-import com.sbizzera.go4lunch.main_activity.fragments.list_fragment.ListFragmentViewModel;
-import com.sbizzera.go4lunch.main_activity.fragments.map_fragment.MapFragmentViewModel;
-import com.sbizzera.go4lunch.main_activity.fragments.workmates_fragment.WorkmatesFragmentViewModel;
+import com.sbizzera.go4lunch.list_fragment.ListFragmentViewModel;
+import com.sbizzera.go4lunch.map_fragment.MapFragmentViewModel;
+import com.sbizzera.go4lunch.workmates_fragment.WorkmatesFragmentViewModel;
 import com.sbizzera.go4lunch.notification.WorkManagerHelper;
 import com.sbizzera.go4lunch.restaurant_activity.RestaurantViewModel;
-import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
+import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.services.AuthService;
-import com.sbizzera.go4lunch.services.CurrentGPSLocationRepo;
-import com.sbizzera.go4lunch.services.FireStoreRepo;
-import com.sbizzera.go4lunch.services.GooglePlacesService;
-import com.sbizzera.go4lunch.services.PermissionService;
-import com.sbizzera.go4lunch.services.SortTypeChosenRepo;
-import com.sbizzera.go4lunch.services.VisibleRegionRepo;
+import com.sbizzera.go4lunch.repositories.CurrentGPSLocationRepo;
+import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
+import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
+import com.sbizzera.go4lunch.repositories.PermissionRepo;
+import com.sbizzera.go4lunch.repositories.SortTypeChosenRepo;
+import com.sbizzera.go4lunch.repositories.VisibleRegionRepo;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
@@ -49,15 +49,15 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(MapFragmentViewModel.class)) {
             return (T) new MapFragmentViewModel(
                     CurrentGPSLocationRepo.getInstance(LocationServices.getFusedLocationProviderClient(App.getApplication())),
-                    GooglePlacesService.getInstance(),
+                    GooglePlacesRepo.getInstance(),
                     FireStoreRepo.getInstance(),
                     VisibleRegionRepo.getInstance(),
-                    PermissionService.getInstance()
+                    PermissionRepo.getInstance()
             );
         }
         if (modelClass.isAssignableFrom(RestaurantViewModel.class)) {
             return (T) new RestaurantViewModel(
-                    GooglePlacesService.getInstance(),
+                    GooglePlacesRepo.getInstance(),
                     FireStoreRepo.getInstance(),
                     AuthService.getInstance(FirebaseAuth.getInstance(),AuthUI.getInstance()),
                     App.getApplication()
@@ -66,9 +66,9 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(MainActivityViewModel.class)) {
             return (T) new MainActivityViewModel(
                     FireStoreRepo.getInstance(),
-                    SharedPreferencesRepo.getInstance(App.getApplication(),WorkManagerHelper.getInstance(App.getApplication())),
+                    SharedPreferencesRepo.getInstance(App.getApplication()),
                     VisibleRegionRepo.getInstance(),
-                    PermissionService.getInstance(),
+                    PermissionRepo.getInstance(),
                     WorkManagerHelper.getInstance(App.getApplication()),
                     AuthService.getInstance(FirebaseAuth.getInstance(), AuthUI.getInstance()),
                     App.getApplication()
@@ -83,7 +83,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(ListFragmentViewModel.class)) {
             return (T) new ListFragmentViewModel(
                     CurrentGPSLocationRepo.getInstance(LocationServices.getFusedLocationProviderClient(App.getApplication())),
-                    GooglePlacesService.getInstance(),
+                    GooglePlacesRepo.getInstance(),
                     FireStoreRepo.getInstance(),
                     SortTypeChosenRepo.getInstance(),
                     App.getApplication()

@@ -1,5 +1,6 @@
 package com.sbizzera.go4lunch.dispatch_activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -22,6 +23,10 @@ public class DispatchActivity extends AppCompatActivity {
 
     private static final int AUTH_UI_INSTANCE_REQ_CODE = 1;
 
+    public static Intent navigate (Context context){
+        return new Intent(context,DispatchActivity.class);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +40,6 @@ public class DispatchActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        Timber.d("onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == AUTH_UI_INSTANCE_REQ_CODE) {
             if (resultCode == RESULT_OK) {
@@ -48,8 +52,7 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void launchMainActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        startActivity(MainActivity.navigate(this));
         finish();
     }
 

@@ -13,15 +13,15 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.main_activity.your_lunch_dialog.YourLunchModel;
-import com.sbizzera.go4lunch.model.firestore_models.FireStoreLunch;
-import com.sbizzera.go4lunch.model.firestore_models.FireStoreUser;
-import com.sbizzera.go4lunch.notification.SharedPreferencesRepo;
+import com.sbizzera.go4lunch.your_lunch_dialog.YourLunchModel;
+import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreLunch;
+import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
+import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.notification.WorkManagerHelper;
-import com.sbizzera.go4lunch.services.FireStoreRepo;
+import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.services.AuthService;
-import com.sbizzera.go4lunch.services.PermissionService;
-import com.sbizzera.go4lunch.services.VisibleRegionRepo;
+import com.sbizzera.go4lunch.repositories.PermissionRepo;
+import com.sbizzera.go4lunch.repositories.VisibleRegionRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.SingleLiveEvent;
 
@@ -51,7 +51,7 @@ public class MainActivityViewModel extends ViewModel {
             FireStoreRepo fireStoreRepo,
             SharedPreferencesRepo sharedPreferencesRepo,
             VisibleRegionRepo visibleRegionRepo,
-            PermissionService permissionService,
+            PermissionRepo permissionRepo,
             WorkManagerHelper workManagerHelper,
             AuthService authService,
             Context context
@@ -65,12 +65,12 @@ public class MainActivityViewModel extends ViewModel {
         updateUserInDb();
         wireUp();
         workManagerHelper.handleNotificationWork();
-        checkForLocationPermissions(permissionService);
+        checkForLocationPermissions(permissionRepo);
     }
 
-    private void checkForLocationPermissions(@NonNull PermissionService permissionService) {
-        if (!permissionService.hasPermissionBeenAsked() && !permissionService.isLocationPermissionGranted()) {
-            permissionService.setHasPermissionBeenAsked(true);
+    private void checkForLocationPermissions(@NonNull PermissionRepo permissionRepo) {
+        if (!permissionRepo.hasPermissionBeenAsked() && !permissionRepo.isLocationPermissionGranted()) {
+            permissionRepo.setHasPermissionBeenAsked(true);
             mActionLE.setValue(ViewAction.ASK_LOCATION_PERMISSION);
         }
     }
@@ -241,13 +241,16 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void logOutUser() {
-        mAuthService.logOut(mContext);
+        mAuthService.logOut(mContext).addOnCompleteListener(task->{
+                mActionLE.setValue(ViewAction.LOG_OUT);
+        });
     }
 
 
     enum ViewAction {
         SHOW_NOT_A_RESTAURANT_TOAST,
-        ASK_LOCATION_PERMISSION
+        ASK_LOCATION_PERMISSION,
+        LOG_OUT
     }
 
 
