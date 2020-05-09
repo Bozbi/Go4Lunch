@@ -18,6 +18,8 @@ import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.AddressComponent;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.DetailResult;
+import com.sbizzera.go4lunch.restaurant_activity.models.RestaurantActivityModel;
+import com.sbizzera.go4lunch.restaurant_activity.models.RestaurantAdapterModel;
 import com.sbizzera.go4lunch.services.AuthHelper;
 import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;

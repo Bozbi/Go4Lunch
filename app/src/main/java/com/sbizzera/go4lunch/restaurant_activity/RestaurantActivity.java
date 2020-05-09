@@ -19,7 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.main_activity.MainActivity;
+import com.sbizzera.go4lunch.restaurant_activity.models.RestaurantActivityModel;
+import com.sbizzera.go4lunch.restaurant_activity.models.RestaurantAdapterModel;
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
 import java.util.ArrayList;
@@ -48,14 +49,11 @@ public class RestaurantActivity extends AppCompatActivity implements View.OnClic
     private LinearLayout phoneBlockLiLay;
     private ImageView phoneImg;
     private TextView phoneTxt;
-    private LinearLayout likeBlockLiLay;
     private ImageView likeImg;
-    private TextView likeTxt;
     private LinearLayout websiteBlockLiLay;
     private ImageView webSiteImg;
     private TextView websiteTxt;
     private RecyclerView rcv;
-    private ImageView backArrowImg;
 
 
     public static Intent navigate(@NonNull Context context, @NonNull String restaurantId) {
@@ -79,13 +77,12 @@ public class RestaurantActivity extends AppCompatActivity implements View.OnClic
         phoneBlockLiLay = findViewById(R.id.phone_block_lilay);
         phoneImg = findViewById(R.id.phone_img);
         phoneTxt = findViewById(R.id.phone_txt);
-        likeBlockLiLay = findViewById(R.id.like_block_lilay);
+        LinearLayout likeBlockLiLay = findViewById(R.id.like_block_lilay);
         likeImg = findViewById(R.id.like_img);
-        likeTxt = findViewById(R.id.like_txt);
         websiteBlockLiLay = findViewById(R.id.website_block_lilay);
         webSiteImg = findViewById(R.id.website_img);
         websiteTxt = findViewById(R.id.website_txt);
-        backArrowImg = findViewById(R.id.back_fab);
+        ImageView backArrowImg = findViewById(R.id.back_fab);
 
         //Retrieve restaurant id in intent Extra
         String restaurantId = getIntent().getStringExtra(INTENT_EXTRA_CODE);

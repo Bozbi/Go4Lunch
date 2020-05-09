@@ -54,7 +54,9 @@ public class MapFragment
         View v = super.onCreateView(layoutInflater, viewGroup, bundle);
         layout.addView(v, 0);
         mFetchNewAreaBtn = layout.findViewById(R.id.new_restaurants_btn);
-        getActivity().setTitle(getString(R.string.map_title_bar_title));
+        if(getActivity()!=null){
+            getActivity().setTitle(getString(R.string.map_title_bar_title));
+        }
         return layout;
     }
 

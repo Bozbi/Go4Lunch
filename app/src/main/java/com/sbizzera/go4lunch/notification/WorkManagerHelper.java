@@ -49,8 +49,10 @@ public class WorkManagerHelper {
         if (dueDate.before(currentDate)) {
             dueDate.add(Calendar.HOUR_OF_DAY, 24);
         }
+
         long timeDiff = dueDate.getTimeInMillis() - currentDate.getTimeInMillis();
 
+        // TODO Delete this line for production. Only here for more frequent notifications
         timeDiff = 100000;
 
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(NotificationWorker.class)

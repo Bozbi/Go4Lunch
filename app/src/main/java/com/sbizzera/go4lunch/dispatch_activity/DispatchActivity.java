@@ -16,15 +16,13 @@ import com.sbizzera.go4lunch.main_activity.MainActivity;
 import java.util.Arrays;
 import java.util.List;
 
-import timber.log.Timber;
-
 
 public class DispatchActivity extends AppCompatActivity {
 
     private static final int AUTH_UI_INSTANCE_REQ_CODE = 1;
 
-    public static Intent navigate (Context context){
-        return new Intent(context,DispatchActivity.class);
+    public static Intent navigate(Context context) {
+        return new Intent(context, DispatchActivity.class);
     }
 
     @Override
@@ -56,6 +54,7 @@ public class DispatchActivity extends AppCompatActivity {
         finish();
     }
 
+    //TODO loca the AuthActivity to portrait mode
     private void launchAuthActivity() {
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.GoogleBuilder().build(),

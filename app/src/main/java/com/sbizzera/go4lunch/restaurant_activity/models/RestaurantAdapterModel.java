@@ -1,4 +1,4 @@
-package com.sbizzera.go4lunch.restaurant_activity;
+package com.sbizzera.go4lunch.restaurant_activity.models;
 
 public class RestaurantAdapterModel {
     private String photoUrl;

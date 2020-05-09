@@ -22,39 +22,20 @@ public class CustomMapMarker {
         return lat;
     }
 
-    public void setLat(Double lat) {
-        this.lat = lat;
-    }
-
     public Double getLng() {
         return lng;
-    }
-
-    public void setLng(Double lng) {
-        this.lng = lng;
     }
 
     public int getMarkerIcon() {
         return markerIcon;
     }
 
-    public void setMarkerIcon(int markerIcon) {
-        this.markerIcon = markerIcon;
-    }
-
     public String getRestaurantName() {
         return restaurantName;
-    }
-
-    public void setRestaurantName(String restaurantName) {
-        this.restaurantName = restaurantName;
     }
 
     public String getRestaurantId() {
         return restaurantId;
     }
 
-    public void setRestaurantId(String restaurantId) {
-        this.restaurantId = restaurantId;
-    }
 }

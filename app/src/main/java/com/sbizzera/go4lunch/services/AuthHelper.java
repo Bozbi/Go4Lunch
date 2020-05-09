@@ -61,7 +61,7 @@ public class AuthHelper {
     }
 
     public String getUserEmail() {
-        String userEmail = "";
+        String userEmail = null;
         if (mFirebaseAuth.getCurrentUser() != null && mFirebaseAuth.getCurrentUser().getEmail() != null) {
             userEmail = mFirebaseAuth.getCurrentUser().getEmail();
         }

@@ -15,10 +15,13 @@ public class BitMapCreator {
 
     public static BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes int drawableResourceId) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, drawableResourceId);
-        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.draw(canvas);
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
+        if(vectorDrawable!=null){
+            vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+            Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            vectorDrawable.draw(canvas);
+            return BitmapDescriptorFactory.fromBitmap(bitmap);
+        }
+        return null;
     }
 }

@@ -12,7 +12,6 @@ import timber.log.Timber;
 
 public class App extends Application {
 
-
     private static Application sApplication;
 
     @Override

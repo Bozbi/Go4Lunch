@@ -19,11 +19,9 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
-
+import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
 import com.sbizzera.go4lunch.list_fragment.models.ListFragmentModel;
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
-
-import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
 
 
 public class ListFragment extends Fragment implements RestaurantClickedListenable {
@@ -58,8 +56,9 @@ public class ListFragment extends Fragment implements RestaurantClickedListenabl
             viewModel.setSelectedChipID(checkedId);
             recyclerView.scrollToPosition(0);
         });
-
-        getActivity().setTitle(getString(R.string.list_title_bar_title));
+        if (getActivity() != null) {
+            getActivity().setTitle(getString(R.string.list_title_bar_title));
+        }
 
         return view;
 
@@ -77,10 +76,10 @@ public class ListFragment extends Fragment implements RestaurantClickedListenabl
     @Override
     public void onResume() {
         super.onResume();
-        if(viewModel.getModel().getValue()!=null&&viewModel.getModel().getValue().getSortId()!=null && viewModel.getModel().getValue().getSortId()!=1){
+        if (viewModel.getModel().getValue() != null && viewModel.getModel().getValue().getSortId() != null && viewModel.getModel().getValue().getSortId() != 1) {
             Chip chipToCheck = chipGroup.findViewById(viewModel.getModel().getValue().getSortId());
             chipToCheck.setChecked(true);
-        }else{
+        } else {
             Chip chipToCheck = chipGroup.findViewById(R.id.distance_chip);
             chipToCheck.setChecked(true);
         }
