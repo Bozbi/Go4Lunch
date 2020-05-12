@@ -46,8 +46,8 @@ public class MapFragmentViewModel extends ViewModel {
     private LiveData<VisibleRegion> mLastRestaurantFetchVisibleRegionLD;
 
     private static final int MAX_VISIBLE_DIAMETER_TO_FETCH_NEW_RESTAURANTS = 5000;
-    public static final int MIN_DISTANCE_MOVEMENT_SINCE_LAST_FETCH_TO_FETCH = 200;
-    public static final int MIN_VISIBLE_RADIUS_MOVEMENT_TO_FETCH_AGAIN = 200;
+    private static final int MIN_DISTANCE_MOVEMENT_SINCE_LAST_FETCH_TO_FETCH = 200;
+    private static final int MIN_VISIBLE_RADIUS_MOVEMENT_TO_FETCH_AGAIN = 200;
 
 
     public MapFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesRepo googlePlacesRepo, FireStoreRepo fireStoreRepo, VisibleRegionRepo visibleRegionRepo, PermissionRepo permissionRepo) {

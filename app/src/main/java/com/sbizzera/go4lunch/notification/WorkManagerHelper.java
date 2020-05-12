@@ -1,8 +1,8 @@
 package com.sbizzera.go4lunch.notification;
 
+import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.os.Build;
 
 import androidx.work.OneTimeWorkRequest;
@@ -14,24 +14,22 @@ import com.sbizzera.go4lunch.R;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
-import timber.log.Timber;
-
 public class WorkManagerHelper {
 
     private static final String TAG_DAILY_WORK = "TAG_DAILY_WORK";
-    public static final String CHANNEL_USER_LUNCH_ID = "CHANNEL_USER_LUNCH";
+    static final String CHANNEL_USER_LUNCH_ID = "CHANNEL_USER_LUNCH";
     private  WorkManager mWorkManager;
-    private Context mContext;
+    private Application mApplication;
     private static WorkManagerHelper sWorkManagerHelper ;
 
-    private WorkManagerHelper(Context context){
-        mWorkManager = WorkManager.getInstance(context);
-        mContext =context;
+    private WorkManagerHelper(Application application){
+        mWorkManager = WorkManager.getInstance(application);
+        mApplication =application;
     }
 
-    public static WorkManagerHelper getInstance(Context context){
+    public static WorkManagerHelper getInstance(Application application){
         if(sWorkManagerHelper==null){
-            sWorkManagerHelper = new WorkManagerHelper(context);
+            sWorkManagerHelper = new WorkManagerHelper(application);
         }
         return sWorkManagerHelper;
     }
@@ -52,8 +50,7 @@ public class WorkManagerHelper {
 
         long timeDiff = dueDate.getTimeInMillis() - currentDate.getTimeInMillis();
 
-        // TODO Delete this line for production. Only here for more frequent notifications
-        timeDiff = 100000;
+//        timeDiff = 10000;
 
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(NotificationWorker.class)
                 .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
@@ -61,7 +58,6 @@ public class WorkManagerHelper {
                 .build();
 
         mWorkManager.enqueue(workRequest);
-        Timber.d("enqueuing work");
     }
 
     public void clearAllWork(){
@@ -72,12 +68,12 @@ public class WorkManagerHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channelUserLunch = new NotificationChannel(
                     CHANNEL_USER_LUNCH_ID,
-                    mContext.getString(R.string.notif_title_channel_get_lunch_choice),
+                    mApplication.getString(R.string.notif_title_channel_get_lunch_choice),
                     NotificationManager.IMPORTANCE_DEFAULT
             );
-            channelUserLunch.setDescription(mContext.getString(R.string.notif_channel_description));
+            channelUserLunch.setDescription(mApplication.getString(R.string.notif_channel_description));
 
-            NotificationManager manager = App.getApplication().getSystemService(NotificationManager.class);
+            NotificationManager manager = mApplication.getSystemService(NotificationManager.class);
             if(manager!=null){
                 manager.createNotificationChannel(channelUserLunch);
             }

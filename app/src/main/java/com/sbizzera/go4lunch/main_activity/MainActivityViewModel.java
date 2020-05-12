@@ -6,6 +6,7 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
@@ -14,16 +15,17 @@ import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.main_activity.models.MainActivityModel;
-import com.sbizzera.go4lunch.your_lunch_dialog.models.YourLunchModel;
+import com.sbizzera.go4lunch.repositories.PermissionRepo;
+import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
+import com.sbizzera.go4lunch.repositories.VisibleRegionRepo;
+import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreLunch;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
-import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
-import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.services.AuthHelper;
-import com.sbizzera.go4lunch.repositories.PermissionRepo;
-import com.sbizzera.go4lunch.repositories.VisibleRegionRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.SingleLiveEvent;
+import com.sbizzera.go4lunch.utils.SingleLiveEventMediator;
+import com.sbizzera.go4lunch.your_lunch_dialog.models.YourLunchModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +41,13 @@ public class MainActivityViewModel extends ViewModel {
     private MediatorLiveData<MainActivityModel> modelLD = new MediatorLiveData<>();
     private SingleLiveEvent<ViewAction> mActionLE = new SingleLiveEvent<>();
     private SingleLiveEvent<RectangularBounds> mViewActionSearch = new SingleLiveEvent<>();
-    private SingleLiveEvent<YourLunchModel> mViewActionYourLunch = new SingleLiveEvent<>();
     private SingleLiveEvent<String> mViewActionLaunchRestaurantDetailsLE = new SingleLiveEvent<>();
 
     private VisibleRegionRepo mVisibleRegionRepo;
     private LiveData<FireStoreLunch> userTodayLunchLD;
     private LiveData<List<FireStoreUser>> joiningWorkmatesLD;
+    private SingleLiveEventMediator<YourLunchModel> yourLunchMLD = new SingleLiveEventMediator<>();
+    private MutableLiveData<Boolean> dialogButtonClickLD = new MutableLiveData<>();
 
 
     public MainActivityViewModel(
@@ -59,7 +62,7 @@ public class MainActivityViewModel extends ViewModel {
         mSharedPreferencesRepo = sharedPreferencesRepo;
         mVisibleRegionRepo = visibleRegionRepo;
         mAuthHelper = authHelper;
-        mContext= context;
+        mContext = context;
         sharedPreferencesRepo.updateLiveData(mAuthHelper.getUser().getUid());
         updateUserInDb();
         wireUp();
@@ -86,12 +89,15 @@ public class MainActivityViewModel extends ViewModel {
             return mFireStoreRepo.getTodayListOfUsers(userTodayLunch.getRestaurantId());
         });
 
-        // TODO BOZBI SINGLE LIVE EVENT + MEDIATOR Utilise un SingleLiveEvent qui extends d'un Mediator plutôt d'une LiveData
-        //  Ca te permettra d'éviter ce bricolage ici et d'être explicite sur tes "liens" entre tes livedatas
-        //addding to model soruce so livedata warms up
-        modelLD.addSource(userTodayLunchLD, userTodayLunch -> {
+        yourLunchMLD.addSource(userTodayLunchLD, userTodayLunch -> {
+            combineYourLunchSources(userTodayLunch, joiningWorkmatesLD.getValue(), dialogButtonClickLD.getValue());
         });
-        modelLD.addSource(joiningWorkmatesLD, joiningWorkmates -> {
+        yourLunchMLD.addSource(joiningWorkmatesLD, joiningWorkmates -> {
+            combineYourLunchSources(userTodayLunchLD.getValue(), joiningWorkmates, dialogButtonClickLD.getValue());
+        });
+
+        yourLunchMLD.addSource(dialogButtonClickLD, clicked -> {
+            combineYourLunchSources(userTodayLunchLD.getValue(), joiningWorkmatesLD.getValue(), clicked);
         });
     }
 
@@ -151,17 +157,15 @@ public class MainActivityViewModel extends ViewModel {
         }
     }
 
-    public void getYourLunchDialog() {
-        // TODO BOZBI SINGLE LIVE EVENT + MEDIATOR Ne jamais faire de .getValue() (à part lors d'un addSource ofc)
-        //  Utiliser un Mediator permet d'être dynamique
-        FireStoreLunch lunch = userTodayLunchLD.getValue();
-        List<FireStoreUser> joiningWorkmates = joiningWorkmatesLD.getValue();
-        // TODO BOZBI SINGLE LIVE EVENT + MEDIATOR Tu as déjà la moitié faite ici, tu avais la bonne idée, bravo !
-        YourLunchModel model = combineYourLunchSources(lunch, joiningWorkmates);
-        mViewActionYourLunch.setValue(model);
+    public void yourLunchButtonClicked() {
+        dialogButtonClickLD.setValue(true);
     }
 
-    private YourLunchModel combineYourLunchSources(FireStoreLunch lunch, List<FireStoreUser> joiningWorkmates) {
+    private void combineYourLunchSources(FireStoreLunch lunch, List<FireStoreUser> joiningWorkmates, Boolean clicked) {
+        if (clicked == null || !clicked) {
+            return;
+        }
+
         boolean shouldPositiveBtnBeAvailable = false;
         String restaurantId = null;
         String dialogText = createDialogText(lunch, joiningWorkmates);
@@ -169,34 +173,35 @@ public class MainActivityViewModel extends ViewModel {
             shouldPositiveBtnBeAvailable = true;
             restaurantId = lunch.getRestaurantId();
         }
-        return new YourLunchModel(dialogText, shouldPositiveBtnBeAvailable, restaurantId);
+        yourLunchMLD.setValue(new YourLunchModel(dialogText, shouldPositiveBtnBeAvailable, restaurantId));
+        dialogButtonClickLD.setValue(false);
     }
 
     private String createDialogText(FireStoreLunch lunch, List<FireStoreUser> joiningWorkmates) {
         joiningWorkmates = removeCurrentUserFromList(joiningWorkmates);
         List<String> joiningWorkmatesStr = getFirstNames(joiningWorkmates);
-        String restaurantName =null;
-        if(lunch!=null){
+        String restaurantName = null;
+        if (lunch != null) {
             restaurantName = lunch.getRestaurantName();
         }
         String joiningWorkmatesString = createJoiningWorkmatesString(joiningWorkmatesStr);
-        return getDialogText(mAuthHelper.getUserFirstName(),restaurantName,joiningWorkmatesString);
+        return getDialogText(mAuthHelper.getUserFirstName(), restaurantName, joiningWorkmatesString);
     }
 
     private String getDialogText(String userFirstName, String restaurantName, String joiningWorkmatesString) {
-        if (restaurantName==null){
-            return mContext.getString(R.string.dialog_text_no_choice,userFirstName);
-        }else if(joiningWorkmatesString==null){
-            return mContext.getString(R.string.dialog_text_with_choice,userFirstName,restaurantName,"");
+        if (restaurantName == null) {
+            return mContext.getString(R.string.dialog_text_no_choice, userFirstName);
+        } else if (joiningWorkmatesString == null) {
+            return mContext.getString(R.string.dialog_text_with_choice, userFirstName, restaurantName, "");
         }
-        return mContext.getString(R.string.dialog_text_with_choice,userFirstName,restaurantName,joiningWorkmatesString);
+        return mContext.getString(R.string.dialog_text_with_choice, userFirstName, restaurantName, joiningWorkmatesString);
     }
 
 
     private List<String> getFirstNames(List<FireStoreUser> joiningWorkmates) {
         List<String> listToReturn = new ArrayList<>();
-        if(joiningWorkmates!=null){
-            for (FireStoreUser user: joiningWorkmates) {
+        if (joiningWorkmates != null) {
+            for (FireStoreUser user : joiningWorkmates) {
                 listToReturn.add(Go4LunchUtils.getUserFirstName(user.getUserName()));
             }
         }
@@ -205,16 +210,16 @@ public class MainActivityViewModel extends ViewModel {
 
     private String createJoiningWorkmatesString(List<String> joiningWorkmatesStr) {
         String stringToReturn = null;
-        if(joiningWorkmatesStr!=null && joiningWorkmatesStr.size()!=0){
+        if (joiningWorkmatesStr != null && joiningWorkmatesStr.size() != 0) {
             stringToReturn = mContext.getString(R.string.dialog_text_with);
-            if (joiningWorkmatesStr.size()==1){
+            if (joiningWorkmatesStr.size() == 1) {
                 stringToReturn = stringToReturn + joiningWorkmatesStr.get(0);
-            }else{
+            } else {
                 for (int i = 0; i < joiningWorkmatesStr.size(); i++) {
-                    if(i!=joiningWorkmatesStr.size()-1){
-                        stringToReturn = stringToReturn +joiningWorkmatesStr.get(i)+", ";
-                    }else{
-                        stringToReturn = stringToReturn + mContext.getString(R.string.dialog_text_and)+ joiningWorkmatesStr.get(i);
+                    if (i != joiningWorkmatesStr.size() - 1) {
+                        stringToReturn = stringToReturn + joiningWorkmatesStr.get(i) + ", ";
+                    } else {
+                        stringToReturn = stringToReturn + mContext.getString(R.string.dialog_text_and) + joiningWorkmatesStr.get(i);
 
                     }
                 }
@@ -239,8 +244,8 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void logOutUser() {
-        mAuthHelper.logOut(mContext).addOnCompleteListener(task->{
-                mActionLE.setValue(ViewAction.LOG_OUT);
+        mAuthHelper.logOut(mContext).addOnCompleteListener(task -> {
+            mActionLE.setValue(ViewAction.LOG_OUT);
         });
     }
 
@@ -252,8 +257,8 @@ public class MainActivityViewModel extends ViewModel {
     }
 
 
-    public SingleLiveEvent<YourLunchModel> getViewActionYourLunch() {
-        return mViewActionYourLunch;
+    public SingleLiveEventMediator<YourLunchModel> getViewActionYourLunch() {
+        return yourLunchMLD;
     }
 
     public SingleLiveEvent<String> getmViewActionLaunchRestaurantDetailsLE() {

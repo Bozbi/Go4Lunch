@@ -54,7 +54,6 @@ public class DispatchActivity extends AppCompatActivity {
         finish();
     }
 
-    //TODO loca the AuthActivity to portrait mode
     private void launchAuthActivity() {
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.GoogleBuilder().build(),

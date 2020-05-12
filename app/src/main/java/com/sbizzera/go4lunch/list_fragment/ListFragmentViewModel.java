@@ -76,18 +76,23 @@ public class ListFragmentViewModel extends ViewModel {
 
         LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = mFireStoreRepo.getAllKnownRestaurants();
         LiveData<Integer> sortTypeChosenLD = mSortTypeChosenRepo.getSelectedChipID();
+        LiveData<Map<String,NearbyPlace>> nearbyPlacesLD = mGooglePlacesRepo.getNearbyCacheLiveData();
 
 
         mModelMLD.addSource(knownRestaurantsLiveData, knownRestaurants -> {
-            combineSources(knownRestaurants, mDetailsMapLD.getValue(), sortTypeChosenLD.getValue());
+            combineSources(knownRestaurants, mDetailsMapLD.getValue(), sortTypeChosenLD.getValue(),nearbyPlacesLD.getValue());
         });
 
         mModelMLD.addSource(mDetailsMapLD, detailsMap -> {
-            combineSources(knownRestaurantsLiveData.getValue(), detailsMap, sortTypeChosenLD.getValue());
+            combineSources(knownRestaurantsLiveData.getValue(), detailsMap, sortTypeChosenLD.getValue(),nearbyPlacesLD.getValue());
         });
 
         mModelMLD.addSource(sortTypeChosenLD, sortTypeChosen -> {
-            combineSources(knownRestaurantsLiveData.getValue(), mDetailsMapLD.getValue(), sortTypeChosen);
+            combineSources(knownRestaurantsLiveData.getValue(), mDetailsMapLD.getValue(), sortTypeChosen,nearbyPlacesLD.getValue());
+        });
+
+        mModelMLD.addSource(nearbyPlacesLD,nearbyPlaces->{
+            combineSources(knownRestaurantsLiveData.getValue(),mDetailsMapLD.getValue(),sortTypeChosenLD.getValue(),nearbyPlaces);
         });
 
     }
@@ -95,13 +100,19 @@ public class ListFragmentViewModel extends ViewModel {
     private void combineSources(
             List<FireStoreRestaurant> knownRestaurants,
             Map<String,DetailResult> detailsMap,
-            Integer sortTypeChose
+            Integer sortTypeChose,
+            Map<String,NearbyPlace> nearbyPlaceMap
     ) {
 
-        List<NearbyPlace> nearbyPlaces = mGooglePlacesRepo.getNearbyCache();
+
         //Stop if no data in both sources
-        if (nearbyPlaces == null && knownRestaurants == null) {
+        if (nearbyPlaceMap == null && knownRestaurants == null) {
             return;
+        }
+
+        List<NearbyPlace> nearbyPlaces= null;
+        if(nearbyPlaceMap!=null){
+            nearbyPlaces = new ArrayList<>(nearbyPlaceMap.values());
         }
 
         //Create the list of Id's to search details (nearby + firestore - detailsMap)

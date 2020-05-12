@@ -27,7 +27,7 @@ public class GooglePlacesRepo {
     private static GooglePlacesRepo sGooglePlacesRepo;
 
     //CACHING FETCHEDRESTAURANTS
-    private Map<String, NearbyPlace> mNearbyPlaceMapCached = new HashMap<>();
+    private MutableLiveData<Map<String, NearbyPlace>> mNearbyPlaceMapCachedLD = new MutableLiveData<>(new HashMap<>());
 
     //CACHING RESTAURANTSDETAILS
     private Map<String, DetailResult> mRestaurantsDetailsMapCached = new HashMap<>();
@@ -58,13 +58,14 @@ public class GooglePlacesRepo {
             @Override
             public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {
                 assert response.body() != null;
+                Map<String, NearbyPlace> map = mNearbyPlaceMapCachedLD.getValue();
+                assert map!=null;
                 for (NearbyPlace restaurant : response.body().getRestaurantList()) {
-                    if (mNearbyPlaceMapCached.get(restaurant.getId()) == null) {
-                        mNearbyPlaceMapCached.put(restaurant.getId(), restaurant);
+                    if (map.get(restaurant.getId()) == null) {
+                        map.put(restaurant.getId(), restaurant);
                     }
-
                 }
-                List<NearbyPlace> listToReturn = new ArrayList<>(mNearbyPlaceMapCached.values());
+                List<NearbyPlace> listToReturn = new ArrayList<>(map.values());
                 nearbyRestaurantListLiveData.postValue(listToReturn);
             }
 
@@ -124,8 +125,8 @@ public class GooglePlacesRepo {
         return restaurantDetailsLiveData;
     }
 
-    // TODO BOZBI Le cache ne doit jamais être exposé, il ne sert qu'à améliorer les performances en interne du repo
-    public List<NearbyPlace> getNearbyCache() {
-        return new ArrayList<>(mNearbyPlaceMapCached.values());
+
+    public LiveData<Map<String,NearbyPlace>> getNearbyCacheLiveData() {
+        return mNearbyPlaceMapCachedLD;
     }
 }

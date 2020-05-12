@@ -61,6 +61,7 @@ dependencies {
 
     //Facebook
     implementation 'com.facebook.android:facebook-android-sdk:5.0.0'
+    implementation'com.facebook.android:facebook-login:5.0.0'
 
     //Glide
     implementation 'com.github.bumptech.glide:glide:4.10.0'
@@ -100,6 +101,12 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.0.0") {
         exclude group: "com.google.guava", module: "listenablefuture"
     }
+
+    //Test
+    testImplementation "android.arch.core:core-testing:1.1.1"
+    testImplementation "org.mockito:mockito-core:2.28.2"
+    testImplementation 'org.hamcrest:hamcrest-library:1.3'
+
 
 
 }

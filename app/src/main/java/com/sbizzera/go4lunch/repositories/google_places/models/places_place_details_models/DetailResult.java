@@ -30,6 +30,7 @@ public class DetailResult {
     @SerializedName("geometry")
     private Geometry geometry;
 
+
     public Geometry getGeometry() {
         return geometry;
     }

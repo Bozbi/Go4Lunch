@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 searchBar.setVisible(false);
                 break;
             case R.id.drawer_your_lunch:
-                mViewModel.getYourLunchDialog();
+                mViewModel.yourLunchButtonClicked();
                 break;
         }
         return true;
@@ -278,4 +278,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
+
 }

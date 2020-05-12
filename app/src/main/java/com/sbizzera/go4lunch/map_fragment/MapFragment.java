@@ -124,7 +124,6 @@ public class MapFragment
 
     @Override
     public void onMapLoaded() {
-        mViewModel.setLastVisibleRegion(map.getProjection().getVisibleRegion());
         map.setOnCameraIdleListener(this);
     }
 

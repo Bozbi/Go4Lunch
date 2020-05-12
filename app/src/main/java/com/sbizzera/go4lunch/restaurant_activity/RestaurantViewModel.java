@@ -12,6 +12,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.BuildConfig;
 import com.sbizzera.go4lunch.R;
@@ -112,6 +113,7 @@ public class RestaurantViewModel extends ViewModel {
         });
     }
 
+
     private void combineSources(DetailResult place, Boolean isRestaurantLikedByUser, Integer restaurantLikeCount, Boolean isRestaurantTodayUserChoice, List<FireStoreUser> todayListOfUsers) {
 
         String photoUrl = getPhotoUrlFromPhotoRef(place);
@@ -157,6 +159,7 @@ public class RestaurantViewModel extends ViewModel {
                 isWebSiteClickable,
                 todaysLunchers));
     }
+
 
     private List<RestaurantAdapterModel> getLunchers(List<FireStoreUser> todayListOfUsers) {
         List<RestaurantAdapterModel> listToReturn = new ArrayList<>();
