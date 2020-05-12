@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntegerRes;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
@@ -26,6 +27,7 @@ import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +53,7 @@ public class RestaurantViewModel extends ViewModel {
         mContext = context;
     }
 
+    @NonNull
     public LiveData<RestaurantActivityModel> getModelLiveData() {
         return modelLiveData;
     }
@@ -330,16 +333,18 @@ public class RestaurantViewModel extends ViewModel {
 
         //if not return the URL
         String photoRef = place.getPhotosList().get(0).getPhotoReference();
-        return new Uri.Builder().scheme("https")
-                .authority("maps.googleapis.com")
-                .appendPath("maps")
-                .appendPath("api")
-                .appendPath("place")
-                .appendPath("photo")
-                .appendQueryParameter("maxwidth", "600")
-                .appendQueryParameter("photoreference", photoRef)
-                .appendQueryParameter("key", BuildConfig.GOOGLE_API_KEY)
-                .toString();
+//        return new Uri.Builder().scheme("https")
+//                .authority("maps.googleapis.com")
+//                .appendPath("maps")
+//                .appendPath("api")
+//                .appendPath("place")
+//                .appendPath("photo")
+//                .appendQueryParameter("maxwidth", "600")
+//                .appendQueryParameter("photoreference", photoRef)
+//                .appendQueryParameter("key", BuildConfig.GOOGLE_API_KEY)
+//                .toString();
+
+        return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference="+photoRef+"&key="+BuildConfig.GOOGLE_API_KEY;
     }
 
     public void handleWebSiteClick() {

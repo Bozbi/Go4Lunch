@@ -6,6 +6,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.sbizzera.go4lunch.LiveDataTestUtil;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
@@ -24,10 +25,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -69,10 +70,10 @@ public class RestaurantViewModelTest {
         FirebaseUser mockFirebaseUser = mock(FirebaseUser.class);
 
 
-        Mockito.doReturn(placeDetailLiveData).when(googlePlacesRepo).getRestaurantDetailsById(null);
-        Mockito.doReturn(isRestaurantLikedByUserLiveData).when(fireStoreRepo).isRestaurantLikedByUser(null, null);
-        Mockito.doReturn(restaurantLikeCountLiveData).when(fireStoreRepo).getRestaurantLikesCount(null);
-        Mockito.doReturn(isRestaurantTodayUserChoiceLiveData).when(fireStoreRepo).isRestaurantChosenByUserToday(null, null);
+        Mockito.doReturn(placeDetailLiveData).when(googlePlacesRepo).getRestaurantDetailsById("1234");
+        Mockito.doReturn(isRestaurantLikedByUserLiveData).when(fireStoreRepo).isRestaurantLikedByUser("1234", null);
+        Mockito.doReturn(restaurantLikeCountLiveData).when(fireStoreRepo).getRestaurantLikesCount("1234");
+        Mockito.doReturn(isRestaurantTodayUserChoiceLiveData).when(fireStoreRepo).isRestaurantChosenByUserToday("1234", null);
         Mockito.doReturn(todayListOfUsersLiveData).when(fireStoreRepo).getTodayListOfUsers("1234");
         Mockito.doReturn(mockFirebaseUser).when(authHelper).getUser();
 
@@ -81,7 +82,7 @@ public class RestaurantViewModelTest {
     }
 
     @Test
-    public void shouldMapCorrectlyListOfFireStoreUsersToRestaurantActivityModel() {
+    public void shouldMapCorrectlyListOfFireStoreUsersToRestaurantActivityModel() throws InterruptedException {
         //Given
         DetailResult detailResult = new DetailResult(
                 "testName",
@@ -109,9 +110,10 @@ public class RestaurantViewModelTest {
 
         //When
         viewModel.fetchRestaurantInfo("1234");
-        RestaurantActivityModel model = viewModel.getModelLiveData().getValue();
+        RestaurantActivityModel model = LiveDataTestUtil.getOrAwaitValue(viewModel.getModelLiveData());
 
         Assert.assertEquals("6 rue du Test",model.getAddressText());
+        Assert.assertEquals(R.color.green,model.getFabColor());
 
     }
 }

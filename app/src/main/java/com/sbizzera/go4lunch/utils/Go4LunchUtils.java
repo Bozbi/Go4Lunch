@@ -10,9 +10,13 @@ import android.util.Log;
 public class Go4LunchUtils {
 
     public static String getUserFirstName(String fullName) {
-        String firstName = fullName.substring(0,fullName.indexOf(" "));
-        firstName = firstName.substring(0,1).toUpperCase()+ firstName.substring(1);
-        return firstName;
+        if(fullName.contains(" ")) {
+            String firstName = fullName.substring(0, fullName.indexOf(" "));
+            firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1);
+            return firstName;
+        }else{
+            return fullName;
+        }
     }
 
     public static Intent getGoToPermissionIntent(Context context) {
