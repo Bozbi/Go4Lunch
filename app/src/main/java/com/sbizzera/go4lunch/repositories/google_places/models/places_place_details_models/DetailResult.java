@@ -30,6 +30,16 @@ public class DetailResult {
     @SerializedName("geometry")
     private Geometry geometry;
 
+    public DetailResult(String name, List<AddressComponent> addressComponentList, String phoneNumber, List<Photos> photosList, String webSiteUrl, String placeId, OpeningHours openingHours, Geometry geometry) {
+        this.name = name;
+        this.addressComponentList = addressComponentList;
+        this.phoneNumber = phoneNumber;
+        this.photosList = photosList;
+        this.webSiteUrl = webSiteUrl;
+        this.placeId = placeId;
+        this.openingHours = openingHours;
+        this.geometry = geometry;
+    }
 
     public Geometry getGeometry() {
         return geometry;

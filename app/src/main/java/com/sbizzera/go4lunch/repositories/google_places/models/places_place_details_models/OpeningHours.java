@@ -6,6 +6,10 @@ public class OpeningHours{
     @SerializedName("open_now")
     private Boolean openNow;
 
+    public OpeningHours(Boolean openNow) {
+        this.openNow = openNow;
+    }
+
     public Boolean getOpenNow() {
         return openNow;
     }

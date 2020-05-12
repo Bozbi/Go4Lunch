@@ -10,7 +10,12 @@ import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
 import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
+import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.AddressComponent;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.DetailResult;
+import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.Geometry;
+import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.Location;
+import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.OpeningHours;
+import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.Photos;
 import com.sbizzera.go4lunch.restaurant_activity.models.RestaurantActivityModel;
 import com.sbizzera.go4lunch.services.AuthHelper;
 
@@ -77,30 +82,36 @@ public class RestaurantViewModelTest {
 
     @Test
     public void shouldMapCorrectlyListOfFireStoreUsersToRestaurantActivityModel() {
-        BDDMockito.given(placeDetailLiveData.getValue()).willReturn(new DetailResult());
-        BDDMockito.given(placeDetailLiveData.getValue().getAddressComponentList().get(0).getValue()).willReturn("6");
-        BDDMockito.given(placeDetailLiveData.getValue().getAddressComponentList().get(1).getValue()).willReturn("rue du test");
-        BDDMockito.given(placeDetailLiveData.getValue().getName()).willReturn("Au bon test");
-        BDDMockito.given(placeDetailLiveData.getValue().getPhotosList().get(0).getPhotoReference()).willReturn("www.photoTestUrl.com");
-        BDDMockito.given(placeDetailLiveData.getValue().getPhoneNumber()).willReturn("0606060606");
-
-
-
-
-
+        //Given
+        DetailResult detailResult = new DetailResult(
+                "testName",
+                Arrays.asList(
+                        new AddressComponent("6"),
+                        new AddressComponent("rue du Test")),
+                "0606060606",
+                Arrays.asList(
+                        new Photos("www.photo1.com"),
+                        new Photos("www.photo2.com")),
+                "www.test.com",
+                "1234",
+                new OpeningHours(true),
+                new Geometry(new Location(10.00,10.00))
+        );
+        placeDetailLiveData.setValue(detailResult);
         isRestaurantLikedByUserLiveData.setValue(true);
         restaurantLikeCountLiveData.setValue(10);
-        isRestaurantTodayUserChoiceLiveData.setValue(false);
-        todayListOfUsersLiveData.setValue(Arrays.asList(new
-                FireStoreUser("testUser", "Bobo", "www.testUserPhoto.com")));
-//        Assert.assertEquals(viewModel.getModelLiveData().getValue(),
-//                new RestaurantActivityModel(
-//                        "www.testUserPhoto.com",
-//                        R.drawable.restaurant_icon_grey,
-//                        R.color.white,
-//
-//
-//                        ));
+        isRestaurantTodayUserChoiceLiveData.setValue(true);
+        List<FireStoreUser> users = Arrays.asList(
+                new FireStoreUser("testeur1ID","testeur1","www.photoTesteurAvatar.com"),
+                new FireStoreUser("testeur2ID","testeur2","www.photoTesteurAvatar.com")
+        );
+        todayListOfUsersLiveData.setValue(users);
+
+        //When
         viewModel.fetchRestaurantInfo("1234");
+        RestaurantActivityModel model = viewModel.getModelLiveData().getValue();
+
+        Assert.assertEquals("6 rue du Test",model.getAddressText());
+
     }
 }

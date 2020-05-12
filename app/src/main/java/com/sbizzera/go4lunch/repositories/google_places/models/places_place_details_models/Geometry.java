@@ -6,6 +6,10 @@ public class Geometry{
     @SerializedName("location")
     private Location location;
 
+    public Geometry(Location location) {
+        this.location = location;
+    }
+
     public Location getLocation() {
         return location;
     }

@@ -7,6 +7,10 @@ public class AddressComponent {
     @SerializedName("long_name")
     private String value;
 
+    public AddressComponent(String value) {
+        this.value = value;
+    }
+
     public String getValue() {
         return value;
     }
