@@ -180,20 +180,6 @@ public class RestaurantViewModel extends ViewModel {
     }
 
 
-    public void handleLikeClick() {
-        //check that a restaurant has been fetch
-        if (placeDetailLiveData.getValue() != null) {
-            mFirestoreRepo.updateRestaurantLike(placeDetailLiveData.getValue(), mAuthHelper.getUser().getUid());
-        }
-    }
-
-    public void handleFabClick() {
-        //check that a restaurant has been fetch
-        if (placeDetailLiveData.getValue() != null) {
-            mFirestoreRepo.updateRestaurantChoice(placeDetailLiveData.getValue(), mAuthHelper.getUser());
-        }
-    }
-
     private String getWebSite(DetailResult place) {
         //Check nulls
         if (place == null || place.getWebSiteUrl() == null) {
@@ -330,6 +316,7 @@ public class RestaurantViewModel extends ViewModel {
         if (place == null || place.getPhotosList() == null || place.getPhotosList().get(0) == null) {
             return null;
         }
+        //TODO how to implement this for testing without removing Uri.Builder that always returns null
 
         //if not return the URL
         String photoRef = place.getPhotosList().get(0).getPhotoReference();
@@ -360,6 +347,20 @@ public class RestaurantViewModel extends ViewModel {
         intent.setData(Uri.parse("tel:" + modelLiveData.getValue().getPhoneNumber()));
         if (intent.resolveActivity(App.getApplication().getPackageManager()) != null) {
             App.getApplication().startActivity(intent);
+        }
+    }
+
+    public void handleLikeClick() {
+        //check that a restaurant has been fetch
+        if (placeDetailLiveData.getValue() != null) {
+            mFirestoreRepo.updateRestaurantLike(placeDetailLiveData.getValue(), mAuthHelper.getUser().getUid());
+        }
+    }
+
+    public void handleFabClick() {
+        //check that a restaurant has been fetch
+        if (placeDetailLiveData.getValue() != null) {
+            mFirestoreRepo.updateRestaurantChoice(placeDetailLiveData.getValue(), mAuthHelper.getUser());
         }
     }
 }
