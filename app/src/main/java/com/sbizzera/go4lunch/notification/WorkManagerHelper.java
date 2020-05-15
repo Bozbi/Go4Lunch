@@ -1,9 +1,11 @@
 package com.sbizzera.go4lunch.notification;
 
 import android.app.Application;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
+import android.widget.Toast;
 
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
@@ -11,8 +13,14 @@ import androidx.work.WorkManager;
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.R;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
+
+import timber.log.Timber;
 
 public class WorkManagerHelper {
 
@@ -72,6 +80,8 @@ public class WorkManagerHelper {
                     NotificationManager.IMPORTANCE_DEFAULT
             );
             channelUserLunch.setDescription(mApplication.getString(R.string.notif_channel_description));
+            channelUserLunch.setImportance(NotificationManager.IMPORTANCE_HIGH);
+
 
             NotificationManager manager = mApplication.getSystemService(NotificationManager.class);
             if(manager!=null){
@@ -80,6 +90,6 @@ public class WorkManagerHelper {
         }
     }
 
-
-
 }
+
+

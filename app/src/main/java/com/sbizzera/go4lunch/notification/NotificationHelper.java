@@ -63,7 +63,7 @@ public class NotificationHelper {
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(notificationText))
                 .setChannelId(WorkManagerHelper.CHANNEL_USER_LUNCH_ID)
-                .setPriority(Notification.PRIORITY_DEFAULT)
+                .setPriority(Notification.PRIORITY_HIGH)
                 .setContentIntent(contentIntent)
                 .build();
 

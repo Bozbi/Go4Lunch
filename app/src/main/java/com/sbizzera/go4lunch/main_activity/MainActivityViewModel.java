@@ -2,6 +2,7 @@ package com.sbizzera.go4lunch.main_activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -10,6 +11,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -29,6 +31,8 @@ import com.sbizzera.go4lunch.your_lunch_dialog.models.YourLunchModel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 public class MainActivityViewModel extends ViewModel {
 
@@ -64,6 +68,7 @@ public class MainActivityViewModel extends ViewModel {
         mAuthHelper = authHelper;
         mContext = context;
         sharedPreferencesRepo.updateLiveData(mAuthHelper.getUser().getUid());
+
         updateUserInDb();
         wireUp();
         checkForLocationPermissions(permissionRepo);
@@ -92,9 +97,11 @@ public class MainActivityViewModel extends ViewModel {
         yourLunchMLD.addSource(userTodayLunchLD, userTodayLunch -> {
             combineYourLunchSources(userTodayLunch, joiningWorkmatesLD.getValue(), dialogButtonClickLD.getValue());
         });
-        yourLunchMLD.addSource(joiningWorkmatesLD, joiningWorkmates -> {
-            combineYourLunchSources(userTodayLunchLD.getValue(), joiningWorkmates, dialogButtonClickLD.getValue());
+
+        yourLunchMLD.addSource(joiningWorkmatesLD,joiningWorkmates->{
+            combineYourLunchSources(userTodayLunchLD.getValue(),joiningWorkmates,dialogButtonClickLD.getValue());
         });
+
 
         yourLunchMLD.addSource(dialogButtonClickLD, clicked -> {
             combineYourLunchSources(userTodayLunchLD.getValue(), joiningWorkmatesLD.getValue(), clicked);
@@ -147,11 +154,10 @@ public class MainActivityViewModel extends ViewModel {
         }
     }
 
-    public void onAutocompleteClick(Intent data) {
-        Place place = Autocomplete.getPlaceFromIntent(data);
-        List<Place.Type> types = place.getTypes();
-        if (types != null && types.contains(Place.Type.RESTAURANT)) {
-            mViewActionLaunchRestaurantDetailsLE.setValue(place.getId());
+    public void onAutocompleteClick(List<Place.Type> placeTypes, String placeId) {
+
+        if (placeTypes != null && placeTypes.contains(Place.Type.RESTAURANT)) {
+            mViewActionLaunchRestaurantDetailsLE.setValue(placeId);
         } else {
             mActionLE.setValue(ViewAction.SHOW_NOT_A_RESTAURANT_TOAST);
         }
@@ -245,6 +251,7 @@ public class MainActivityViewModel extends ViewModel {
 
     public void logOutUser() {
         mAuthHelper.logOut(mContext).addOnCompleteListener(task -> {
+            Task<Void> salut = task;
             mActionLE.setValue(ViewAction.LOG_OUT);
         });
     }

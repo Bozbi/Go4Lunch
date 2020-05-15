@@ -273,7 +273,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-                    mViewModel.onAutocompleteClick(data);
+
+                    mViewModel.onAutocompleteClick(
+                            Autocomplete.getPlaceFromIntent(data).getTypes(),
+                            Autocomplete.getPlaceFromIntent(data).getId()
+                            );
                 }
             }
         }

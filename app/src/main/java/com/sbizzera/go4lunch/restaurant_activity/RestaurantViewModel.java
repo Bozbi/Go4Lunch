@@ -13,21 +13,19 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.BuildConfig;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
+import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.AddressComponent;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.DetailResult;
 import com.sbizzera.go4lunch.restaurant_activity.models.RestaurantActivityModel;
 import com.sbizzera.go4lunch.restaurant_activity.models.RestaurantAdapterModel;
 import com.sbizzera.go4lunch.services.AuthHelper;
-import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
-import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -331,22 +329,26 @@ public class RestaurantViewModel extends ViewModel {
 //                .appendQueryParameter("key", BuildConfig.GOOGLE_API_KEY)
 //                .toString();
 
-        return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference="+photoRef+"&key="+BuildConfig.GOOGLE_API_KEY;
+        return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference=" + photoRef + "&key=" + BuildConfig.GOOGLE_API_KEY;
     }
 
     public void handleWebSiteClick() {
-        Uri webpage = Uri.parse(modelLiveData.getValue().getWebSiteUrl());
-        Intent intent = new Intent(Intent.ACTION_VIEW, webpage).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (intent.resolveActivity(App.getApplication().getPackageManager()) != null) {
-            App.getApplication().startActivity(intent);
+        if (modelLiveData.getValue() != null) {
+            Uri webpage = Uri.parse(modelLiveData.getValue().getWebSiteUrl());
+            Intent intent = new Intent(Intent.ACTION_VIEW, webpage).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (intent.resolveActivity(App.getApplication().getPackageManager()) != null) {
+                App.getApplication().startActivity(intent);
+            }
         }
     }
 
     public void handlePhoneClick() {
-        Intent intent = new Intent(Intent.ACTION_DIAL).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setData(Uri.parse("tel:" + modelLiveData.getValue().getPhoneNumber()));
-        if (intent.resolveActivity(App.getApplication().getPackageManager()) != null) {
-            App.getApplication().startActivity(intent);
+        if (modelLiveData.getValue() != null) {
+            Intent intent = new Intent(Intent.ACTION_DIAL).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setData(Uri.parse("tel:" + modelLiveData.getValue().getPhoneNumber()));
+            if (intent.resolveActivity(App.getApplication().getPackageManager()) != null) {
+                App.getApplication().startActivity(intent);
+            }
         }
     }
 
