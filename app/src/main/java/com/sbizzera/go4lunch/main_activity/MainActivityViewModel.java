@@ -1,8 +1,6 @@
 package com.sbizzera.go4lunch.main_activity;
 
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -14,7 +12,6 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
-import com.google.android.libraries.places.widget.Autocomplete;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.main_activity.models.MainActivityModel;
 import com.sbizzera.go4lunch.repositories.PermissionRepo;
@@ -31,8 +28,6 @@ import com.sbizzera.go4lunch.your_lunch_dialog.models.YourLunchModel;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import timber.log.Timber;
 
 public class MainActivityViewModel extends ViewModel {
 
@@ -98,8 +93,8 @@ public class MainActivityViewModel extends ViewModel {
             combineYourLunchSources(userTodayLunch, joiningWorkmatesLD.getValue(), dialogButtonClickLD.getValue());
         });
 
-        yourLunchMLD.addSource(joiningWorkmatesLD,joiningWorkmates->{
-            combineYourLunchSources(userTodayLunchLD.getValue(),joiningWorkmates,dialogButtonClickLD.getValue());
+        yourLunchMLD.addSource(joiningWorkmatesLD, joiningWorkmates -> {
+            combineYourLunchSources(userTodayLunchLD.getValue(), joiningWorkmates, dialogButtonClickLD.getValue());
         });
 
 
@@ -256,13 +251,11 @@ public class MainActivityViewModel extends ViewModel {
         });
     }
 
-
     enum ViewAction {
         SHOW_NOT_A_RESTAURANT_TOAST,
         ASK_LOCATION_PERMISSION,
         LOG_OUT
     }
-
 
     public SingleLiveEventMediator<YourLunchModel> getViewActionYourLunch() {
         return yourLunchMLD;

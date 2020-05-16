@@ -50,7 +50,12 @@ public class MapFragmentViewModel extends ViewModel {
     private static final int MIN_VISIBLE_RADIUS_MOVEMENT_TO_FETCH_AGAIN = 200;
 
 
-    public MapFragmentViewModel(CurrentGPSLocationRepo currentGPSLocationRepo, GooglePlacesRepo googlePlacesRepo, FireStoreRepo fireStoreRepo, VisibleRegionRepo visibleRegionRepo, PermissionRepo permissionRepo) {
+    public MapFragmentViewModel(
+            CurrentGPSLocationRepo currentGPSLocationRepo,
+            GooglePlacesRepo googlePlacesRepo,
+            FireStoreRepo fireStoreRepo,
+            VisibleRegionRepo visibleRegionRepo,
+            PermissionRepo permissionRepo) {
         mCurrentGPSLocationRepo = currentGPSLocationRepo;
         mGooglePlacesRepo = googlePlacesRepo;
         mFireStoreRepo = fireStoreRepo;

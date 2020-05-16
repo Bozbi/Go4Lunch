@@ -1,27 +1,17 @@
 package com.sbizzera.go4lunch.main_activity;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
-import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.work.ListenableWorker;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.firebase.auth.FirebaseUser;
 import com.sbizzera.go4lunch.LiveDataTestUtil;
-import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.main_activity.models.MainActivityModel;
 import com.sbizzera.go4lunch.repositories.PermissionRepo;
 import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
@@ -32,33 +22,22 @@ import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
 import com.sbizzera.go4lunch.services.AuthHelper;
 import com.sbizzera.go4lunch.your_lunch_dialog.models.YourLunchModel;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executor;
-
-import javax.annotation.meta.When;
-
-import timber.log.Timber;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MainActivityViewModelTest {
@@ -72,12 +51,10 @@ public class MainActivityViewModelTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private PermissionRepo permissionRepo;
-    private AuthHelper authHelper;
-
     private MutableLiveData<Boolean> notificationStatusLD = new MutableLiveData<>();
     private MutableLiveData<FireStoreLunch> userTodayLunchLD = new MutableLiveData<>();
     private MutableLiveData<List<FireStoreUser>> joiningWorkmatesLD = new MutableLiveData<>();
+    private MutableLiveData<VisibleRegion> mockBoundsLD = new MutableLiveData<>();
 
     private MainActivityViewModel viewModel;
 
@@ -87,9 +64,10 @@ public class MainActivityViewModelTest {
 
         FireStoreRepo fireStoreRepo = mock(FireStoreRepo.class);
         SharedPreferencesRepo sharedPreferencesRepo = mock(SharedPreferencesRepo.class);
+
         VisibleRegionRepo visibleRegionRepo = mock(VisibleRegionRepo.class);
-        permissionRepo = mock(PermissionRepo.class);
-        authHelper = mock(AuthHelper.class);
+        PermissionRepo permissionRepo = mock(PermissionRepo.class);
+        AuthHelper authHelper = mock(AuthHelper.class);
         FirebaseUser user = mock(FirebaseUser.class);
         doReturn("testId").when(user).getUid();
 
@@ -97,6 +75,7 @@ public class MainActivityViewModelTest {
         doReturn(notificationStatusLD).when(sharedPreferencesRepo).getNotificationPreferencesLiveData();
         doReturn(userTodayLunchLD).when(fireStoreRepo).getUserLunch("testId");
         doReturn(joiningWorkmatesLD).when(fireStoreRepo).getTodayListOfUsers("TestId");
+        doReturn(mockBoundsLD).when(visibleRegionRepo).getLastMapVisibleRegion();
 
 
 //        when(context.getString(R.string.dialog_text_with_choice)).thenReturn("dialog with choice %s");
@@ -166,12 +145,12 @@ public class MainActivityViewModelTest {
 
         //Then
         assertEquals(MainActivityViewModel.ViewAction.ASK_LOCATION_PERMISSION,viewAction);
-
     }
+
 
 //    @Test
 //    public void logOutClickShouldFireViewActionLogOUt() throws InterruptedException{
-//
+//TODO how to get the addOnCompleteListener to work
 //        viewModel.logOutUser();
 //
 //        //When
@@ -182,7 +161,7 @@ public class MainActivityViewModelTest {
 //    }
 
     @Test
-    public void getViewActionYourLunch() throws InterruptedException{
+    public void shouldDisplayCorrectDataOnYourLunchButtonClicked() throws InterruptedException{
         userTodayLunchLD.setValue(new FireStoreLunch("mlsqkdf","mlsqkdj","mlsqkdf","TestId","mslqkdjf"));
         joiningWorkmatesLD.setValue(getUserList());
         viewModel.yourLunchButtonClicked();
@@ -233,6 +212,20 @@ public class MainActivityViewModelTest {
 
         restaurantId = LiveDataTestUtil.getOrAwaitValue(viewModel.getmViewActionLaunchRestaurantDetailsLE());
         assertEquals("restoId2",restaurantId);
+    }
+
+    @Test
+    public void shouldFireAutocompleteWithCorrectBoundsOnSearchClick() throws InterruptedException{
+        //Given
+        VisibleRegion visibleRegion = new VisibleRegion(null,null,null,null,new LatLngBounds(new LatLng(10,10),new LatLng(20,20)));
+        mockBoundsLD.setValue(visibleRegion);
+
+        //When
+        viewModel.showAutocomplete();
+        RectangularBounds rectangularBounds = LiveDataTestUtil.getOrAwaitValue(viewModel.getViewActionSearch());
+
+        assertEquals(visibleRegion.latLngBounds.northeast,rectangularBounds.getNortheast());
+        assertEquals(visibleRegion.latLngBounds.southwest,rectangularBounds.getSouthwest());
     }
 
 
