@@ -27,6 +27,7 @@ public class SingleLiveEventMediator<T> extends MediatorLiveData<T> {
         });
     }
 
+
     @MainThread
     @Override
     public void setValue(@Nullable final T t) {

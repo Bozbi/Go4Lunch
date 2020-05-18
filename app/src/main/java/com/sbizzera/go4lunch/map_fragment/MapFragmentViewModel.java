@@ -2,8 +2,9 @@ package com.sbizzera.go4lunch.map_fragment;
 
 
 import android.location.Location;
-import android.util.Pair;
 
+
+import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -69,16 +70,16 @@ public class MapFragmentViewModel extends ViewModel {
     private void wireUpUIMediator() {
         mCurrentGPSLocationLD = mCurrentGPSLocationRepo.getCurrentGPSLocationLD();
         fireStoreRestaurantsLD = mFireStoreRepo.getAllKnownRestaurants();
+        mLastRestaurantFetchVisibleRegionLD = mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion();
         LiveData<VisibleRegion> lastMapVisibleRegionLD = mVisibleRegionRepo.getLastMapVisibleRegion();
         LiveData<List<NearbyPlace>> listNearbyRestaurantsLD = Transformations.switchMap(mNearbyParamsMLD, (pair) -> {
-            if (pair != null) {
+            if (pair != null && pair.second!=null) {
                 return mGooglePlacesRepo.getNearbyRestaurants(pair.first, pair.second);
             }else{
                 return null;
             }
         });
 
-        mLastRestaurantFetchVisibleRegionLD = mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion();
 
         mUiModelLiveData.addSource(mIsMapReadyLD, isMapReady -> {
             combineSources(isMapReady, lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
@@ -115,13 +116,15 @@ public class MapFragmentViewModel extends ViewModel {
 
     private void combineNearbyParamsSources(Location currentGPSLocation, VisibleRegion lastRestaurantFetchVisibleRegion) {
         if (lastRestaurantFetchVisibleRegion != null) {
+
             String location = fromLatLngToLocationString(lastRestaurantFetchVisibleRegion.latLngBounds.getCenter());
             Integer radius = fromVisibleRegionToFetchRadius(lastRestaurantFetchVisibleRegion);
             mNearbyParamsMLD.setValue(new Pair<>(location, radius));
         } else if (currentGPSLocation != null) {
             String location = fromLocationToLocationString(currentGPSLocation);
             Integer radius = 500;
-            mNearbyParamsMLD.setValue(new Pair<>(location, radius));
+            Pair<String,Integer> myPair = new Pair<>(location, radius);
+            mNearbyParamsMLD.setValue(myPair);
         } else {
             mNearbyParamsMLD.setValue(null);
         }

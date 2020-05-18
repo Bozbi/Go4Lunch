@@ -174,7 +174,8 @@ public class MainActivityViewModel extends ViewModel {
             shouldPositiveBtnBeAvailable = true;
             restaurantId = lunch.getRestaurantId();
         }
-        yourLunchMLD.setValue(new YourLunchModel(dialogText, shouldPositiveBtnBeAvailable, restaurantId));
+        YourLunchModel myModel = new YourLunchModel(dialogText,shouldPositiveBtnBeAvailable,restaurantId);
+        yourLunchMLD.setValue(myModel);
         dialogButtonClickLD.setValue(false);
     }
 
@@ -246,7 +247,6 @@ public class MainActivityViewModel extends ViewModel {
 
     public void logOutUser() {
         mAuthHelper.logOut(mContext).addOnCompleteListener(task -> {
-            Task<Void> salut = task;
             mActionLE.setValue(ViewAction.LOG_OUT);
         });
     }

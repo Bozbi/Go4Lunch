@@ -29,6 +29,8 @@ import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
 import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
 
+import timber.log.Timber;
+
 
 public class MapFragment
     extends SupportMapFragment
@@ -134,6 +136,7 @@ public class MapFragment
     @Override
     public void onCameraIdle() {
         mViewModel.setLastVisibleRegion(map.getProjection().getVisibleRegion());
+        Timber.d(map.getProjection().getVisibleRegion().toString());
     }
 
     @Override

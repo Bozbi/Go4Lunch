@@ -12,6 +12,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.firebase.auth.FirebaseUser;
 import com.sbizzera.go4lunch.LiveDataTestUtil;
+import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.main_activity.models.MainActivityModel;
 import com.sbizzera.go4lunch.repositories.PermissionRepo;
 import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
@@ -78,13 +79,8 @@ public class MainActivityViewModelTest {
         doReturn(mockBoundsLD).when(visibleRegionRepo).getLastMapVisibleRegion();
 
 
-//        when(context.getString(R.string.dialog_text_with_choice)).thenReturn("dialog with choice %s");
-//        when(context.getString(R.string.dialog_text_no_choice)).thenReturn("dialog no choice %s");
-//        when(context.getString(R.string.dialog_text_with)).thenReturn(" avec ");
-//        when(context.getString(R.string.dialog_text_and)).thenReturn(" et ");
-
-
-
+        doReturn(" avec ").when(context).getString(R.string.dialog_text_with);
+        doReturn(" et ").when(context).getString(R.string.dialog_text_and);
 
 
         doReturn("userTestPhotoUrl").when(authHelper).getUserPhotoUrl();
@@ -101,9 +97,6 @@ public class MainActivityViewModelTest {
                 permissionRepo,
                 authHelper,
                 context);
-
-
-
     }
 
     @Test
@@ -134,51 +127,43 @@ public class MainActivityViewModelTest {
     }
 
     @Test
-    public void noLocationPermissionOnStartShouldFireViewActionAskLocationPermission() throws InterruptedException{
-        //Given
-        //TODO pourquoi il veut que je vire ces lignes
-//        doReturn(false).when(permissionRepo).hasPermissionBeenAsked();
-//        doReturn(false).when(permissionRepo).isLocationPermissionGranted();
+    public void noLocationPermissionOnStartShouldFireViewActionAskLocationPermission() throws InterruptedException {
+        //Given permission set to false
 
         //When
         MainActivityViewModel.ViewAction viewAction = LiveDataTestUtil.getOrAwaitValue(viewModel.getActionLE());
 
         //Then
-        assertEquals(MainActivityViewModel.ViewAction.ASK_LOCATION_PERMISSION,viewAction);
+        assertEquals(MainActivityViewModel.ViewAction.ASK_LOCATION_PERMISSION, viewAction);
     }
 
 
-//    @Test
-//    public void logOutClickShouldFireViewActionLogOUt() throws InterruptedException{
-//TODO how to get the addOnCompleteListener to work
-//        viewModel.logOutUser();
-//
-//        //When
-//        MainActivityViewModel.ViewAction viewAction = LiveDataTestUtil.getOrAwaitValue(viewModel.getActionLE());
-//
-//        //Then
-//        assertEquals(MainActivityViewModel.ViewAction.LOG_OUT,viewAction);
-//    }
-
     @Test
-    public void shouldDisplayCorrectDataOnYourLunchButtonClicked() throws InterruptedException{
-        userTodayLunchLD.setValue(new FireStoreLunch("mlsqkdf","mlsqkdj","mlsqkdf","TestId","mslqkdjf"));
+    public void shouldDisplayCorrectDataOnYourLunchButtonClicked() throws InterruptedException {
+        userTodayLunchLD.setValue(new FireStoreLunch("mlsqkdf", "userName", "mlsqkdf", "TestId", "restoName"));
         joiningWorkmatesLD.setValue(getUserList());
+
+        doReturn("Hey userFirstName,\nAujourd'hui tu manges au restaurant restoName avec userTest2, userTest3,  et userTest4.\nBon apétit!")
+                .when(context).getString(R.string.dialog_text_with_choice, "userFirstName", "restoName", " avec userTest2, userTest3,  et userTest4");
+
+        viewModel.yourLunchButtonClicked();
+        //TODO Explore why we need to call twice
+        LiveDataTestUtil.getOrAwaitValue(viewModel.getViewActionYourLunch());
         viewModel.yourLunchButtonClicked();
         YourLunchModel yourLunchModel = LiveDataTestUtil.getOrAwaitValue(viewModel.getViewActionYourLunch());
 
-        //TODO I can't get this to work get Dialog always null cause in CombineSources buttonClickGetsBackToFalse;
-//        assertEquals("lksjdflkj",yourLunchModel.getDialogtext());
+
+        assertEquals("Hey userFirstName,\nAujourd'hui tu manges au restaurant restoName avec userTest2, userTest3,  et userTest4.\nBon apétit!", yourLunchModel.getDialogtext());
         assertEquals("TestId", yourLunchModel.getRestaurantId());
         assertTrue(yourLunchModel.isPositiveAvailable());
 
     }
 
     @Test
-    public void clickOnAutocompleteNonRestaurantResultShouldNotFireYourLunchSingleLiveEvent() throws InterruptedException{
+    public void clickOnAutocompleteNonRestaurantResultShouldNotFireYourLunchSingleLiveEvent() throws InterruptedException {
         ArrayList<Place.Type> types = new ArrayList<>();
         types.add(Place.Type.BOOK_STORE);
-        viewModel.onAutocompleteClick(types,"restoId");
+        viewModel.onAutocompleteClick(types, "restoId");
 
         expectedException.expect(RuntimeException.class);
         expectedException.expectMessage("LiveData value was never set.");
@@ -187,45 +172,46 @@ public class MainActivityViewModelTest {
     }
 
     @Test
-    public void clickOnAutocompleteNonRestaurantResultShouldFireViewActionToastNotARestaurant() throws InterruptedException{
+    public void clickOnAutocompleteNonRestaurantResultShouldFireViewActionToastNotARestaurant() throws InterruptedException {
         ArrayList<Place.Type> types = new ArrayList<>();
         types.add(Place.Type.BOOK_STORE);
-        viewModel.onAutocompleteClick(types,"restoId");
+        viewModel.onAutocompleteClick(types, "restoId");
 
         MainActivityViewModel.ViewAction viewAction = LiveDataTestUtil.getOrAwaitValue(viewModel.getActionLE());
 
-        assertEquals(MainActivityViewModel.ViewAction.SHOW_NOT_A_RESTAURANT_TOAST,viewAction);
+        assertEquals(MainActivityViewModel.ViewAction.SHOW_NOT_A_RESTAURANT_TOAST, viewAction);
 
     }
+
     @Test
-    public void clickOnAutocompleteRestaurantResultShouldFireSingleLiveEventWithCorrectId() throws InterruptedException{
+    public void clickOnAutocompleteRestaurantResultShouldFireSingleLiveEventWithCorrectId() throws InterruptedException {
         ArrayList<Place.Type> types = new ArrayList<>();
         types.add(Place.Type.RESTAURANT);
-        viewModel.onAutocompleteClick(types,"restoId");
+        viewModel.onAutocompleteClick(types, "restoId");
 
         String restaurantId = LiveDataTestUtil.getOrAwaitValue(viewModel.getmViewActionLaunchRestaurantDetailsLE());
 
-        assertEquals("restoId",restaurantId);
+        assertEquals("restoId", restaurantId);
 
         types.add(Place.Type.BOOK_STORE);
-        viewModel.onAutocompleteClick(types,"restoId2");
+        viewModel.onAutocompleteClick(types, "restoId2");
 
         restaurantId = LiveDataTestUtil.getOrAwaitValue(viewModel.getmViewActionLaunchRestaurantDetailsLE());
-        assertEquals("restoId2",restaurantId);
+        assertEquals("restoId2", restaurantId);
     }
 
     @Test
-    public void shouldFireAutocompleteWithCorrectBoundsOnSearchClick() throws InterruptedException{
+    public void shouldFireAutocompleteWithCorrectBoundsOnSearchClick() throws InterruptedException {
         //Given
-        VisibleRegion visibleRegion = new VisibleRegion(null,null,null,null,new LatLngBounds(new LatLng(10,10),new LatLng(20,20)));
+        VisibleRegion visibleRegion = new VisibleRegion(null, null, null, null, new LatLngBounds(new LatLng(10, 10), new LatLng(20, 20)));
         mockBoundsLD.setValue(visibleRegion);
 
         //When
         viewModel.showAutocomplete();
         RectangularBounds rectangularBounds = LiveDataTestUtil.getOrAwaitValue(viewModel.getViewActionSearch());
 
-        assertEquals(visibleRegion.latLngBounds.northeast,rectangularBounds.getNortheast());
-        assertEquals(visibleRegion.latLngBounds.southwest,rectangularBounds.getSouthwest());
+        assertEquals(visibleRegion.latLngBounds.northeast, rectangularBounds.getNortheast());
+        assertEquals(visibleRegion.latLngBounds.southwest, rectangularBounds.getSouthwest());
     }
 
 
