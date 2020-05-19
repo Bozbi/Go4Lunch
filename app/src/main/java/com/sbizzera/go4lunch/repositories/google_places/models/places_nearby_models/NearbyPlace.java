@@ -2,6 +2,7 @@ package com.sbizzera.go4lunch.repositories.google_places.models.places_nearby_mo
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.Geometry;
 
 public class NearbyPlace {
 
@@ -16,6 +17,11 @@ public class NearbyPlace {
     @SerializedName("geometry")
     private NearbyGeometry geometry;
 
+    public NearbyPlace(String id, String name, NearbyGeometry geometry) {
+        this.id = id;
+        this.name = name;
+        this.geometry = geometry;
+    }
 
     public String getId() {
         return id;

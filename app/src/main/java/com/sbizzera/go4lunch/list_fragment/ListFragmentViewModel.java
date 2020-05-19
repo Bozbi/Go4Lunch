@@ -100,7 +100,7 @@ public class ListFragmentViewModel extends ViewModel {
     private void combineSources(
             List<FireStoreRestaurant> knownRestaurants,
             Map<String,DetailResult> detailsMap,
-            Integer sortTypeChose,
+            Integer sortTypeChosen,
             Map<String,NearbyPlace> nearbyPlaceMap
     ) {
 
@@ -222,7 +222,7 @@ public class ListFragmentViewModel extends ViewModel {
                 }
             }
         }
-        switch (sortTypeChose) {
+        switch (sortTypeChosen) {
             case R.id.likes_chip: {
                 Collections.sort(listOfRestaurantToReturn, new LikesComparator());
                 break;
@@ -240,7 +240,7 @@ public class ListFragmentViewModel extends ViewModel {
                 break;
             }
         }
-        mModelMLD.setValue(new ListFragmentModel(listOfRestaurantToReturn, sortTypeChose));
+        mModelMLD.setValue(new ListFragmentModel(listOfRestaurantToReturn, sortTypeChosen));
     }
 
     private int getLikesCount(FireStoreRestaurant restaurant) {

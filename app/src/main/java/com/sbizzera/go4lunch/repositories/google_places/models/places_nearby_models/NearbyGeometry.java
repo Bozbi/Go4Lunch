@@ -8,6 +8,10 @@ public class NearbyGeometry {
     @Expose
     private NearbyLocation location;
 
+    public NearbyGeometry(NearbyLocation location) {
+        this.location = location;
+    }
+
     public NearbyLocation getLocation() {
         return location;
     }
