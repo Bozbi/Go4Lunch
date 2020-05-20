@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.workmates_fragment.models.WorkmatesFragmentAdapterModel;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class WorkmatesFragmentAdapter extends RecyclerView.Adapter<WorkmatesFrag
     private List<WorkmatesFragmentAdapterModel> mWormatesList = new ArrayList<>();
     private OnItemBoundWithRestaurantClickListener mListener;
 
-    public WorkmatesFragmentAdapter(OnItemBoundWithRestaurantClickListener listener) {
+    WorkmatesFragmentAdapter(OnItemBoundWithRestaurantClickListener listener) {
         mListener = listener;
     }
 
@@ -44,10 +44,10 @@ public class WorkmatesFragmentAdapter extends RecyclerView.Adapter<WorkmatesFrag
                 .into(holder.workmateAvatar);
 
         holder.workmateChoice.setText(workmate.getChoice());
-        holder.workmateChoice.setTypeface(holder.workmateChoice.getTypeface(),workmate.getTextStyle());
-        holder.itemView.setOnClickListener(v->{
-            mListener.onItemBoundWithRestaurantClick(workmate.getRestaurantId());
-        });
+        holder.workmateChoice.setTypeface(holder.workmateChoice.getTypeface(), workmate.getTextStyle());
+        holder.itemView.setOnClickListener(v ->
+                mListener.onItemBoundWithRestaurantClick(workmate.getRestaurantId())
+        );
         holder.itemView.setClickable(workmate.getClickable());
     }
 
@@ -56,7 +56,7 @@ public class WorkmatesFragmentAdapter extends RecyclerView.Adapter<WorkmatesFrag
         return mWormatesList.size();
     }
 
-    public void setWorkmatesList(List<WorkmatesFragmentAdapterModel> workmatesList) {
+    void setWorkmatesList(List<WorkmatesFragmentAdapterModel> workmatesList) {
         mWormatesList = workmatesList;
     }
 

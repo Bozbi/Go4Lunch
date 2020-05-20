@@ -12,11 +12,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.R;
-import com.sbizzera.go4lunch.utils.ViewModelFactory;
-
+import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
 import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
+import com.sbizzera.go4lunch.utils.ViewModelFactory;
 import com.sbizzera.go4lunch.workmates_fragment.models.WorkmatesFragmentModel;
 
 
@@ -37,7 +36,7 @@ public class WorkmatesFragment extends Fragment implements RestaurantClickedList
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_workmates, container, false);
 
-        WorkmatesFragmentViewModel viewModel = new ViewModelProvider(this,ViewModelFactory.getInstance()).get(WorkmatesFragmentViewModel.class);
+        WorkmatesFragmentViewModel viewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(WorkmatesFragmentViewModel.class);
         viewModel.getModelLiveData().observe(this, this::updateUI);
         mAdapter = new WorkmatesFragmentAdapter(mListener);
 
@@ -45,13 +44,13 @@ public class WorkmatesFragment extends Fragment implements RestaurantClickedList
         rcv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv.setAdapter(mAdapter);
 
-        if(getActivity()!=null){
+        if (getActivity() != null) {
             getActivity().setTitle(getString(R.string.workmate_title_bar_title));
         }
         return view;
     }
 
-    private void updateUI(WorkmatesFragmentModel model){
+    private void updateUI(WorkmatesFragmentModel model) {
         mAdapter.setWorkmatesList(model.getWorkmatesList());
         mAdapter.notifyDataSetChanged();
     }

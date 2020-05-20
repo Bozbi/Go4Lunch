@@ -7,6 +7,8 @@ import java.util.Comparator;
 public class LunchCountComparator implements Comparator<ListFragmentAdapterModel> {
     @Override
     public int compare(ListFragmentAdapterModel o1, ListFragmentAdapterModel o2) {
-        return o2.getWorkmatesLunchesCount().compareTo(o1.getWorkmatesLunchesCount());
+        int o1LunchCount = Integer.parseInt(o1.getWorkmatesLunchesCount());
+        int o2LunchCount = Integer.parseInt(o2.getWorkmatesLunchesCount());
+        return o2LunchCount - (o1LunchCount);
     }
 }

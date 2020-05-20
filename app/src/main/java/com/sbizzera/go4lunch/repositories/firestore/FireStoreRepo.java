@@ -13,7 +13,6 @@ import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreRestaurant;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.DetailResult;
 
-
 import org.threeten.bp.LocalDate;
 
 import java.util.ArrayList;
@@ -24,17 +23,16 @@ public class FireStoreRepo {
 
     private static FireStoreRepo sFireStoreRepo;
 
-    private FireStoreRepo(){
+    private FireStoreRepo() {
 
     }
 
-    public static FireStoreRepo getInstance(){
-        if (sFireStoreRepo==null){
+    public static FireStoreRepo getInstance() {
+        if (sFireStoreRepo == null) {
             sFireStoreRepo = new FireStoreRepo();
         }
         return sFireStoreRepo;
     }
-
 
 
     private CollectionReference users = FirebaseFirestore.getInstance().collection("users");
@@ -57,7 +55,7 @@ public class FireStoreRepo {
     }
 
 
-    public void updateRestaurantLike(DetailResult restaurant,String currentUserId) {
+    public void updateRestaurantLike(DetailResult restaurant, String currentUserId) {
         restaurants.document(restaurant.getPlaceId()).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot != null && documentSnapshot.getData() != null) {
                 //update like
@@ -79,7 +77,9 @@ public class FireStoreRepo {
                         restaurant.getPlaceId(),
                         restaurant.getName(),
                         restaurant.getGeometry().getLocation().getLat(),
-                        restaurant.getGeometry().getLocation().getLng()
+                        restaurant.getGeometry().getLocation().getLng(),
+                        new ArrayList<>(),
+                        0
                 );
                 List<String> likesIds = new ArrayList<>();
                 likesIds.add(currentUserId);
@@ -90,9 +90,9 @@ public class FireStoreRepo {
 
     }
 
-    public void updateRestaurantChoice(DetailResult restaurant,FirebaseUser currentUser) {
-        String photoURl= null;
-        if (currentUser.getPhotoUrl()!=null){
+    public void updateRestaurantChoice(DetailResult restaurant, FirebaseUser currentUser) {
+        String photoURl = null;
+        if (currentUser.getPhotoUrl() != null) {
             photoURl = currentUser.getPhotoUrl().toString();
         }
         FireStoreLunch lunchToAdd = new FireStoreLunch(
@@ -105,7 +105,7 @@ public class FireStoreRepo {
         restaurants.document(restaurant.getPlaceId()).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot != null && documentSnapshot.getData() != null) {
                 //restaurant exists in Database
-                updateLunch(restaurant, lunchToAdd,currentUser.getUid());
+                updateLunch(restaurant, lunchToAdd, currentUser.getUid());
 
             } else {
                 //create restaurant add lunch and update count
@@ -113,27 +113,31 @@ public class FireStoreRepo {
                         restaurant.getPlaceId(),
                         restaurant.getName(),
                         restaurant.getGeometry().getLocation().getLat(),
-                        restaurant.getGeometry().getLocation().getLng()
+                        restaurant.getGeometry().getLocation().getLng(),
+                        new ArrayList<>(),
+                        0
                 );
-                restaurants.document(restaurant.getPlaceId()).set(restaurantToAdd).addOnSuccessListener((newRestaurant) -> {
-                    updateLunch(restaurant, lunchToAdd,currentUser.getUid());
-                });
+                restaurants.document(restaurant.getPlaceId()).set(restaurantToAdd).addOnSuccessListener((newRestaurant) ->
+                        updateLunch(restaurant, lunchToAdd, currentUser.getUid())
+                );
 
             }
         });
     }
 
-    private void updateLunch(DetailResult restaurant, FireStoreLunch lunchToAdd,String currentUserId) {
+    private void updateLunch(DetailResult restaurant, FireStoreLunch lunchToAdd, String currentUserId) {
         String localDateOfNowToString = LocalDate.now().toString();
         dates.document(localDateOfNowToString).collection("lunches").document(currentUserId).get().addOnSuccessListener(lunch -> {
             if (lunch.exists()) {
                 FireStoreLunch existingLunch = lunch.toObject(FireStoreLunch.class);
-                if (existingLunch.getRestaurantId().equals(restaurant.getPlaceId())) {
+                if (existingLunch != null && existingLunch.getRestaurantId().equals(restaurant.getPlaceId())) {
                     dates.document(localDateOfNowToString).collection("lunches").document(currentUserId).delete();
                     restaurants.document(existingLunch.getRestaurantId()).update("lunchCount", FieldValue.increment(-1));
                 } else {
                     dates.document(localDateOfNowToString).collection("lunches").document(currentUserId).update("restaurantId", restaurant.getPlaceId(), "restaurantName", restaurant.getName());
-                    restaurants.document(existingLunch.getRestaurantId()).update("lunchCount", FieldValue.increment(-1));
+                    if (existingLunch != null) {
+                        restaurants.document(existingLunch.getRestaurantId()).update("lunchCount", FieldValue.increment(-1));
+                    }
                     restaurants.document(restaurant.getPlaceId()).update("lunchCount", FieldValue.increment(1));
                 }
             } else {
@@ -144,7 +148,7 @@ public class FireStoreRepo {
     }
 
 
-    public LiveData<Boolean> isRestaurantLikedByUser(String id,String currentUserId) {
+    public LiveData<Boolean> isRestaurantLikedByUser(String id, String currentUserId) {
         MutableLiveData<Boolean> isLikedLiveData = new MutableLiveData<>();
         restaurants.whereEqualTo("restaurantId", id).whereArrayContains("likesIds", currentUserId).addSnapshotListener((queryDocumentSnapshots, e) -> {
             if (queryDocumentSnapshots != null && queryDocumentSnapshots.getDocuments().size() == 0) {
@@ -176,7 +180,7 @@ public class FireStoreRepo {
         return likesCountLiveData;
     }
 
-    public LiveData<Boolean> isRestaurantChosenByUserToday(String id,String currentUserId) {
+    public LiveData<Boolean> isRestaurantChosenByUserToday(String id, String currentUserId) {
         MutableLiveData<Boolean> isRestaurantChosenByUserTodayLiveData = new MutableLiveData<>();
         dates.document(LocalDate.now().toString()).collection("lunches")
                 .document(currentUserId)
@@ -231,11 +235,13 @@ public class FireStoreRepo {
         MutableLiveData<List<FireStoreLunch>> allTodaysLunchesLiveData = new MutableLiveData<>();
         dates.document(LocalDate.now().toString()).collection("lunches").addSnapshotListener((queryDocumentSnapshots, e) -> {
             List<FireStoreLunch> lunchList = new ArrayList<>();
-            for (int i = 0; i < queryDocumentSnapshots.getDocuments().size(); i++) {
-                FireStoreLunch lunch = queryDocumentSnapshots.getDocuments().get(i).toObject(FireStoreLunch.class);
-                lunchList.add(lunch);
+            if (queryDocumentSnapshots != null) {
+                for (int i = 0; i < queryDocumentSnapshots.getDocuments().size(); i++) {
+                    FireStoreLunch lunch = queryDocumentSnapshots.getDocuments().get(i).toObject(FireStoreLunch.class);
+                    lunchList.add(lunch);
+                }
+                allTodaysLunchesLiveData.postValue(lunchList);
             }
-            allTodaysLunchesLiveData.postValue(lunchList);
         });
         return allTodaysLunchesLiveData;
     }

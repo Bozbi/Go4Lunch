@@ -1,50 +1,40 @@
 package com.sbizzera.go4lunch.notification;
 
 import android.app.Application;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
-import android.widget.Toast;
 
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
-import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.R;
-
-import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
 
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
-
-import timber.log.Timber;
 
 public class WorkManagerHelper {
 
     private static final String TAG_DAILY_WORK = "TAG_DAILY_WORK";
     static final String CHANNEL_USER_LUNCH_ID = "CHANNEL_USER_LUNCH";
-    private  WorkManager mWorkManager;
+    private WorkManager mWorkManager;
     private Application mApplication;
-    private static WorkManagerHelper sWorkManagerHelper ;
+    private static WorkManagerHelper sWorkManagerHelper;
 
-    private WorkManagerHelper(Application application){
+    private WorkManagerHelper(Application application) {
         mWorkManager = WorkManager.getInstance(application);
-        mApplication =application;
+        mApplication = application;
     }
 
-    public static WorkManagerHelper getInstance(Application application){
-        if(sWorkManagerHelper==null){
+    public static WorkManagerHelper getInstance(Application application) {
+        if (sWorkManagerHelper == null) {
             sWorkManagerHelper = new WorkManagerHelper(application);
         }
         return sWorkManagerHelper;
     }
 
 
-
-    public void enqueueWork(){
+    public void enqueueWork() {
 
         Calendar currentDate = Calendar.getInstance();
         Calendar dueDate = Calendar.getInstance();
@@ -58,7 +48,7 @@ public class WorkManagerHelper {
 
         long timeDiff = dueDate.getTimeInMillis() - currentDate.getTimeInMillis();
 
-//        timeDiff = 10000;
+        timeDiff = 10000;
 
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(NotificationWorker.class)
                 .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
@@ -68,7 +58,7 @@ public class WorkManagerHelper {
         mWorkManager.enqueue(workRequest);
     }
 
-    public void clearAllWork(){
+    public void clearAllWork() {
         mWorkManager.cancelAllWorkByTag(TAG_DAILY_WORK);
     }
 
@@ -84,7 +74,7 @@ public class WorkManagerHelper {
 
 
             NotificationManager manager = mApplication.getSystemService(NotificationManager.class);
-            if(manager!=null){
+            if (manager != null) {
                 manager.createNotificationChannel(channelUserLunch);
             }
         }

@@ -22,13 +22,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,7 +46,7 @@ public class WorkmatesFragmentViewModelTest {
     private MutableLiveData<List<FireStoreLunch>> allTodaysLunchesLD = new MutableLiveData<>();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         FireStoreRepo fireStoreRepo = mock(FireStoreRepo.class);
         doReturn(fireStoreUsersLD).when(fireStoreRepo).getAllUsers();
         doReturn(allTodaysLunchesLD).when(fireStoreRepo).getAllTodaysLunches();
@@ -73,19 +71,17 @@ public class WorkmatesFragmentViewModelTest {
         //then
         assertEquals(2, model.getWorkmatesList().size());
 
+        assertEquals("www.testeur2photo.com", firstResult.getPhotoUrl());
+        assertEquals("testeur2 eats at restName1", firstResult.getChoice());
+        assertEquals(true, firstResult.getClickable());
+        assertEquals(Typeface.BOLD, firstResult.getTextStyle());
+        assertEquals("restId1", firstResult.getRestaurantId());
 
-        assertEquals("www.testeur2photo.com",firstResult.getPhotoUrl());
-        assertEquals("testeur2 eats at restName1",firstResult.getChoice());
-        assertEquals(true,firstResult.getClickable());
-        assertEquals(Typeface.BOLD,firstResult.getTextStyle());
-        assertEquals("restId1",firstResult.getRestaurantId());
-
-        assertEquals("www.testeur1photo.com",secondResult.getPhotoUrl());
-        assertEquals("testeur1 hasn't decided yet",secondResult.getChoice());
-        assertEquals(false,secondResult.getClickable());
-        assertEquals(Typeface.ITALIC,secondResult.getTextStyle());
-        assertNull(model.getWorkmatesList().get(1).getRestaurantId());
-
+        assertEquals("www.testeur1photo.com", secondResult.getPhotoUrl());
+        assertEquals("testeur1 hasn't decided yet", secondResult.getChoice());
+        assertEquals(false, secondResult.getClickable());
+        assertEquals(Typeface.ITALIC, secondResult.getTextStyle());
+        assertNull(secondResult.getRestaurantId());
     }
 
     private List<FireStoreUser> mockAllusers() {
@@ -96,7 +92,7 @@ public class WorkmatesFragmentViewModelTest {
     }
 
     private List<FireStoreLunch> mockAllTodaysLunches() {
-        return Arrays.asList(
+        return Collections.singletonList(
                 new FireStoreLunch("id2", "testeur2", "www.testeur2photo.com", "restId1", "restName1")
         );
     }

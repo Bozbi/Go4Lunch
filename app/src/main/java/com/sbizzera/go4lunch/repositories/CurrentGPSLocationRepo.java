@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gms.location.FusedLocationProviderClient;
 
 
-
 public class CurrentGPSLocationRepo {
 
     private static CurrentGPSLocationRepo sCurrentGPSLocationRepo;
@@ -21,17 +20,17 @@ public class CurrentGPSLocationRepo {
         mFusedLocationProviderClient = fusedLocationProviderClient;
     }
 
-    public static CurrentGPSLocationRepo getInstance(FusedLocationProviderClient fusedLocationProviderClient){
-        if (sCurrentGPSLocationRepo ==null){
+    public static CurrentGPSLocationRepo getInstance(FusedLocationProviderClient fusedLocationProviderClient) {
+        if (sCurrentGPSLocationRepo == null) {
             sCurrentGPSLocationRepo = new CurrentGPSLocationRepo(fusedLocationProviderClient);
         }
         return sCurrentGPSLocationRepo;
     }
 
     public void refresh() {
-        mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
-            locationLD.postValue(location);
-        });
+        mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(location ->
+                locationLD.postValue(location)
+        );
     }
 
     public LiveData<Location> getCurrentGPSLocationLD() {

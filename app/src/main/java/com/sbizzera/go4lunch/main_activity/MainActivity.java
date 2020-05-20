@@ -39,11 +39,11 @@ import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
 import com.sbizzera.go4lunch.list_fragment.ListFragment;
 import com.sbizzera.go4lunch.main_activity.models.MainActivityModel;
 import com.sbizzera.go4lunch.map_fragment.MapFragment;
-import com.sbizzera.go4lunch.workmates_fragment.WorkmatesFragment;
-import com.sbizzera.go4lunch.your_lunch_dialog.YourLunchDialogFragment;
 import com.sbizzera.go4lunch.restaurant_activity.RestaurantActivity;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
+import com.sbizzera.go4lunch.workmates_fragment.WorkmatesFragment;
+import com.sbizzera.go4lunch.your_lunch_dialog.YourLunchDialogFragment;
 
 import java.util.Arrays;
 
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MainActivityViewModel mViewModel;
 
     public static Intent navigate(DispatchActivity dispatchActivity) {
-        return new Intent(dispatchActivity,MainActivity.class);
+        return new Intent(dispatchActivity, MainActivity.class);
     }
 
 
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Toast.makeText(this, R.string.not_a_restaurant, Toast.LENGTH_LONG).show();
                     break;
                 }
-                case LOG_OUT:{
+                case LOG_OUT: {
                     startActivity(DispatchActivity.navigate(this));
                     finish();
                     break;
@@ -137,10 +137,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null) {
             loadFragment(MapFragment.newInstance());
         }
-
-
     }
-
 
     private void updateUI(MainActivityModel model) {
         Glide.with(this).load(model.getUserPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(mUserPhoto);
@@ -158,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void loadFragment(Fragment fragmentToLoad) {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragmentToLoad).commit();
     }
-
 
     //If Drawer is open, we want to close it on backButton pressed not exiting app
     @Override
@@ -207,11 +203,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.search_bar:
-                mViewModel.showAutocomplete();
-                break;
-
+        if (item.getItemId() == R.id.search_bar) {
+            mViewModel.showAutocomplete();
         }
         return true;
     }
@@ -232,9 +225,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             builder.setMessage(R.string.permission_text);
             builder.setNegativeButton(R.string.back, (x, y) -> {
             });
-            builder.setPositiveButton(R.string.go_to_permissions, (x, y) -> {
-                startActivity(Go4LunchUtils.getGoToPermissionIntent(this));
-            });
+            builder.setPositiveButton(R.string.go_to_permissions, (x, y) -> startActivity(Go4LunchUtils.getGoToPermissionIntent(this)));
             builder.show();
         } else {
             ActivityCompat.requestPermissions(
@@ -277,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mViewModel.onAutocompleteClick(
                             Autocomplete.getPlaceFromIntent(data).getTypes(),
                             Autocomplete.getPlaceFromIntent(data).getId()
-                            );
+                    );
                 }
             }
         }

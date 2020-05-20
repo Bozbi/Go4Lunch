@@ -24,10 +24,6 @@ public class WorkmatesFragmentAdapterModel {
         return photoUrl;
     }
 
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
-    }
-
     public String getChoice() {
         return choice;
     }

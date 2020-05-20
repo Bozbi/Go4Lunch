@@ -53,7 +53,6 @@ public class RestaurantActivity extends AppCompatActivity implements View.OnClic
     private LinearLayout websiteBlockLiLay;
     private ImageView webSiteImg;
     private TextView websiteTxt;
-    private RecyclerView rcv;
 
 
     public static Intent navigate(@NonNull Context context, @NonNull String restaurantId) {

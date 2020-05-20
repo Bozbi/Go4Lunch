@@ -1,7 +1,6 @@
 package com.sbizzera.go4lunch.your_lunch_dialog;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -34,12 +33,7 @@ public class YourLunchDialogFragment extends DialogFragment implements Restauran
         androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity())
                 .setTitle(R.string.dialog_title)
                 .setIcon(R.drawable.ic_notification_icon_orange)
-                .setNegativeButton(R.string.dialog_negative_text, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dismiss();
-                    }
-                });
+                .setNegativeButton(R.string.dialog_negative_text, (dialog, which) -> dismiss());
 
         if (getArguments() != null) {
             YourLunchModel model = (YourLunchModel) getArguments().getSerializable(EXTRA_MODEL);
@@ -48,12 +42,7 @@ public class YourLunchDialogFragment extends DialogFragment implements Restauran
                     builder.setMessage(model.getDialogtext());
                 }
                 if (model.isPositiveAvailable()) {
-                    builder.setPositiveButton(R.string.dialog_positive_text, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            listener.onItemBoundWithRestaurantClick(model.getRestaurantId());
-                        }
-                    });
+                    builder.setPositiveButton(R.string.dialog_positive_text, (dialog, which) -> listener.onItemBoundWithRestaurantClick(model.getRestaurantId()));
                 }
             }
         }

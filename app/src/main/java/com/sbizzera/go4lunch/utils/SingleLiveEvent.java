@@ -1,7 +1,5 @@
 package com.sbizzera.go4lunch.utils;
 
-import android.util.Log;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,9 +19,6 @@ public class SingleLiveEvent<T> extends MutableLiveData<T> {
     @MainThread
     @Override
     public void observe(@NonNull final LifecycleOwner owner, @NonNull final Observer<? super T> observer) {
-        if (hasActiveObservers()) {
-        }
-
         // Observe the internal MutableLiveData
         super.observe(owner, t -> {
             if (mPending.compareAndSet(true, false)) {

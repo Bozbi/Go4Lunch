@@ -21,24 +21,22 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.events.OnItemBoundWithRestaurantClickListener;
-
+import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
 import com.sbizzera.go4lunch.map_fragment.models.CustomMapMarker;
 import com.sbizzera.go4lunch.map_fragment.models.MapFragmentModel;
 import com.sbizzera.go4lunch.map_fragment.utils.BitMapCreator;
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
 
-import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
-
 import timber.log.Timber;
 
 
 public class MapFragment
-    extends SupportMapFragment
-    implements
-    OnMapReadyCallback,
-    GoogleMap.OnCameraIdleListener,
-    GoogleMap.OnMapLoadedCallback,
-    RestaurantClickedListenable {
+        extends SupportMapFragment
+        implements
+        OnMapReadyCallback,
+        GoogleMap.OnCameraIdleListener,
+        GoogleMap.OnMapLoadedCallback,
+        RestaurantClickedListenable {
 
     private GoogleMap map;
     private OnItemBoundWithRestaurantClickListener mListener;
@@ -56,7 +54,7 @@ public class MapFragment
         View v = super.onCreateView(layoutInflater, viewGroup, bundle);
         layout.addView(v, 0);
         mFetchNewAreaBtn = layout.findViewById(R.id.new_restaurants_btn);
-        if(getActivity()!=null){
+        if (getActivity() != null) {
             getActivity().setTitle(getString(R.string.map_title_bar_title));
         }
         return layout;
@@ -108,7 +106,7 @@ public class MapFragment
         map.setOnMapLoadedCallback(this);
         map.setOnMarkerClickListener(marker -> {
             marker.showInfoWindow();
-            CameraUpdate location = CameraUpdateFactory.newLatLngZoom(marker.getPosition(),18);
+            CameraUpdate location = CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 18);
             map.animateCamera(location);
             return true;
         });
@@ -118,9 +116,9 @@ public class MapFragment
                 marker.hideInfoWindow();
             }
         });
-        mFetchNewAreaBtn.setOnClickListener((click) -> {
-            mViewModel.setLastFetchRestaurantVisibleRegion(map.getProjection().getVisibleRegion());
-        });
+        mFetchNewAreaBtn.setOnClickListener((click) ->
+                mViewModel.setLastFetchRestaurantVisibleRegion(map.getProjection().getVisibleRegion())
+        );
         mViewModel.mapIsReady();
     }
 

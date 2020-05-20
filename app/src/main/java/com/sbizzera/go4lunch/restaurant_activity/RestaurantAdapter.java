@@ -20,14 +20,14 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
     private List<RestaurantAdapterModel> mWorkmateList;
 
-    public RestaurantAdapter(List<RestaurantAdapterModel> workmateModelList) {
+    RestaurantAdapter(List<RestaurantAdapterModel> workmateModelList) {
         mWorkmateList = workmateModelList;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workmates_view,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workmates_view, parent, false);
         return new ViewHolder(view);
     }
 
@@ -51,16 +51,17 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         return mWorkmateList.size();
     }
 
-    public void setList(List<RestaurantAdapterModel> list){
+    public void setList(List<RestaurantAdapterModel> list) {
         mWorkmateList = list;
-    };
+    }
 
-    static class ViewHolder extends RecyclerView.ViewHolder{
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView wormateAvatarImg;
         TextView workmateChoiceTxt;
 
-         ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             wormateAvatarImg = itemView.findViewById(R.id.workmates_img);
             workmateChoiceTxt = itemView.findViewById(R.id.workmates_choice_txt);

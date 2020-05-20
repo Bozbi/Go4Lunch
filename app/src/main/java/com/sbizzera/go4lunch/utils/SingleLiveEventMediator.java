@@ -16,9 +16,6 @@ public class SingleLiveEventMediator<T> extends MediatorLiveData<T> {
     @MainThread
     @Override
     public void observe(@NonNull final LifecycleOwner owner, @NonNull final Observer<? super T> observer) {
-        if (hasActiveObservers()) {
-        }
-
         // Observe the internal MutableLiveData
         super.observe(owner, t -> {
             if (mPending.compareAndSet(true, false)) {

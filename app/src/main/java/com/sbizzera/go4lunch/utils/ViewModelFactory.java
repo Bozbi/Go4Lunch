@@ -9,19 +9,19 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.sbizzera.go4lunch.App;
-import com.sbizzera.go4lunch.main_activity.MainActivityViewModel;
 import com.sbizzera.go4lunch.list_fragment.ListFragmentViewModel;
+import com.sbizzera.go4lunch.main_activity.MainActivityViewModel;
 import com.sbizzera.go4lunch.map_fragment.MapFragmentViewModel;
-import com.sbizzera.go4lunch.workmates_fragment.WorkmatesFragmentViewModel;
-import com.sbizzera.go4lunch.restaurant_activity.RestaurantViewModel;
-import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
-import com.sbizzera.go4lunch.services.AuthHelper;
 import com.sbizzera.go4lunch.repositories.CurrentGPSLocationRepo;
-import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
-import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
 import com.sbizzera.go4lunch.repositories.PermissionRepo;
+import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
 import com.sbizzera.go4lunch.repositories.SortTypeChosenRepo;
 import com.sbizzera.go4lunch.repositories.VisibleRegionRepo;
+import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
+import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
+import com.sbizzera.go4lunch.restaurant_activity.RestaurantViewModel;
+import com.sbizzera.go4lunch.services.AuthHelper;
+import com.sbizzera.go4lunch.workmates_fragment.WorkmatesFragmentViewModel;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
@@ -58,7 +58,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new RestaurantViewModel(
                     GooglePlacesRepo.getInstance(),
                     FireStoreRepo.getInstance(),
-                    AuthHelper.getInstance(FirebaseAuth.getInstance(),AuthUI.getInstance()),
+                    AuthHelper.getInstance(FirebaseAuth.getInstance(), AuthUI.getInstance()),
                     App.getApplication()
             );
         }
@@ -76,7 +76,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new WorkmatesFragmentViewModel(
                     FireStoreRepo.getInstance(),
                     App.getApplication()
-                    );
+            );
         }
         if (modelClass.isAssignableFrom(ListFragmentViewModel.class)) {
             return (T) new ListFragmentViewModel(

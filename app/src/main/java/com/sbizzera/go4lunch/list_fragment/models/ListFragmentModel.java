@@ -9,7 +9,7 @@ public class ListFragmentModel {
     @Nullable
     private Integer sortId;
 
-    public ListFragmentModel(List<ListFragmentAdapterModel> listAdapterModel,int sortId) {
+    public ListFragmentModel(List<ListFragmentAdapterModel> listAdapterModel, int sortId) {
         this.listAdapterModel = listAdapterModel;
         this.sortId = sortId;
     }

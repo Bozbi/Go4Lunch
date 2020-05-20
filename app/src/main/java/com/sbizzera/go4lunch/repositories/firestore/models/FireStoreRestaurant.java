@@ -21,11 +21,13 @@ public class FireStoreRestaurant {
     public FireStoreRestaurant() {
     }
 
-    public FireStoreRestaurant(String restaurantId, String name, Double lat, Double lng) {
+    public FireStoreRestaurant(String restaurantId, String name, Double lat, Double lng, List<String> likesIds, int lunchCount) {
         this.restaurantId = restaurantId;
         this.name = name;
         this.lat = lat;
         this.lng = lng;
+        this.likesIds = likesIds;
+        this.lunchCount = lunchCount;
     }
 
     public String getRestaurantId() {

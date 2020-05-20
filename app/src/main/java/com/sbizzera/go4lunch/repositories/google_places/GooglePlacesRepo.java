@@ -41,7 +41,7 @@ public class GooglePlacesRepo {
 
     private GooglePlacesAPI mGooglePlacesAPI;
 
-    public GooglePlacesRepo() {
+    private GooglePlacesRepo() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://maps.googleapis.com/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -59,7 +59,7 @@ public class GooglePlacesRepo {
             public void onResponse(Call<NearbyResults> call, Response<NearbyResults> response) {
                 assert response.body() != null;
                 Map<String, NearbyPlace> map = mNearbyPlaceMapCachedLD.getValue();
-                assert map!=null;
+                assert map != null;
                 for (NearbyPlace restaurant : response.body().getRestaurantList()) {
                     if (map.get(restaurant.getId()) == null) {
                         map.put(restaurant.getId(), restaurant);
@@ -126,7 +126,7 @@ public class GooglePlacesRepo {
     }
 
 
-    public LiveData<Map<String,NearbyPlace>> getNearbyCacheLiveData() {
+    public LiveData<Map<String, NearbyPlace>> getNearbyCacheLiveData() {
         return mNearbyPlaceMapCachedLD;
     }
 }

@@ -8,12 +8,13 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.sbizzera.go4lunch.R;
+import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreLunch;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreUser;
-import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.workmates_fragment.models.WorkmatesFragmentAdapterModel;
 import com.sbizzera.go4lunch.workmates_fragment.models.WorkmatesFragmentModel;
+import com.sbizzera.go4lunch.workmates_fragment.utils.WorkmatesChoiceComparator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,13 +39,13 @@ public class WorkmatesFragmentViewModel extends ViewModel {
         LiveData<List<FireStoreUser>> allUsersLiveData = mFireStoreRepo.getAllUsers();
         LiveData<List<FireStoreLunch>> allTodaysLunchesLiveData = mFireStoreRepo.getAllTodaysLunches();
 
-        modelLiveData.addSource(allUsersLiveData, allUsers -> {
-            modelLiveData.postValue(combineSources(allUsers, allTodaysLunchesLiveData.getValue()));
-        });
+        modelLiveData.addSource(allUsersLiveData, allUsers ->
+                modelLiveData.postValue(combineSources(allUsers, allTodaysLunchesLiveData.getValue()))
+        );
 
-        modelLiveData.addSource(allTodaysLunchesLiveData, allTodayLunch -> {
-            modelLiveData.postValue(combineSources(allUsersLiveData.getValue(), allTodayLunch));
-        });
+        modelLiveData.addSource(allTodaysLunchesLiveData, allTodayLunch ->
+                modelLiveData.postValue(combineSources(allUsersLiveData.getValue(), allTodayLunch))
+        );
     }
 
     private WorkmatesFragmentModel combineSources(
@@ -80,18 +81,12 @@ public class WorkmatesFragmentViewModel extends ViewModel {
                 workmateModelList.add(workmateModel);
             }
         }
-        Collections.sort(workmateModelList, (o1, o2) -> {
-            if (o1.getClickable()) {
-                return -1;
-            } else {
-                return 0;
-            }
-        });
+        Collections.sort(workmateModelList,new WorkmatesChoiceComparator());
         return workmateModelList;
     }
 
 
-    public LiveData<WorkmatesFragmentModel> getModelLiveData() {
+    LiveData<WorkmatesFragmentModel> getModelLiveData() {
         return modelLiveData;
     }
 }

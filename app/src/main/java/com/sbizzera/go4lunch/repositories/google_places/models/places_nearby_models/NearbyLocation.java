@@ -17,19 +17,12 @@ public class NearbyLocation {
         this.lng = lng;
     }
 
-    public Double getLat() {
+     Double getLat() {
         return lat;
     }
 
-    public void setLat(Double lat) {
-        this.lat = lat;
-    }
-
-    public Double getLng() {
+     Double getLng() {
         return lng;
     }
 
-    public void setLng(Double lng) {
-        this.lng = lng;
-    }
 }

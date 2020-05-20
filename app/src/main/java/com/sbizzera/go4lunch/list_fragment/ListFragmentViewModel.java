@@ -2,7 +2,6 @@ package com.sbizzera.go4lunch.list_fragment;
 
 import android.content.Context;
 import android.location.Location;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.view.View;
 
@@ -19,14 +18,14 @@ import com.sbizzera.go4lunch.list_fragment.utils.DistanceComparator;
 import com.sbizzera.go4lunch.list_fragment.utils.LikesComparator;
 import com.sbizzera.go4lunch.list_fragment.utils.LunchCountComparator;
 import com.sbizzera.go4lunch.list_fragment.utils.RestaurantNameComparator;
+import com.sbizzera.go4lunch.repositories.CurrentGPSLocationRepo;
+import com.sbizzera.go4lunch.repositories.SortTypeChosenRepo;
+import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
 import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreRestaurant;
+import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.AddressComponent;
 import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.DetailResult;
-import com.sbizzera.go4lunch.repositories.CurrentGPSLocationRepo;
-import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
-import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
-import com.sbizzera.go4lunch.repositories.SortTypeChosenRepo;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -34,8 +33,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import timber.log.Timber;
 
 public class ListFragmentViewModel extends ViewModel {
 
@@ -58,7 +55,7 @@ public class ListFragmentViewModel extends ViewModel {
             FireStoreRepo fireStoreRepo,
             SortTypeChosenRepo sortTypeChosenRepo,
             Context context
-    ){
+    ) {
         this.mGooglePlacesRepo = googlePlacesRepo;
         this.mFireStoreRepo = fireStoreRepo;
         mSortTypeChosenRepo = sortTypeChosenRepo;
@@ -76,32 +73,33 @@ public class ListFragmentViewModel extends ViewModel {
 
         LiveData<List<FireStoreRestaurant>> knownRestaurantsLiveData = mFireStoreRepo.getAllKnownRestaurants();
         LiveData<Integer> sortTypeChosenLD = mSortTypeChosenRepo.getSelectedChipID();
-        LiveData<Map<String,NearbyPlace>> nearbyPlacesLD = mGooglePlacesRepo.getNearbyCacheLiveData();
+        LiveData<Map<String, NearbyPlace>> nearbyPlacesLD = mGooglePlacesRepo.getNearbyCacheLiveData();
 
 
-        mModelMLD.addSource(knownRestaurantsLiveData, knownRestaurants -> {
-            combineSources(knownRestaurants, mDetailsMapLD.getValue(), sortTypeChosenLD.getValue(),nearbyPlacesLD.getValue());
-        });
+        mModelMLD.addSource(knownRestaurantsLiveData, knownRestaurants ->
+                combineSources(knownRestaurants, mDetailsMapLD.getValue(), sortTypeChosenLD.getValue(), nearbyPlacesLD.getValue())
+        );
 
-        mModelMLD.addSource(mDetailsMapLD, detailsMap -> {
-            combineSources(knownRestaurantsLiveData.getValue(), detailsMap, sortTypeChosenLD.getValue(),nearbyPlacesLD.getValue());
-        });
+        mModelMLD.addSource(mDetailsMapLD, detailsMap ->
+                combineSources(knownRestaurantsLiveData.getValue(), detailsMap, sortTypeChosenLD.getValue(), nearbyPlacesLD.getValue())
+        );
 
-        mModelMLD.addSource(sortTypeChosenLD, sortTypeChosen -> {
-            combineSources(knownRestaurantsLiveData.getValue(), mDetailsMapLD.getValue(), sortTypeChosen,nearbyPlacesLD.getValue());
-        });
 
-        mModelMLD.addSource(nearbyPlacesLD,nearbyPlaces->{
-            combineSources(knownRestaurantsLiveData.getValue(),mDetailsMapLD.getValue(),sortTypeChosenLD.getValue(),nearbyPlaces);
-        });
+        mModelMLD.addSource(sortTypeChosenLD, sortTypeChosen ->
+                combineSources(knownRestaurantsLiveData.getValue(), mDetailsMapLD.getValue(), sortTypeChosen, nearbyPlacesLD.getValue())
+        );
+
+        mModelMLD.addSource(nearbyPlacesLD, nearbyPlaces ->
+                combineSources(knownRestaurantsLiveData.getValue(), mDetailsMapLD.getValue(), sortTypeChosenLD.getValue(), nearbyPlaces)
+        );
 
     }
 
     private void combineSources(
             List<FireStoreRestaurant> knownRestaurants,
-            Map<String,DetailResult> detailsMap,
+            Map<String, DetailResult> detailsMap,
             Integer sortTypeChosen,
-            Map<String,NearbyPlace> nearbyPlaceMap
+            Map<String, NearbyPlace> nearbyPlaceMap
     ) {
 
 
@@ -110,8 +108,8 @@ public class ListFragmentViewModel extends ViewModel {
             return;
         }
 
-        List<NearbyPlace> nearbyPlaces= null;
-        if(nearbyPlaceMap!=null){
+        List<NearbyPlace> nearbyPlaces = null;
+        if (nearbyPlaceMap != null) {
             nearbyPlaces = new ArrayList<>(nearbyPlaceMap.values());
         }
 
@@ -143,9 +141,7 @@ public class ListFragmentViewModel extends ViewModel {
         List<String> fireStoreRestaurantsIdList = new ArrayList<>();
 
         if (knownRestaurants != null) {
-
             for (FireStoreRestaurant restaurant : knownRestaurants) {
-                Timber.d("checking knownRestaurant %s", restaurant.getName());
                 fireStoreRestaurantsIdList.add(restaurant.getRestaurantId());
                 ListFragmentAdapterModel restaurantToReturn = null;
                 DetailResult restaurantDetail = detailsMap.get(restaurant.getRestaurantId());
@@ -259,21 +255,12 @@ public class ListFragmentViewModel extends ViewModel {
     }
 
     private String getPhotoUrlFromDerailResult(DetailResult restaurantDetail) {
-        String photoUrl = null;
+        String photoRef = null;
         if (restaurantDetail.getPhotosList() != null && restaurantDetail.getPhotosList().get(0) != null) {
-            String photoRef = restaurantDetail.getPhotosList().get(0).getPhotoReference();
-            photoUrl = new Uri.Builder().scheme("https")
-                    .authority("maps.googleapis.com")
-                    .appendPath("maps")
-                    .appendPath("api")
-                    .appendPath("place")
-                    .appendPath("photo")
-                    .appendQueryParameter("maxwidth", "200")
-                    .appendQueryParameter("photoreference", photoRef)
-                    .appendQueryParameter("key", BuildConfig.GOOGLE_API_KEY)
-                    .toString();
+            photoRef = restaurantDetail.getPhotosList().get(0).getPhotoReference();
+
         }
-        return photoUrl;
+        return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photoreference=" + photoRef + "&key=" + BuildConfig.GOOGLE_API_KEY;
     }
 
     private int getOpenHoursTextColorFromDetailResult(DetailResult restaurantDetail) {
@@ -358,7 +345,7 @@ public class ListFragmentViewModel extends ViewModel {
         return View.INVISIBLE;
     }
 
-    public void setSelectedChipID(int checkedId) {
+    void setSelectedChipID(int checkedId) {
         mSortTypeChosenRepo.setSelectedChipID(checkedId);
     }
 
@@ -388,7 +375,7 @@ public class ListFragmentViewModel extends ViewModel {
         @Override
         protected void onPostExecute(DetailResult detailResult) {
             if (viewModelRef.get() != null) {
-                Map<String,DetailResult> map = viewModelRef.get().mDetailsMapLD.getValue();
+                Map<String, DetailResult> map = viewModelRef.get().mDetailsMapLD.getValue();
                 if (map != null) {
                     map.put(restaurantId, detailResult);
                 }

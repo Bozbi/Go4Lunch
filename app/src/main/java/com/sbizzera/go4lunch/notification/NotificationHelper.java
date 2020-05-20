@@ -15,7 +15,7 @@ import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 
 import java.util.List;
 
-public class NotificationHelper {
+ class NotificationHelper {
 
     static void notifyLunchChoice(String restaurantName, List<String> joiningWorkmates) {
         String notificationText = App.getApplication().getString(R.string.notification_text_lunch_and_workmates);
@@ -52,8 +52,13 @@ public class NotificationHelper {
         PendingIntent contentIntent = PendingIntent.getActivity(App.getApplication(), 0, new Intent(App.getApplication(), MainActivity.class), 0);
 
         String title = App.getApplication().getString(R.string.notification_title);
-        String userFirstName = Go4LunchUtils.getUserFirstName(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-        notificationText = notificationText.replace("%User%", userFirstName);
+        String userFirstName = null;
+        if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getDisplayName() != null) {
+            userFirstName = Go4LunchUtils.getUserFirstName(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        }
+        if (userFirstName != null) {
+            notificationText = notificationText.replace("%User%", userFirstName);
+        }
 
         Notification notification = new NotificationCompat.Builder(App.getApplication(), WorkManagerHelper.CHANNEL_USER_LUNCH_ID)
                 .setSmallIcon(R.drawable.ic_notification_icon)

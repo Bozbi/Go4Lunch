@@ -2,7 +2,6 @@ package com.sbizzera.go4lunch.repositories.google_places.models.places_nearby_mo
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.sbizzera.go4lunch.repositories.google_places.models.places_place_details_models.Geometry;
 
 public class NearbyPlace {
 

@@ -8,18 +8,18 @@ public class SortTypeChosenRepo {
     private static SortTypeChosenRepo sSortTypeChosenRepo;
     private MutableLiveData<Integer> mSortTypeChoseLD = new MutableLiveData<>();
 
-    private SortTypeChosenRepo(){
+    private SortTypeChosenRepo() {
         mSortTypeChoseLD.setValue(1);
     }
 
-    public static SortTypeChosenRepo getInstance(){
-        if(sSortTypeChosenRepo==null){
+    public static SortTypeChosenRepo getInstance() {
+        if (sSortTypeChosenRepo == null) {
             sSortTypeChosenRepo = new SortTypeChosenRepo();
         }
         return sSortTypeChosenRepo;
     }
 
-    public LiveData<Integer> getSelectedChipID(){
+    public LiveData<Integer> getSelectedChipID() {
         return mSortTypeChoseLD;
     }
 

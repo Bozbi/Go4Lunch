@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.sbizzera.go4lunch.R;
@@ -89,18 +88,18 @@ public class MainActivityViewModel extends ViewModel {
             return mFireStoreRepo.getTodayListOfUsers(userTodayLunch.getRestaurantId());
         });
 
-        yourLunchMLD.addSource(userTodayLunchLD, userTodayLunch -> {
-            combineYourLunchSources(userTodayLunch, joiningWorkmatesLD.getValue(), dialogButtonClickLD.getValue());
-        });
+        yourLunchMLD.addSource(userTodayLunchLD, userTodayLunch ->
+                combineYourLunchSources(userTodayLunch, joiningWorkmatesLD.getValue(), dialogButtonClickLD.getValue())
+        );
 
-        yourLunchMLD.addSource(joiningWorkmatesLD, joiningWorkmates -> {
-            combineYourLunchSources(userTodayLunchLD.getValue(), joiningWorkmates, dialogButtonClickLD.getValue());
-        });
+        yourLunchMLD.addSource(joiningWorkmatesLD, joiningWorkmates ->
+                combineYourLunchSources(userTodayLunchLD.getValue(), joiningWorkmates, dialogButtonClickLD.getValue())
+        );
 
 
-        yourLunchMLD.addSource(dialogButtonClickLD, clicked -> {
-            combineYourLunchSources(userTodayLunchLD.getValue(), joiningWorkmatesLD.getValue(), clicked);
-        });
+        yourLunchMLD.addSource(dialogButtonClickLD, clicked ->
+                combineYourLunchSources(userTodayLunchLD.getValue(), joiningWorkmatesLD.getValue(), clicked)
+        );
     }
 
 
@@ -135,21 +134,24 @@ public class MainActivityViewModel extends ViewModel {
         mFireStoreRepo.updateUserInDb(mAuthHelper.getUser());
     }
 
-    public SingleLiveEvent<RectangularBounds> getViewActionSearch() {
+    SingleLiveEvent<RectangularBounds> getViewActionSearch() {
         return mViewActionSearch;
     }
 
-    public SingleLiveEvent<ViewAction> getActionLE() {
+    SingleLiveEvent<ViewAction> getActionLE() {
         return mActionLE;
     }
 
-    public void showAutocomplete() {
+    void showAutocomplete() {
         if (mVisibleRegionRepo.getLastMapVisibleRegion().getValue() != null) {
             mViewActionSearch.setValue(RectangularBounds.newInstance(mVisibleRegionRepo.getLastMapVisibleRegion().getValue().latLngBounds));
         }
+        else {
+            mViewActionSearch.setValue(null);
+        }
     }
 
-    public void onAutocompleteClick(List<Place.Type> placeTypes, String placeId) {
+    void onAutocompleteClick(List<Place.Type> placeTypes, String placeId) {
 
         if (placeTypes != null && placeTypes.contains(Place.Type.RESTAURANT)) {
             mViewActionLaunchRestaurantDetailsLE.setValue(placeId);
@@ -158,7 +160,7 @@ public class MainActivityViewModel extends ViewModel {
         }
     }
 
-    public void yourLunchButtonClicked() {
+    void yourLunchButtonClicked() {
         dialogButtonClickLD.setValue(true);
     }
 
@@ -174,7 +176,7 @@ public class MainActivityViewModel extends ViewModel {
             shouldPositiveBtnBeAvailable = true;
             restaurantId = lunch.getRestaurantId();
         }
-        YourLunchModel myModel = new YourLunchModel(dialogText,shouldPositiveBtnBeAvailable,restaurantId);
+        YourLunchModel myModel = new YourLunchModel(dialogText, shouldPositiveBtnBeAvailable, restaurantId);
         yourLunchMLD.setValue(myModel);
         dialogButtonClickLD.setValue(false);
     }
@@ -211,23 +213,25 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     private String createJoiningWorkmatesString(List<String> joiningWorkmatesStr) {
-        String stringToReturn = null;
+        StringBuilder stringToReturn;
         if (joiningWorkmatesStr != null && joiningWorkmatesStr.size() != 0) {
-            stringToReturn = mContext.getString(R.string.dialog_text_with);
+            stringToReturn = new StringBuilder(mContext.getString(R.string.dialog_text_with));
             if (joiningWorkmatesStr.size() == 1) {
-                stringToReturn = stringToReturn + joiningWorkmatesStr.get(0);
+                stringToReturn.append(joiningWorkmatesStr.get(0));
             } else {
                 for (int i = 0; i < joiningWorkmatesStr.size(); i++) {
                     if (i != joiningWorkmatesStr.size() - 1) {
-                        stringToReturn = stringToReturn + joiningWorkmatesStr.get(i) + ", ";
+                        stringToReturn.append(joiningWorkmatesStr.get(i)).append(", ");
                     } else {
-                        stringToReturn = stringToReturn + mContext.getString(R.string.dialog_text_and) + joiningWorkmatesStr.get(i);
+                        stringToReturn.append(mContext.getString(R.string.dialog_text_and)).append(joiningWorkmatesStr.get(i));
 
                     }
                 }
             }
+            return stringToReturn.toString();
+        } else {
+            return null;
         }
-        return stringToReturn;
     }
 
     private List<FireStoreUser> removeCurrentUserFromList(List<FireStoreUser> joiningWorkmates) {
@@ -245,7 +249,7 @@ public class MainActivityViewModel extends ViewModel {
         return joiningWorkmates;
     }
 
-    public void logOutUser() {
+    void logOutUser() {
         mAuthHelper.logOut(mContext).addOnCompleteListener(task -> {
             mActionLE.setValue(ViewAction.LOG_OUT);
         });
@@ -257,11 +261,11 @@ public class MainActivityViewModel extends ViewModel {
         LOG_OUT
     }
 
-    public SingleLiveEventMediator<YourLunchModel> getViewActionYourLunch() {
+    SingleLiveEventMediator<YourLunchModel> getViewActionYourLunch() {
         return yourLunchMLD;
     }
 
-    public SingleLiveEvent<String> getmViewActionLaunchRestaurantDetailsLE() {
+    SingleLiveEvent<String> getmViewActionLaunchRestaurantDetailsLE() {
         return mViewActionLaunchRestaurantDetailsLE;
     }
 }

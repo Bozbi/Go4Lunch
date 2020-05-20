@@ -60,8 +60,7 @@ public class MainActivityViewModelTest {
     private MainActivityViewModel viewModel;
 
     @Before
-    public void setUp() throws Exception {
-
+    public void setUp() {
 
         FireStoreRepo fireStoreRepo = mock(FireStoreRepo.class);
         SharedPreferencesRepo sharedPreferencesRepo = mock(SharedPreferencesRepo.class);

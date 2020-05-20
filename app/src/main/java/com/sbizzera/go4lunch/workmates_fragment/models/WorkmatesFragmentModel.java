@@ -13,7 +13,4 @@ public class WorkmatesFragmentModel {
         return workmatesList;
     }
 
-    public void setWorkmatesList(List<WorkmatesFragmentAdapterModel> workmatesList) {
-        this.workmatesList = workmatesList;
-    }
 }

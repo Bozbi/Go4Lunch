@@ -3,7 +3,6 @@ package com.sbizzera.go4lunch.map_fragment;
 
 import android.location.Location;
 
-
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -17,13 +16,13 @@ import com.google.android.gms.maps.model.VisibleRegion;
 import com.sbizzera.go4lunch.R;
 import com.sbizzera.go4lunch.map_fragment.models.CustomMapMarker;
 import com.sbizzera.go4lunch.map_fragment.models.MapFragmentModel;
-import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreRestaurant;
-import com.sbizzera.go4lunch.repositories.google_places.models.places_nearby_models.NearbyPlace;
 import com.sbizzera.go4lunch.repositories.CurrentGPSLocationRepo;
-import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
-import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
 import com.sbizzera.go4lunch.repositories.PermissionRepo;
 import com.sbizzera.go4lunch.repositories.VisibleRegionRepo;
+import com.sbizzera.go4lunch.repositories.firestore.FireStoreRepo;
+import com.sbizzera.go4lunch.repositories.firestore.models.FireStoreRestaurant;
+import com.sbizzera.go4lunch.repositories.google_places.GooglePlacesRepo;
+import com.sbizzera.go4lunch.repositories.google_places.models.places_nearby_models.NearbyPlace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,45 +72,45 @@ public class MapFragmentViewModel extends ViewModel {
         mLastRestaurantFetchVisibleRegionLD = mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion();
         LiveData<VisibleRegion> lastMapVisibleRegionLD = mVisibleRegionRepo.getLastMapVisibleRegion();
         LiveData<List<NearbyPlace>> listNearbyRestaurantsLD = Transformations.switchMap(mNearbyParamsMLD, (pair) -> {
-            if (pair != null && pair.second!=null) {
+            if (pair != null && pair.second != null) {
                 return mGooglePlacesRepo.getNearbyRestaurants(pair.first, pair.second);
-            }else{
+            } else {
                 return null;
             }
         });
 
 
-        mUiModelLiveData.addSource(mIsMapReadyLD, isMapReady -> {
-            combineSources(isMapReady, lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
-        });
+        mUiModelLiveData.addSource(mIsMapReadyLD, isMapReady ->
+                combineSources(isMapReady, lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue())
+        );
 
-        mUiModelLiveData.addSource(lastMapVisibleRegionLD, lastVisibleRegion -> {
-            combineSources(mIsMapReadyLD.getValue(), lastVisibleRegion, mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
-        });
+        mUiModelLiveData.addSource(lastMapVisibleRegionLD, lastVisibleRegion ->
+                combineSources(mIsMapReadyLD.getValue(), lastVisibleRegion, mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue())
+        );
 
-        mUiModelLiveData.addSource(mCurrentGPSLocationLD, currentGPSLocation -> {
-            combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), currentGPSLocation, fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
-        });
+        mUiModelLiveData.addSource(mCurrentGPSLocationLD, currentGPSLocation ->
+                combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), currentGPSLocation, fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue())
+        );
 
-        mUiModelLiveData.addSource(listNearbyRestaurantsLD, listNearbyRestaurants -> {
-            combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurants, mLastRestaurantFetchVisibleRegionLD.getValue());
-        });
-        mUiModelLiveData.addSource(fireStoreRestaurantsLD, fireStoreRestaurants -> {
-            combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurants, listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue());
-        });
+        mUiModelLiveData.addSource(listNearbyRestaurantsLD, listNearbyRestaurants ->
+                combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurants, mLastRestaurantFetchVisibleRegionLD.getValue())
+        );
+        mUiModelLiveData.addSource(fireStoreRestaurantsLD, fireStoreRestaurants ->
+                combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurants, listNearbyRestaurantsLD.getValue(), mLastRestaurantFetchVisibleRegionLD.getValue())
+        );
 
-        mUiModelLiveData.addSource(mLastRestaurantFetchVisibleRegionLD, lastRestaurantFetchVisibleRegion -> {
-            combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), lastRestaurantFetchVisibleRegion);
-        });
+        mUiModelLiveData.addSource(mLastRestaurantFetchVisibleRegionLD, lastRestaurantFetchVisibleRegion ->
+                combineSources(mIsMapReadyLD.getValue(), lastMapVisibleRegionLD.getValue(), mCurrentGPSLocationLD.getValue(), fireStoreRestaurantsLD.getValue(), listNearbyRestaurantsLD.getValue(), lastRestaurantFetchVisibleRegion)
+        );
     }
 
     private void wireUpNearbyParams() {
-        mNearbyParamsMLD.addSource(mCurrentGPSLocationLD, currentGPSLocation -> {
-            combineNearbyParamsSources(currentGPSLocation, mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion().getValue());
-        });
-        mNearbyParamsMLD.addSource(mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion(), lastNearbyFetchVisibleRegion -> {
-            combineNearbyParamsSources(mCurrentGPSLocationLD.getValue(), lastNearbyFetchVisibleRegion);
-        });
+        mNearbyParamsMLD.addSource(mCurrentGPSLocationLD, currentGPSLocation ->
+                combineNearbyParamsSources(currentGPSLocation, mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion().getValue())
+        );
+        mNearbyParamsMLD.addSource(mVisibleRegionRepo.getLastNearbyRestaurantsFetchVisibleRegion(), lastNearbyFetchVisibleRegion ->
+                combineNearbyParamsSources(mCurrentGPSLocationLD.getValue(), lastNearbyFetchVisibleRegion)
+        );
     }
 
     private void combineNearbyParamsSources(Location currentGPSLocation, VisibleRegion lastRestaurantFetchVisibleRegion) {
@@ -123,7 +122,7 @@ public class MapFragmentViewModel extends ViewModel {
         } else if (currentGPSLocation != null) {
             String location = fromLocationToLocationString(currentGPSLocation);
             Integer radius = 500;
-            Pair<String,Integer> myPair = new Pair<>(location, radius);
+            Pair<String, Integer> myPair = new Pair<>(location, radius);
             mNearbyParamsMLD.setValue(myPair);
         } else {
             mNearbyParamsMLD.setValue(null);
@@ -160,7 +159,7 @@ public class MapFragmentViewModel extends ViewModel {
                     searchButtonVisibility,
                     mPermissionRepo.isLocationPermissionGranted(),
                     currentGPSLatLng));
-        }else{
+        } else {
             mUiModelLiveData.setValue(new MapFragmentModel(
                     null,
                     null,
@@ -183,10 +182,7 @@ public class MapFragmentViewModel extends ViewModel {
         if (lastFetchLocation.distanceTo(lastVisibleLocation) > MIN_DISTANCE_MOVEMENT_SINCE_LAST_FETCH_TO_FETCH) {
             return true;
         }
-        if (lastVisibleNearLeftCornerLocation.distanceTo(lastFetchNearLeftCornerLocation) > MIN_VISIBLE_RADIUS_MOVEMENT_TO_FETCH_AGAIN) {
-            return true;
-        }
-        return false;
+        return lastVisibleNearLeftCornerLocation.distanceTo(lastFetchNearLeftCornerLocation) > MIN_VISIBLE_RADIUS_MOVEMENT_TO_FETCH_AGAIN;
     }
 
 
@@ -229,7 +225,7 @@ public class MapFragmentViewModel extends ViewModel {
     }
 
 
-    public void setLastVisibleRegion(VisibleRegion visibleRegion) {
+    void setLastVisibleRegion(VisibleRegion visibleRegion) {
         if (!mCameraHasBeenInitializedToLastPosition) {
             mCameraHasBeenInitializedToLastPosition = true;
         }
@@ -239,14 +235,15 @@ public class MapFragmentViewModel extends ViewModel {
         mVisibleRegionRepo.setLastMapVisibleRegion(visibleRegion);
     }
 
-    public void onResume() {
+    void onResume() {
         mCurrentGPSLocationRepo.refresh();
     }
 
-    public void mapIsReady() {
+    void mapIsReady() {
         mIsMapReadyLD.setValue(true);
     }
-    public void setLastFetchRestaurantVisibleRegion(VisibleRegion visibleRegion) {
+
+    void setLastFetchRestaurantVisibleRegion(VisibleRegion visibleRegion) {
         mVisibleRegionRepo.setLastNearbyRestaurantsFetchVisibleRegion(visibleRegion);
     }
 
@@ -273,11 +270,11 @@ public class MapFragmentViewModel extends ViewModel {
     }
 
 
-    public LiveData<MapFragmentModel> getUIModel() {
+    LiveData<MapFragmentModel> getUIModel() {
         return mUiModelLiveData;
     }
 
-    public void mapIsDestroyed() {
+    void mapIsDestroyed() {
         mIsMapReadyLD.setValue(false);
     }
 

@@ -15,10 +15,5 @@ public class NearbyResults {
         return restaurantList;
     }
 
-    public void setRestaurantList(List<NearbyPlace> restaurantList) {
-        this.restaurantList = restaurantList;
-    }
-
-
 }
 

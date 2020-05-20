@@ -65,7 +65,7 @@ public class RestaurantViewModelTest {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         GooglePlacesRepo googlePlacesRepo = mock(GooglePlacesRepo.class);
         FireStoreRepo fireStoreRepo = mock(FireStoreRepo.class);
         AuthHelper authHelper = mock(AuthHelper.class);

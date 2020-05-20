@@ -30,7 +30,7 @@ public class NotificationWorker extends Worker {
 
         AuthHelper authHelper = AuthHelper.getInstance(FirebaseAuth.getInstance(), AuthUI.getInstance());
         SharedPreferencesRepo sharedPreferences = SharedPreferencesRepo.getInstance(App.getApplication());
-        if (authHelper.getUser() != null && sharedPreferences.isNotificationPrefOn(authHelper.getUser().getUid())) {
+        if (authHelper.getUser() != null && sharedPreferences.isNotificationPrefOn(authHelper.getUser().getUid()) && FirebaseAuth.getInstance().getCurrentUser() != null) {
             FirebaseFirestore.getInstance().collection("dates")
                     .document(LocalDate.now().toString())
                     .collection("lunches")
@@ -39,7 +39,7 @@ public class NotificationWorker extends Worker {
                     .addOnSuccessListener(userLunch -> {
                         if (userLunch.exists()) {
                             //user is logged and made a choice
-                            String restaurantChosen = userLunch.get("restaurantName").toString();
+                            String restaurantChosen = (String) userLunch.get("restaurantName");
                             FirebaseFirestore.getInstance().collection("dates")
                                     .document(LocalDate.now().toString())
                                     .collection("lunches")
@@ -49,9 +49,11 @@ public class NotificationWorker extends Worker {
                                         if (allLunchesForGivenRestaurant != null) {
                                             List<String> joiningWorkmatesNames = new ArrayList<>();
                                             for (int i = 0; i < allLunchesForGivenRestaurant.size(); i++) {
-                                                String userNameToJoin = allLunchesForGivenRestaurant.getDocuments().get(i).get("userName").toString();
-                                                if (!userNameToJoin.equals(authHelper.getUser().getDisplayName())) {
-                                                    joiningWorkmatesNames.add(userNameToJoin);
+                                                String userNameToJoin = (String) allLunchesForGivenRestaurant.getDocuments().get(i).get("userName");
+                                                if (userNameToJoin != null) {
+                                                    if (!userNameToJoin.equals(authHelper.getUser().getDisplayName())) {
+                                                        joiningWorkmatesNames.add(userNameToJoin);
+                                                    }
                                                 }
                                             }
                                             if (joiningWorkmatesNames.size() > 0) {

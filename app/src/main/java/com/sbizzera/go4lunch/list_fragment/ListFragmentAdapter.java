@@ -24,7 +24,7 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
     private OnItemBoundWithRestaurantClickListener mListener;
 
 
-    public ListFragmentAdapter(OnItemBoundWithRestaurantClickListener listener) {
+    ListFragmentAdapter(OnItemBoundWithRestaurantClickListener listener) {
         mListener = listener;
     }
 
@@ -56,9 +56,7 @@ public class ListFragmentAdapter extends RecyclerView.Adapter<ListFragmentAdapte
                 .placeholder(R.drawable.restaurant_photo_placeholder)
                 .into(holder.img);
 
-        holder.itemView.setOnClickListener(v -> {
-            mListener.onItemBoundWithRestaurantClick(restaurant.getRestaurantId());
-        });
+        holder.itemView.setOnClickListener(v -> mListener.onItemBoundWithRestaurantClick(restaurant.getRestaurantId()));
 
     }
 

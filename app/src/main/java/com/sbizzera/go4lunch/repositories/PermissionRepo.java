@@ -18,7 +18,7 @@ public class PermissionRepo {
     private boolean hasPermissionBeenAsked = false;
     
     @VisibleForTesting
-    public PermissionRepo(Application application) {
+    private PermissionRepo(Application application) {
         this.application = application;
     }
 

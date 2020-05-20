@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class MapFragmentViewModelTest {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         CurrentGPSLocationRepo currentGPSLocationRepo = mock(CurrentGPSLocationRepo.class);
         doReturn(currentGPSLocationLD).when(currentGPSLocationRepo).getCurrentGPSLocationLD();
 
@@ -176,10 +177,10 @@ public class MapFragmentViewModelTest {
 
     private void mockFireStoreRestaurantsList() {
         List<FireStoreRestaurant> restaurantList = Arrays.asList(
-                new FireStoreRestaurant("restId1", "restName1", 1d, 1d),
-                new FireStoreRestaurant("restId2", "restName2", 2d, 2d),
-                new FireStoreRestaurant("restId3", "restName3", 3d, 3d),
-                new FireStoreRestaurant("restId4", "restName4", 4d, 4d)
+                new FireStoreRestaurant("restId1", "restName1", 1d, 1d, new ArrayList<>(), 0),
+                new FireStoreRestaurant("restId2", "restName2", 2d, 2d, new ArrayList<>(), 0),
+                new FireStoreRestaurant("restId3", "restName3", 3d, 3d, new ArrayList<>(), 0),
+                new FireStoreRestaurant("restId4", "restName4", 4d, 4d, new ArrayList<>(), 0)
         );
         allKnownRestaurantsLD.setValue(restaurantList);
     }
@@ -190,22 +191,5 @@ public class MapFragmentViewModelTest {
         doReturn(2.5).when(location).getLongitude();
         currentGPSLocationLD.setValue(location);
     }
-
-    private void mockLastNearbyFetchedVisibleRegion() {
-        lastNearbyRestaurantsFetchVisibleRegionLD.setValue(
-                new VisibleRegion(
-                        new LatLng(1, 1),
-                        new LatLng(1, 4),
-                        new LatLng(4, 1),
-                        new LatLng(4, 4),
-                        new LatLngBounds(
-                                new LatLng(1, 1),
-                                new LatLng(4, 4)
-                        )
-                )
-        );
-
-    }
-
 
 }

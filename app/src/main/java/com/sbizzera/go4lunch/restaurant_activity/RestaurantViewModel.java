@@ -52,11 +52,11 @@ public class RestaurantViewModel extends ViewModel {
     }
 
     @NonNull
-    public LiveData<RestaurantActivityModel> getModelLiveData() {
+    LiveData<RestaurantActivityModel> getModelLiveData() {
         return modelLiveData;
     }
 
-    public void fetchRestaurantInfo(String id) {
+    void fetchRestaurantInfo(String id) {
         placeDetailLiveData = mGooglePlacesRepo.getRestaurantDetailsById(id);
         LiveData<Boolean> isRestaurantLikedByUserLiveData = mFirestoreRepo.isRestaurantLikedByUser(id, mAuthHelper.getUser().getUid());
         LiveData<Integer> restaurantLikeCountLiveData = mFirestoreRepo.getRestaurantLikesCount(id);
@@ -64,54 +64,54 @@ public class RestaurantViewModel extends ViewModel {
         LiveData<List<FireStoreUser>> todayListOfUsersLiveData = mFirestoreRepo.getTodayListOfUsers(id);
 
 
-        modelLiveData.addSource(placeDetailLiveData, place -> {
-            combineSources(
-                    place,
-                    isRestaurantLikedByUserLiveData.getValue(),
-                    restaurantLikeCountLiveData.getValue(),
-                    isRestaurantTodayUserChoiceLiveData.getValue(),
-                    todayListOfUsersLiveData.getValue()
-            );
-        });
+        modelLiveData.addSource(placeDetailLiveData, place ->
+                combineSources(
+                        place,
+                        isRestaurantLikedByUserLiveData.getValue(),
+                        restaurantLikeCountLiveData.getValue(),
+                        isRestaurantTodayUserChoiceLiveData.getValue(),
+                        todayListOfUsersLiveData.getValue()
+                )
+        );
 
-        modelLiveData.addSource(isRestaurantLikedByUserLiveData, isRestaurantLikedByUser -> {
-            combineSources(placeDetailLiveData.getValue(),
-                    isRestaurantLikedByUser,
-                    restaurantLikeCountLiveData.getValue(),
-                    isRestaurantTodayUserChoiceLiveData.getValue(),
-                    todayListOfUsersLiveData.getValue()
-            );
-        });
+        modelLiveData.addSource(isRestaurantLikedByUserLiveData, isRestaurantLikedByUser ->
+                combineSources(placeDetailLiveData.getValue(),
+                        isRestaurantLikedByUser,
+                        restaurantLikeCountLiveData.getValue(),
+                        isRestaurantTodayUserChoiceLiveData.getValue(),
+                        todayListOfUsersLiveData.getValue()
+                )
+        );
 
-        modelLiveData.addSource(restaurantLikeCountLiveData, restaurantLikeCount -> {
-            combineSources(
-                    placeDetailLiveData.getValue(),
-                    isRestaurantLikedByUserLiveData.getValue(),
-                    restaurantLikeCount,
-                    isRestaurantTodayUserChoiceLiveData.getValue(),
-                    todayListOfUsersLiveData.getValue()
-            );
-        });
+        modelLiveData.addSource(restaurantLikeCountLiveData, restaurantLikeCount ->
+                combineSources(
+                        placeDetailLiveData.getValue(),
+                        isRestaurantLikedByUserLiveData.getValue(),
+                        restaurantLikeCount,
+                        isRestaurantTodayUserChoiceLiveData.getValue(),
+                        todayListOfUsersLiveData.getValue()
+                )
+        );
 
-        modelLiveData.addSource(isRestaurantTodayUserChoiceLiveData, isRestaurantTodayUserChoice -> {
-            combineSources(
-                    placeDetailLiveData.getValue(),
-                    isRestaurantLikedByUserLiveData.getValue(),
-                    restaurantLikeCountLiveData.getValue(),
-                    isRestaurantTodayUserChoice,
-                    todayListOfUsersLiveData.getValue()
-            );
-        });
+        modelLiveData.addSource(isRestaurantTodayUserChoiceLiveData, isRestaurantTodayUserChoice ->
+                combineSources(
+                        placeDetailLiveData.getValue(),
+                        isRestaurantLikedByUserLiveData.getValue(),
+                        restaurantLikeCountLiveData.getValue(),
+                        isRestaurantTodayUserChoice,
+                        todayListOfUsersLiveData.getValue()
+                )
+        );
 
-        modelLiveData.addSource(todayListOfUsersLiveData, todayListOfUsers -> {
-            combineSources(
-                    placeDetailLiveData.getValue(),
-                    isRestaurantLikedByUserLiveData.getValue(),
-                    restaurantLikeCountLiveData.getValue(),
-                    isRestaurantTodayUserChoiceLiveData.getValue(),
-                    todayListOfUsers
-            );
-        });
+        modelLiveData.addSource(todayListOfUsersLiveData, todayListOfUsers ->
+                combineSources(
+                        placeDetailLiveData.getValue(),
+                        isRestaurantLikedByUserLiveData.getValue(),
+                        restaurantLikeCountLiveData.getValue(),
+                        isRestaurantTodayUserChoiceLiveData.getValue(),
+                        todayListOfUsers
+                )
+        );
     }
 
 
@@ -260,12 +260,7 @@ public class RestaurantViewModel extends ViewModel {
     }
 
     private Boolean isWebSiteClickable(String webSiteUrl) {
-        //check nulls
-        if (webSiteUrl == null) {
-            return false;
-        }
-        //if not return isClickable
-        return true;
+        return webSiteUrl != null;
     }
 
     private int getWebsiteBlockColor(String webSiteUrl) {
@@ -279,11 +274,8 @@ public class RestaurantViewModel extends ViewModel {
 
     private Boolean isPhoneClickable(String phoneNumber) {
         //check nulls
-        if (phoneNumber == null) {
-            return false;
-        }
+        return phoneNumber != null;
         //if not return isClickable
-        return true;
     }
 
     private int getPhoneBlockColor(String phoneNumber) {
@@ -310,29 +302,14 @@ public class RestaurantViewModel extends ViewModel {
 
 
     private String getPhotoUrlFromPhotoRef(DetailResult place) {
-        //check if either restaurant or photolist or firstPhoto not null
         if (place == null || place.getPhotosList() == null || place.getPhotosList().get(0) == null) {
             return null;
         }
-        //TODO how to implement this for testing without removing Uri.Builder that always returns null
-
-        //if not return the URL
         String photoRef = place.getPhotosList().get(0).getPhotoReference();
-//        return new Uri.Builder().scheme("https")
-//                .authority("maps.googleapis.com")
-//                .appendPath("maps")
-//                .appendPath("api")
-//                .appendPath("place")
-//                .appendPath("photo")
-//                .appendQueryParameter("maxwidth", "600")
-//                .appendQueryParameter("photoreference", photoRef)
-//                .appendQueryParameter("key", BuildConfig.GOOGLE_API_KEY)
-//                .toString();
-
         return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference=" + photoRef + "&key=" + BuildConfig.GOOGLE_API_KEY;
     }
 
-    public void handleWebSiteClick() {
+    void handleWebSiteClick() {
         if (modelLiveData.getValue() != null) {
             Uri webpage = Uri.parse(modelLiveData.getValue().getWebSiteUrl());
             Intent intent = new Intent(Intent.ACTION_VIEW, webpage).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -342,7 +319,7 @@ public class RestaurantViewModel extends ViewModel {
         }
     }
 
-    public void handlePhoneClick() {
+    void handlePhoneClick() {
         if (modelLiveData.getValue() != null) {
             Intent intent = new Intent(Intent.ACTION_DIAL).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setData(Uri.parse("tel:" + modelLiveData.getValue().getPhoneNumber()));
@@ -352,14 +329,14 @@ public class RestaurantViewModel extends ViewModel {
         }
     }
 
-    public void handleLikeClick() {
+    void handleLikeClick() {
         //check that a restaurant has been fetch
         if (placeDetailLiveData.getValue() != null) {
             mFirestoreRepo.updateRestaurantLike(placeDetailLiveData.getValue(), mAuthHelper.getUser().getUid());
         }
     }
 
-    public void handleFabClick() {
+    void handleFabClick() {
         //check that a restaurant has been fetch
         if (placeDetailLiveData.getValue() != null) {
             mFirestoreRepo.updateRestaurantChoice(placeDetailLiveData.getValue(), mAuthHelper.getUser());
