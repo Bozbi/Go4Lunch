@@ -39,6 +39,7 @@ import com.sbizzera.go4lunch.events.RestaurantClickedListenable;
 import com.sbizzera.go4lunch.list_fragment.ListFragment;
 import com.sbizzera.go4lunch.main_activity.models.MainActivityModel;
 import com.sbizzera.go4lunch.map_fragment.MapFragment;
+import com.sbizzera.go4lunch.recipe_fragment.RecipeFragment;
 import com.sbizzera.go4lunch.restaurant_activity.RestaurantActivity;
 import com.sbizzera.go4lunch.utils.Go4LunchUtils;
 import com.sbizzera.go4lunch.utils.ViewModelFactory;
@@ -105,9 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     finish();
                     break;
                 }
-
             }
-
         });
         mViewModel.getViewActionYourLunch().observe(this, yourLunchModel -> {
             YourLunchDialogFragment dialog = YourLunchDialogFragment.newInstance(yourLunchModel);
@@ -185,6 +184,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.bottom_nav_workmates_item:
                 loadFragment(WorkmatesFragment.newInstance());
+                searchBar.setVisible(false);
+                break;
+            case R.id.bottom_nav_receipe_item:
+                loadFragment(RecipeFragment.Companion.newInstance());
                 searchBar.setVisible(false);
                 break;
             case R.id.drawer_your_lunch:

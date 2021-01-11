@@ -1,5 +1,7 @@
 package com.sbizzera.go4lunch.repositories.google_places;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -15,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import bolts.AppLinkNavigation;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -64,6 +67,7 @@ public class GooglePlacesRepo {
                     if (map.get(restaurant.getId()) == null) {
                         map.put(restaurant.getId(), restaurant);
                     }
+
                 }
                 List<NearbyPlace> listToReturn = new ArrayList<>(map.values());
                 nearbyRestaurantListLiveData.postValue(listToReturn);
@@ -89,6 +93,7 @@ public class GooglePlacesRepo {
             if (response.body() != null && response.body().getDetailResult() != null) {
                 placeDetail = response.body().getDetailResult();
                 mRestaurantsDetailsMapCached.put(id, placeDetail);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -118,6 +123,7 @@ public class GooglePlacesRepo {
             @Override
             @EverythingIsNonNull
             public void onFailure(Call<DetailsResponse> call, Throwable t) {
+
                 restaurantDetailsLiveData.postValue(null);
             }
         });

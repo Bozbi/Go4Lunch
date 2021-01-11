@@ -8,7 +8,4 @@
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
             />
-
-
-
 </menu>

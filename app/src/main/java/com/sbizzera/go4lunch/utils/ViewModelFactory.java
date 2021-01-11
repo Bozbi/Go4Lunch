@@ -12,6 +12,10 @@ import com.sbizzera.go4lunch.App;
 import com.sbizzera.go4lunch.list_fragment.ListFragmentViewModel;
 import com.sbizzera.go4lunch.main_activity.MainActivityViewModel;
 import com.sbizzera.go4lunch.map_fragment.MapFragmentViewModel;
+
+import com.sbizzera.go4lunch.recipe_fragment.RecipeFragmentViewModel;
+import com.sbizzera.go4lunch.recipe_fragment.RecipeRepo;
+import com.sbizzera.go4lunch.recipe_fragment.SchedulerProvider;
 import com.sbizzera.go4lunch.repositories.CurrentGPSLocationRepo;
 import com.sbizzera.go4lunch.repositories.PermissionRepo;
 import com.sbizzera.go4lunch.repositories.SharedPreferencesRepo;
@@ -85,6 +89,12 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
                     FireStoreRepo.getInstance(),
                     SortTypeChosenRepo.getInstance(),
                     App.getApplication()
+            );
+        }
+        if (modelClass.isAssignableFrom(RecipeFragmentViewModel.class)) {
+            return (T) new RecipeFragmentViewModel(
+                    RecipeRepo.Companion.getInstance(),
+                    new SchedulerProvider()
             );
         }
         throw new IllegalArgumentException("Unknown ViewModel class");

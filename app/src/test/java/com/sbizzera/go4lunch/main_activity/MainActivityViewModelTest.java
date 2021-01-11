@@ -99,6 +99,7 @@ public class MainActivityViewModelTest {
     }
 
     @Test
+
     public void shouldMapCorrectlyDataToMainActivityModel() throws InterruptedException {
         //Given
         notificationStatusLD.setValue(true);
@@ -167,7 +168,6 @@ public class MainActivityViewModelTest {
         expectedException.expect(RuntimeException.class);
         expectedException.expectMessage("LiveData value was never set.");
         LiveDataTestUtil.getOrAwaitValue(viewModel.getmViewActionLaunchRestaurantDetailsLE());
-
     }
 
     @Test
